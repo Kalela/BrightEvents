@@ -1,10 +1,10 @@
 
 import unittest
 
-from app import event
-from app import user
+from entities import Events
+from entities import Users
 
-class ApiTest(unittest.Testcase):
+class ApiTest(unittest.TestCase):
     def setUp(self):
         self.api_yangu = my_apis()
 

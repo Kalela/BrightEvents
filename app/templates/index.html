@@ -8,7 +8,7 @@
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
 
 
 </head>
@@ -26,16 +26,16 @@
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
              <li class="active">
-                 <a href="index.html">Home</a>
+                 <a href="/">Home</a>
              </li>
              <li>
                  <a href="aboutus.html">About</a>
              </li>
              <li>
-                 <a href="login.html">Log In</a>
+                 <a href="/api/v1/auth/login">Log In</a>
              </li>
              <li>
-                 <a href="register.html">Sign Up</a>
+                 <a href="/api/v1/auth/register">Sign Up</a>
              </li>
          </ul>
          </div>

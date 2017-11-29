@@ -1,26 +1,30 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
 
-<!DOCTYPE html>
-<html>
-<head>
+{% block styles%}
+{{super()}}
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/loginstyles.css">
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/loginstyles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
+{% endblock %}
 
-<title>Log In</title>
+{% block title %}
+Log In
+{% endblock %}
 
-</head>
-<body>
+
+{% block content %}
 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     
     
  <nav class="navbar navbar-default">
     <div class="navbar-header">
-     <a href="index.html" class="navbar-brand">EventHub</a>
+     <a href="/" class="navbar-brand">EventHub</a>
      </div>
     </nav>   
     
@@ -32,25 +36,16 @@
         <div class="g">
         <h1 class="head">Log In</h1>
         <p></p>
-            <form action="#" class="login">
-            <div class="input-group h">
-                <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
-                <input type="text" class="form-control" placeholder="Username">
-                </div>
-                
-                <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
-                <input type="password" class="form-control" placeholder="Password">
-                </div>
+            <form action="/api/v1/auth/login" class="form-signin" method="POST">
+                {{ form.hidden_tag() }}
+                {{ wtf.form_field(form.username)}}
+                {{ wtf.form_field(form.password)}}
+
                 <a href="dashboard.html">
                 <button class="btn btn-info">Log In</button></a>
-                <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+                <p>Don't have an account? <a href="/api/v1/auth/register">Sign Up</a></p>
             </form>
         </div>
     </div> 
     </div>
-    
-
-  
-</body>
-</html>
+{% endblock %}

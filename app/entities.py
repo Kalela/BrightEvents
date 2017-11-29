@@ -4,6 +4,12 @@ class Events(object):
 
 
 class Users(object):
+    username = ''
+    password = ''
 
-	def _init_(username):
-		pass
+        
+    def saveuser(self, username, password):
+        self.password = password
+        self.username = username
+        
+        return password, username
