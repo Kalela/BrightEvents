@@ -1,7 +1,7 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf%}
 
-{% block styles%}
+{% block styles %}
 {{super()}}
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
@@ -41,9 +41,11 @@ Log In
                 {{ wtf.form_field(form.username)}}
                 {{ wtf.form_field(form.password)}}
 
-                <a href="dashboard.html">
-                <button class="btn btn-info">Log In</button></a>
+                
+                <button class="btn btn-info">Log In</button>
                 <p>Don't have an account? <a href="/api/v1/auth/register">Sign Up</a></p>
+                <p>Forgot Password?<a href="/api/v1/auth/reset-password">Reset-password</a></p>
+                
             </form>
         </div>
     </div> 

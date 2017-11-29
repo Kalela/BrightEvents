@@ -36,17 +36,17 @@ Registration
         <div class="g">
         <h1 class="head">Sign Up</h1>
         <p></p>
-            <form action="#" class="login">
+            <form action="#" class="login" method="POST">
                 {{ form.hidden_tag() }}
                 {{ wtf.form_field(form.email)}} 
                 {{ wtf.form_field(form.firstname)}}
                 {{ wtf.form_field(form.secondname)}}
                 {{ wtf.form_field(form.username)}}
                 {{ wtf.form_field(form.password)}}
+
                 
-                <form href="/api/v1/auth/login">
                 <button class="btn btn-info">Sign Up</button>
-                </form>
+                
                 <p>Already have an Account? <a href="/api/v1/auth/login">Log In</a></p>
             </form>
         </div>
