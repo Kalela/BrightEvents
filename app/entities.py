@@ -1,7 +1,15 @@
 class Events(object):
-    def _init_(date):
-    	pass
+    eventname = ''
+    eventlocation = ''
+    eventdate = ''
+    
+    def saveevent(self, eventname, eventlocation, eventdate):
+        return eventname, eventlocation, eventdate
 
+    def deleteevent(self, eventname, eventlocation, eventdate ):
+        eventname = ''
+        eventlocation = ''
+        eventdate = ''
 
 class Users(object):
     username = ''
@@ -13,3 +21,8 @@ class Users(object):
         self.username = username
         
         return password, username
+    
+    
+
+
+

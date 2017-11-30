@@ -36,11 +36,13 @@ New Event
         <div class="g">
         <h1 class="head">Create New</h1>
         <p></p>
-            <form action="#" class="login" method="POST">
+            <form action="#" class="login" method="PUT">
                 {{ form.hidden_tag() }}
                 {{ wtf.form_field(form.eventname)}} 
                 {{ wtf.form_field(form.eventdate)}}
                 {{ wtf.form_field(form.eventlocation)}}
+                
+                <button class="btn btn-info">Create</button>
                 
             </form>
         </div>
