@@ -8,7 +8,6 @@
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/dashboard.css') }}">
 {% endblock %}
 
@@ -33,7 +32,7 @@ Dashboard
                  <a href="/">Home</a>
              </li>
              <li>
-                 <a href="aboutus.html">About</a>
+                 <a href="/api/v1/about/">About</a>
              </li>
              <li>
                  <a href="/api/v1/auth/login">Log In</a>
@@ -55,7 +54,7 @@ Dashboard
         <div class="col-md-3">
             <div class="profil-sidebar">
             <div class="profile-user-pic">
-                <img src="https://www.1plusx.com/app/mu-plugins/all-in-one-seo-pack-pro/images/default-user-image.png">
+                <img src="https://www.1plusx.com/app/mu-plugins/all-in-one-seo-pack-pro/images/default-user-image.png" class="img-responsive img-circle">
                 </div>
                 <div class="profile-user-title">
                 <div class="profile-user-name">
@@ -71,43 +70,22 @@ Dashboard
                     </button>
                     
                 </div>
-                <div class="profile-use-menu">
+                <div class="profile-user-menu">
                 <ul class="nav">
-                    <li class="active"><a href=""><i class="glyphicon glyphicon-home"></i>Overview</a></li>
-                    <li><a href=""><i class="glyphicon glyphicon-user"></i>Account Status</a></li>
-                    <li><a href=""><i class="glyphicon glyphicon-calendar"></i>My Events</a></li>
-                    <li><a href=""><i class="glyphicon glyphicon-flag"></i>Help</a></li>
+                    <li class="active"><a href=""><i class="glyphicon glyphicon-home"></i>  Overview</a></li>
+                    <li><a href=""><i class="glyphicon glyphicon-user"></i>  Account Status</a></li>
+                    <li><a href=""><i class="glyphicon glyphicon-calendar"></i>  My Events</a></li>
+                    <li><a href=""><i class="glyphicon glyphicon-flag"></i>  Help</a></li>
                     
                     </ul>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-<div class="container">
-<div class="jumbotron">
-  <div class="container">
-    <div class="row">
+        <div class="row">
         <div class="col-sm-6">
-          <h2>My Events</h2>
              <div class="panel-group">
               <div class="panel panel-default">
-                 <div class="panel-body">
-                  {{ myEvent }}
-                  </div>
-                  <a href="/api/v1/new_event/"><button class="btn btn-primary btn-xs">
-                    Add Event
-                    </button></a>
-
-                 </div>
-            </div>
-        </div> 
-    </div>
-          <div class="row">
-        <div class="col-sm-6">
-          <h2>Popular Events</h2>
-             <div class="panel-group">
-              <div class="panel panel-default">
+                  <h2>Popular Events</h2>
                  <div class="panel-body">
                   Mt. Kenya Marathon(Event 1)<button class="btn btn-danger btn-xs">
                     Send RSVP
@@ -135,12 +113,37 @@ Dashboard
                   </div>
                  </div>
             </div>
-        </div> 
+        </div>
     </div>
+    <div class="col-md-9">
+    <div class="container">
+
+  <div class="container">
+        <div class="col-sm-6">
+          <h2>My Events</h2>
+                  {{ eventid }}       
+                  <a href="/api/v1/new_event/"><button class="btn btn-primary btn-xs">
+                    Add Event
+                    </button></a>           
+        </div> 
+           
+    </div>
+    <div class="container">
+    <div class="col-sm-6">
+      <h2>My RSVPs</h2>
+              {{ rsvps }}       
+              <a href="/api/v1/new_event/"><button class="btn btn-danger btn-xs">
+                Remove
+                </button></a>           
+    </div> 
+
+</div>
   </div>
 </div>      
 
 </div>
+    </div>
+
 
 {% endblock %}
     

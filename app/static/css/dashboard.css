@@ -1,0 +1,94 @@
+
+body{
+    font-family: 'Lato', sans-serif;
+}
+.navbar{
+    margin-bottom: 0;
+    background-color: #6B8175;
+    border: 0;
+    border-radius: 0;
+    font-size: 18px !important;
+    letter-spacing: 1px;
+}
+.navbar li a,.navbar .navbar-brand{
+    color: #fff !important;
+    background-color: #43304C !important;
+        
+}
+.navbar-default .navbar-toggle{
+    background-color: transparent;
+    color: #fff;
+}
+.profile{
+    margin: 20px 0
+}
+.profile-sidebar{
+    padding: 20px 0 10px 0;
+    background: #fff;
+}
+.profile-user-pic{
+    float: none;
+    margin: 0 auto;
+    width: 50%;
+    height: 50%;
+}
+.profile-user-title{
+    text-align: center;
+    margin-top: 20px;
+}
+.profile-user-name{
+    color: #5a73a1;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+.profile-user-buttons{
+    text-align: center;
+    margin-top: 10px;
+}
+.btn{
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 15px;
+    margin-right: 5px;
+}
+.btn:last-child{
+    margin-right: 0;
+}
+.profile-user-menu{
+    margin-top: 30px;
+    
+}
+ul li{
+    border-bottom: 2px solid #f0f4f7 !important;
+}
+.profile-user-menu ul li a{
+    color: #93a3b5;
+    font-size: 14px;
+    font-weight: 400;
+}
+.profile-user-menu ul li a i{
+    margin-right: 8px;
+    font-size: 16px;
+}
+.profile-user-menu ul li a i:hover{
+    background-color: azure;
+    color: aqua;
+}
+li.active a{
+    color: #5babd1;
+    background-color: fff;
+    border-left: 2px solid #5babd1;
+    margin-left: -3px;
+}
+.profile-content{
+    padding: 20px;
+    background: #fff;
+    min-height: 460px;
+}
+.panel{
+    margin-top: 50px;
+    margin-left: 200px;
+
+}

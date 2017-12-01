@@ -78,8 +78,8 @@ class my_apis(object):
         
         
         
-    @app.route('/api/v1/auth/dashboard/<username>', methods=['POST', 'GET'])
-    def dashboard(usename):
+    @app.route('/api/v1/auth/dashboard', methods=['POST', 'GET'])
+    def dashboard():
         return render_template('dashboard.html')
     
     
