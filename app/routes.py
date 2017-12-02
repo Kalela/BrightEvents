@@ -5,6 +5,7 @@ from app import app
 
 users =[{'kalela':'Kalela'},{'khal':'khal'},{'user':'password'}]
 events=[{'eventid':'Naiconn'},{'eventid':'Safaricom Sevens'},{'eventid':'Python Leaders Summit'}]
+user_events=[]
 
 class my_apis():
     #Works
@@ -39,48 +40,61 @@ class my_apis():
         #{'username':'kalela'}
 
 
-
+    #Does't work yet
     @app.route('/api/v2/auth/reset-password',methods=['POST'])
     def reset_password_json():
         if 'username' in session:
-            session_name = jsonify(session['username'])
-            reset = jsonify('empty')
-            user[session_name]=reset['password']
+            session_name = session['username']
+            reset = 'empty'
+            users[session_name]=reset
             
             return jsonify(users[session_name])
+    #Password is always reset to 'empty'        
+
+
+    #Works
+    @app.route('/api/v2/events/',methods=['POST','GET'])
+    def events_json():
+        if request.method=='POST':
+            if 'username' in session:
+                location={}
+                location= {request.json['location'],request.json['date']}
+                event={}
+                event[request.json['eventid']]=str(location)
+
+                if event in events:
+                    return jsonify("Event is already added")
+                else:   
+                    events.append(event)
+                    user_events.append(event)
+                    return jsonify({'events':events},{"user events":user_events}),201
+            else:
+                 return jsonify("Please Log In to add events")
+        if request.method=='GET':
+            return jsonify ({'events':events}),200
             
 
 
-    #Works
-    @app.route('/api/v2/events/',methods=['POST'])
-    def new_event_json():
-        
-        event = {'eventid':request.json['eventid']}#put in condition to check bad input. test and see error
-        #use session to attach user to their events
-        #add event info...location,etc
-        events.append(event)
-        return jsonify({'events':events},201,)
 
-
-    #Works, remember double quotes
-    @app.route('/api/v2/events/<eventid>',methods=['PUT'])
+    #Works, but buggy
+    @app.route('/api/v2/events/<eventid>',methods=['PUT','DELETE'])
     def event_update_json(eventid):#check if event exists
-        evnts = [event for event in events if event['eventid']==eventid]
-        evnts[0]['eventid'] = request.json['eventid']
-        
-        return jsonify({'event':evnts[0]},201)
+#        if eventid==events['eventid']:
+            if request.method=='PUT':          
+                    evnts = [event for event in events if event['eventid']==eventid]
+                    evnts[0]['eventid'] = request.json['eventid'],request.json['location'],request.json['date']
 
-    #Works
-    @app.route('/api/v2/events/<eventid>',methods=['DELETE'])
-    def event_delete_json(eventid):#check if event exists first
-        evnt = [event for event in events if event['eventid']==eventid]
-        events.remove(evnt[0])
-        return jsonify({"events":events})
-
-    #Works. Merge with 'Post' /api/v2/events/
-    @app.route('/api/v2/events', methods=['GET'])
-    def event_page_json():
-        return jsonify ({'events':events},200)
+                    return jsonify({'event':evnts[0]},201)
+               
+            if request.method=='DELETE':
+                        evnt = [event for event in events if event['eventid']==eventid]
+            events.remove(evnt[0])
+#            return jsonify({"events":events})
+         
+#        else:
+#            return jsonify("Please edit or delete an existing event")
+  
+ 
 
     #Works
     @app.route('/api/v2/events/<eventid>/rsvp', methods=['POST'])

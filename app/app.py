@@ -95,7 +95,8 @@ class my_apis(object):
     def dashboard():
         logout='Login'
         name='Guest'
-        return render_template('dashboard.html', logout=logout,name=name)
+        my_events=event_object.events
+        return render_template('dashboard.html', logout=logout,name=name,my_events=my_events)
     
     
     
@@ -112,19 +113,20 @@ class my_apis(object):
     def new_event():
         form = EventForm()
         if request.method=='POST':
-            eventid=form.eventname.data
-            directions=form.eventlocation.data
-            date=form.eventdate.data
+            
+                eventid=form.eventname.data
+                directions=form.eventlocation.data
+                date=form.eventdate.data
 
-            location={}
-            location[str(directions)]=str(date)
-            event={}
-            event[str(eventid)]=str(location)
-            if 'username' in session:
-                event_object.events.append(event) 
-                return render_template('event_view.html',eventid=eventid,directions=directions,date=date)
-            else:
-                flash("Please Sign In or Sign Up")
+                location={}
+                location[str(directions)]=str(date)
+                event={}
+                event[str(eventid)]=str(location)
+                if 'username' in session:
+                    event_object.events.append(event) 
+                    return render_template('event_view.html',eventid=eventid,directions=directions,date=date)
+                else:
+                    flash("Please Sign In or Sign Up")
 
         if request.method=='GET':
             return render_template('new_event.html', form=form)
