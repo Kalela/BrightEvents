@@ -43,7 +43,9 @@ class my_apis():
     @app.route('/api/v2/auth/reset-password',methods=['POST'])
     def reset_password_json():
         if 'username' in session:
-            session_name = session['username']
+            session_name = jsonify(session['username'])
+            reset = jsonify('empty')
+            user[session_name]=reset['password']
             
             return jsonify(users[session_name])
             
@@ -52,12 +54,12 @@ class my_apis():
     #Works
     @app.route('/api/v2/events/',methods=['POST'])
     def new_event_json():
+        
         event = {'eventid':request.json['eventid']}#put in condition to check bad input. test and see error
         #use session to attach user to their events
         #add event info...location,etc
-
         events.append(event)
-        return jsonify({'events':events},201)
+        return jsonify({'events':events},201,)
 
 
     #Works, remember double quotes

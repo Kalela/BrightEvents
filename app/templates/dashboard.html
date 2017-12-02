@@ -28,6 +28,10 @@ Dashboard
         </div>
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
+             <li>
+                 <a href="/api/v1/auth/login">{{ logout }}</a>
+             </li>
+
              <li class="active">
                  <a href="/">Home</a>
              </li>
@@ -58,7 +62,7 @@ Dashboard
                 </div>
                 <div class="profile-user-title">
                 <div class="profile-user-name">
-                    {{ name }}
+                    <p>Welcome, </p>{{ name }}
                     </div>
                 </div>
                 <div class="profile-user-buttons">
@@ -121,8 +125,8 @@ Dashboard
   <div class="container">
         <div class="col-sm-6">
           <h2>My Events</h2>
-                  {{ eventid }}       
-                  <a href="/api/v1/new_event/"><button class="btn btn-primary btn-xs">
+                   {{ eventid }}       
+                  <a href="/api/v1/new_event"><button class="btn btn-primary btn-xs">
                     Add Event
                     </button></a>           
         </div> 
@@ -132,7 +136,7 @@ Dashboard
     <div class="col-sm-6">
       <h2>My RSVPs</h2>
               {{ rsvps }}       
-              <a href="/api/v1/new_event/"><button class="btn btn-danger btn-xs">
+              <a href=""><button class="btn btn-danger btn-xs">
                 Remove
                 </button></a>           
     </div> 

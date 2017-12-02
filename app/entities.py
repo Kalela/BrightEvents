@@ -1,31 +1,8 @@
-class Events(object):
-    eventname = ''
-    eventlocation = ''
-    eventdate = ''
-    
-    
-    def saveevent(self, eventname, eventlocation, eventdate):
-        return eventname, eventlocation, eventdate
 
-    def deleteevent(self, eventname, eventlocation, eventdate ):
-        eventname = ''
-        eventlocation = ''
-        eventdate = ''
+
+class Events(object):
+    events=[{'Naiconn':{"Nairobi":"04/04/2018"}},{'Jamhuri Day':{"Nairobi":"12/12/2017"}},{'Christmas Party':{"Nairobi, Dohnholm":"12/25/2017"}}]
+    
 
 class Users(object):
-    username = ''
-    password = ''
-    
-        
-    def saveuser(self, username, password):
-        self.password = password
-        self.username = username
-        
-        return password, username
-    
-    
-
-
-
-
-
+    users=[{'kalela':'Kalela'},{'khal':'khal'},{'user':'password'}]

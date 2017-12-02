@@ -76,11 +76,6 @@ ul li{
     background-color: azure;
     color: aqua;
 }
-li.active a{
-    color: #5babd1;
-    background-color: fff;
-    border-left: 2px solid #5babd1;
-    margin-left: -3px;
 }
 .profile-content{
     padding: 20px;
@@ -91,4 +86,8 @@ li.active a{
     margin-top: 50px;
     margin-left: 200px;
 
+}
+.flashes{
+    margin-top: 300px;
+    margin-left: 20px;
 }
