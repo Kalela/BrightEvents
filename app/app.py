@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request,flash,session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users
 from entities import Events
 import requests
@@ -22,6 +22,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     email = StringField('Email', validators=[InputRequired(),Email('Invalid Email')])
     password = PasswordField('Password',validators=[InputRequired()])
+    #confirm = PasswordField('Repeat Password')
 
 class EventForm(FlaskForm):
     eventname = StringField('Eventname', validators=[InputRequired()])
@@ -62,18 +63,17 @@ class my_apis(object):
         
 
     @app.route('/api/v1/auth/login',methods=['POST', 'GET'])
-    def login():#add name feature
+    def login():
         form = LoginForm()
         if request.method == 'POST':  
             name=form.username.data
             pword=form.password.data
-            logout='Logout'
+            logout=user.logout
             usr_login={}
             
             usr_login[str(name)]=str(pword)
             if usr_login in user.users:
                 session['username']=str(name)
-#                session['password'] = password
                 return render_template('dashboard.html',name=name,logout=logout), 200
             else:
                 flash("Please Review Login form or Sign Up")
@@ -93,10 +93,15 @@ class my_apis(object):
                  
     @app.route('/api/v1/auth/dashboard', methods=['POST', 'GET'])
     def dashboard():
-        logout='Login'
-        name='Guest'
-        my_events=event_object.events
-        return render_template('dashboard.html', logout=logout,name=name,my_events=my_events)
+        if 'username' in session:
+            logout=user.logout
+            name=session['username']
+            
+            return render_template('dashboard.html', logout=logout,name=name)
+        else:
+            logout=user.login
+            name=user.guest
+            return render_template('dashboard.html', logout=logout,name=name)
     
     
     
@@ -113,20 +118,24 @@ class my_apis(object):
     def new_event():
         form = EventForm()
         if request.method=='POST':
-            
                 eventid=form.eventname.data
                 directions=form.eventlocation.data
                 date=form.eventdate.data
 
                 location={}
-                location[str(directions)]=str(date)
-                event={}
-                event[str(eventid)]=str(location)
+                location[str(directions)]=str(eventid)
+                dte={}
+                dte[str(date)]=str(location)
                 if 'username' in session:
-                    event_object.events.append(event) 
-                    return render_template('event_view.html',eventid=eventid,directions=directions,date=date)
+                    name=session['username']
+                    event_object.events.append(dte) 
+
+                    return render_template('dashboard.html',eventid=eventid,directions=directions,date=date,name=name)
                 else:
+                    logout=user.logout
+                    name=user.guest
                     flash("Please Sign In or Sign Up")
+                    return render_template('dashboard.html', logout=logout,name=name)
 
         if request.method=='GET':
             return render_template('new_event.html', form=form)
@@ -135,10 +144,9 @@ class my_apis(object):
     
     @app.route('/api/v1/events/view',methods=['GET','POST','PUT','DELETE'])
     def event_view():
-        form=EventForm()
-        eventid=form.eventname.data
+        events=event_object.events
         if request.method == 'GET':
-            return render_template('event_view.html', eventid=eventid,form=form)
+            return render_template('event_view.html', events=events)
 
     
 

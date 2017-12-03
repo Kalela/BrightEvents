@@ -6,3 +6,6 @@ class Events(object):
 
 class Users(object):
     users=[{'kalela':'Kalela'},{'khal':'khal'},{'user':'password'}]
+    login = ""
+    logout = "Logout"
+    guest = "Guest"

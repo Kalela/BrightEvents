@@ -1,6 +1,11 @@
 
 body{
     font-family: 'Lato', sans-serif;
+    background-image:url('https://image.ibb.co/fn0M2w/nastuh_abootalebi_284882.jpg');
+    background-position: center;
+    background-color: #43304C;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .navbar{
     margin-bottom: 0;

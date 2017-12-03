@@ -4,7 +4,7 @@ from flask import Flask,jsonify,request,session
 from app import app
 
 users =[{'kalela':'Kalela'},{'khal':'khal'},{'user':'password'}]
-events=[{'eventid':'Naiconn'},{'eventid':'Safaricom Sevens'},{'eventid':'Python Leaders Summit'}]
+events=[]
 user_events=[]
 
 class my_apis():
@@ -40,15 +40,21 @@ class my_apis():
         #{'username':'kalela'}
 
 
-    #Does't work yet
+    #Works
     @app.route('/api/v2/auth/reset-password',methods=['POST'])
     def reset_password_json():
         if 'username' in session:
-            session_name = session['username']
-            reset = 'empty'
-            users[session_name]=reset
+            user={}
+            user[request.json['username']]=request.json['password']
+            user[request.json['username']]=request.json['new_password']
+            if user in users:
+                new_password=user['password']
+                return jsonify("Password changed"),201
+            else:
+                return jsonify("Input Bad")
+        else:
+            return jsonify("Please log in")
             
-            return jsonify(users[session_name])
     #Password is always reset to 'empty'        
 
 
@@ -75,8 +81,6 @@ class my_apis():
             
 
 
-
-    #Works, but buggy
     @app.route('/api/v2/events/<eventid>',methods=['PUT','DELETE'])
     def event_update_json(eventid):#check if event exists
 #        if eventid==events['eventid']:

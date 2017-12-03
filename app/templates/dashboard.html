@@ -29,7 +29,7 @@ Dashboard
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
              <li>
-                 <a href="/api/v1/auth/login">{{ logout }}</a>
+                 <a href="/api/v1/auth/logout">{{ logout }}</a>
              </li>
 
              <li class="active">
@@ -74,11 +74,11 @@ Dashboard
                     </button>
                     
                 </div>
-                <div class="profile-user-menu">
+               <div class="profile-user-menu">
                 <ul class="nav">
                     <li class="active"><a href=""><i class="glyphicon glyphicon-home"></i>  Overview</a></li>
                     <li><a href=""><i class="glyphicon glyphicon-user"></i>  Account Status</a></li>
-                    <li><a href=""><i class="glyphicon glyphicon-calendar"></i>  My Events</a></li>
+                    <li><a href="/api/v1/events/view"><i class="glyphicon glyphicon-calendar"></i>  My Events</a></li>
                     <li><a href=""><i class="glyphicon glyphicon-flag"></i>  Help</a></li>
                     
                     </ul>
@@ -125,7 +125,12 @@ Dashboard
   <div class="container">
         <div class="col-sm-6">
           <h2>My Events</h2>
-                   {{ my_events }}       
+            <table>
+                <tr>
+                <h6>Event Name</h6>
+                {{ eventid }},{{ directions }},{{ date }}
+                </tr>
+            </table>     
                   <a href="/api/v1/new_event"><button class="btn btn-primary btn-xs">
                     Add Event
                     </button></a>           

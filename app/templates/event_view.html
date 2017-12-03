@@ -10,7 +10,44 @@
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
 <link type="stylesheet" href="main.css">
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
+<style type="text/css">
+    h1{
+        color: #fff;
+    }
+    html,
+    body{
+        font-family: 'Lato', sans-serif;
+        background-position: center;
+        background-color: #43304C;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+    }
+    .container{
+        padding: 0 70px;
+    }
+    .navbar{
+        margin-bottom: 0;
+        background-color: #6B8175;
+        border: 0;
+        border-radius: 0;
+        font-size: 18px !important;
+        letter-spacing: 1px;
+    }
+    .navbar li a,.navbar .navbar-brand{
+        color: #fff !important;
+        background-color: #43304C !important;
+
+    }
+    .navbar-default .navbar-toggle{
+        background-color: transparent;
+        color: #fff;
+    }
+    .jumbotron{
+        opacity: 0.8;
+    }
+
+</style>
 {% endblock %}
 
 {% block title %}
@@ -59,9 +96,7 @@
   <div class="container">
     <div class="row">
         <div class="col-sm-6">
-          <h1>{{ eventid }}</h1>
-          <h2>{{ directions }}</h2>
-          <h3>{{ date }} </h3>
+          <h1>{{ events }}</h1>
 
             <a href="login.html" title="Registration">
            
