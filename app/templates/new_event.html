@@ -28,7 +28,15 @@ New Event
      </div>
     </nav>   
     
-    
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}  
     
 
 <div class="container">
@@ -36,7 +44,7 @@ New Event
         <div class="g">
         <h1 class="head">Create New</h1>
         <p></p>
-            <form action="#" class="login" method="PUT">
+            <form action="/api/v1/new_event" class="login" method="POST">
                 {{ form.hidden_tag() }}
                 {{ wtf.form_field(form.eventname)}} 
                 {{ wtf.form_field(form.eventdate)}}
