@@ -4,7 +4,7 @@ Event Hub is an offshoot website of of Bright Events collaborative development t
 
 Build Status
 ------------
-Build failing. API logic still in development.
+Build running. Checking for bugs.
 
 Code Style
 ----------
@@ -58,8 +58,16 @@ Your good to go.
 
 Tests
 =====
-You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints.
-_Coming Soon_
+_You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
+    1.Start the api server through your terminal by running _python routes.py_
+    2.Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
+    ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
+    ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
+    ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
+    ![Postman](https://image.ibb.co/hpNUnw/Screenshot_118.png "Api Tests")
+    
+   
+
 Files like entities_test.py and app_test.py run TDD tests on their corresponding python files.
 _Coming Soon_
 
