@@ -12,11 +12,10 @@ Standard PEP-8.
 
 Screenshots of Latest Build
 ---------------------------
-![Welcome Screen](https://image.ibb.co/dFuCPb/Screenshot_94.png "Bright Events")
-![About Us](https://image.ibb.co/kpCcqG/Screenshot_95.png "Bright Events")
-![Login Screen](https://image.ibb.co/mtECPb/Screenshot_96.png "Bright Events")
-![Sign Up screen](https://image.ibb.co/jC9OVG/Screenshot_97.png "Bright Events")
-![Public Event Wall](https://image.ibb.co/n54OVG/Screenshot_98.png "Bright Events")
+![Welcome Screen](https://image.ibb.co/btMLEb/Screenshot_124.png "Bright Events")
+![Login Screen](https://image.ibb.co/eQYp7w/Screenshot_126.png "Bright Events")
+![Sign Up screen](https://image.ibb.co/h4VrLG/Screenshot_125.png "Bright Events")
+
 
 Tech and FrameWork used
 -----------------------
