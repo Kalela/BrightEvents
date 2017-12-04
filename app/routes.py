@@ -81,6 +81,8 @@ class my_apis():
             
 
 
+
+    #Works, but buggy
     @app.route('/api/v2/events/<eventid>',methods=['PUT','DELETE'])
     def event_update_json(eventid):#check if event exists
 #        if eventid==events['eventid']:
