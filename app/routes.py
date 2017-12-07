@@ -1,7 +1,6 @@
 #contains RESTful apis
 from flask import Flask,jsonify,request,session
 
-from app import app
 
 users =[{'kalela':'Kalela'},{'khal':'khal'},{'user':'password'}]
 events=[]
@@ -82,7 +81,7 @@ class my_apis():
 
 
 
-    #Works, but buggy
+    #Fails
     @app.route('/api/v2/events/<eventid>',methods=['PUT','DELETE'])
     def event_update_json(eventid):#check if event exists
 #        if eventid==events['eventid']:
@@ -90,7 +89,7 @@ class my_apis():
                     evnts = [event for event in events if event['eventid']==eventid]
                     evnts[0]['eventid'] = request.json['eventid'],request.json['location'],request.json['date']
 
-                    return jsonify({'event':evnts[0]},201)
+                    return jsonify({'event':evnts[0]}),201
                
             if request.method=='DELETE':
                         evnt = [event for event in events if event['eventid']==eventid]
