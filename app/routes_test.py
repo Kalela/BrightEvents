@@ -1,8 +1,8 @@
 import unittest
 import requests
 
-from routes import app
 from routes import my_apis
+from routes import app
 from entities import Users
 from entities import Events
 
@@ -10,18 +10,11 @@ from entities import Events
 class TestAPIs(unittest.TestCase):
     def setUp(self):
         self.api_yangu = my_apis()
-    #Perfoem Tests after using api once for correct output
-    def test_index_page_json(self):
-        tester = app.test_client(self)
-        response = tester.get('/', content_type='html/txt')
-        self.assertEqual(response.status_code, 200, msg="Page Not Loaded")
-    
-    
-    
+
     def test_register_page_json(self):
         tester = app.test_client(self)
-        response = tester.get('/api/v1/auth/register', content_type='html/txt')
-        self.assertTrue(b"Sign Up" in response.data, msg="Register page didn't load properly")
+        response = tester.post('/api/v2/auth/register',data=dict(username='Abe',password='1234'), content_type='json')
+        self.assertEqual(response.status_code, 201, msg="Register api not working")
         
 #    def test_login_json(self):
 #        expected = 'Logged In'
