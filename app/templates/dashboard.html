@@ -79,7 +79,7 @@ Dashboard
                     <li class="active"><a href=""><i class="glyphicon glyphicon-home"></i>  Overview</a></li>
                     <li><a href=""><i class="glyphicon glyphicon-user"></i>  Account Status</a></li>
                     <li><a href="/api/v1/events/view"><i class="glyphicon glyphicon-calendar"></i>  My Events</a></li>
-                    <li><a href=""><i class="glyphicon glyphicon-flag"></i>  Help</a></li>
+                    <li><a href=""><i class="glyphicon glyphicon-flag"></i>  My RSVPs</a></li>
                     
                     </ul>
                 </div>
@@ -91,9 +91,9 @@ Dashboard
               <div class="panel panel-default">
                   <h2>Popular Events</h2>
                  <div class="panel-body">
-                  Mt. Kenya Marathon(Event 1)<button class="btn btn-danger btn-xs">
+                  Mt. Kenya Marathon(Event 1)<a href="/api/v1/send/Mt. Kenya Marathon/RSVP"><button class="btn btn-danger btn-xs">
                     Send RSVP
-                    </button>
+                    </button></a>
                   </div>
                   <div class="panel-body">
                   Safaricom Sevens(Event 2)<button class="btn btn-danger btn-xs">
@@ -124,7 +124,7 @@ Dashboard
 
   <div class="container">
         <div class="col-sm-6">
-          <h2>My Events</h2>
+          <h2>My New Events</h2>
             <table>
                 <tr>
                 <h6>Event Name</h6>
@@ -139,7 +139,7 @@ Dashboard
     </div>
     <div class="container">
     <div class="col-sm-6">
-      <h2>My RSVPs</h2>
+      <h2>My New RSVPs</h2>
               {{ rsvps }}       
               <a href=""><button class="btn btn-danger btn-xs">
                 Remove

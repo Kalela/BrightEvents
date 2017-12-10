@@ -77,6 +77,12 @@ class TestAPIs(unittest.TestCase):
         response = tester.get('/api/v1/about/', content_type='html/txt')
         self.assertTrue(b"EventHub is a Bright Events offshoot" in response.data, msg="About Us Page didn't load properly")
         
+    #Test user send RSVP
+    def test_create_new_event(self):
+        tester = app.test_client(self)
+        response = tester.post('/api/v1/send/RSVP', follow_redirects=True)
+        self.assertIn(b"Account Status", response.data, msg="Send RSVP api does not work")
+        
 
 
 if __name__=='__main__':

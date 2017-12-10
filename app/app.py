@@ -2,7 +2,7 @@ import sys
 from flask import Flask, render_template, jsonify, request, flash, session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, DateField
+from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users
 from entities import Events
@@ -29,6 +29,7 @@ class EventForm(FlaskForm):
     eventname = StringField('Eventname', validators=[InputRequired()])
     eventdate = DateField('mm/dd/yy', format='%m/%d/%Y')
     eventlocation = StringField('Location', validators=[InputRequired()])
+    eventcategory = SelectField('Event Category',choices=[('corporate','Corporate'),('partys','Partys'),('casual','Casual'),('other','Other')] )
 
 class my_apis(object):
 
@@ -56,18 +57,22 @@ class my_apis(object):
     def login():
         form = LoginForm()
         if request.method == 'POST':
-            name = form.username.data
-            pword = form.password.data
-            logout = user.logout
-            usr_login = {}
-
-            usr_login[str(name)] = str(pword)
-            if usr_login in user.users:
-                session['username'] = str(name)
-                return render_template('dashboard.html', name=name, logout=logout), 200
-            else:
-                flash("Please Review Login form or Sign Up")
+            if 'username' in session:
+                flash("Please log out current User")
                 return render_template('login.html', title='Login', form=form)
+            else:
+                name = form.username.data
+                pword = form.password.data
+                logout = user.logout
+                usr_login = {}
+
+                usr_login[str(name)] = str(pword)
+                if usr_login in user.users:
+                    session['username'] = str(name)
+                    return render_template('dashboard.html', name=name, logout=logout), 200
+                else:
+                    flash("Please Review Login form or Sign Up")
+                    return render_template('login.html', title='Login', form=form)
         if request.method == 'GET':
             return render_template('login.html', title='Login', form=form)
 
@@ -107,12 +112,12 @@ class my_apis(object):
             date = form.eventdate.data
 
             location = {}
-            location[str(directions)] = str(eventid)
-            dte = {}
-            dte[str(date)] = str(location)
+            location={str(directions), str(date)}
+            evt = {}
+            evt[str(eventid)] = str(location)
             if 'username' in session:
                 name = session['username']
-                event_object.events.append(dte)
+                event_object.events.append(evt)
                 return render_template('dashboard.html',
                                        eventid=eventid,
                                        directions=directions,
@@ -132,7 +137,8 @@ class my_apis(object):
         events = event_object.events
         if request.method == 'GET':
             return render_template('event_view.html', events=events)
-
+    
+    #view popular events(trailer)
     @app.route('/api/v1/events', methods=['GET', 'POST'])
     def event_page():
         return render_template('event.html')
@@ -140,6 +146,23 @@ class my_apis(object):
     @app.route('/api/v1/about/', methods=['GET'])
     def about():
         return render_template('aboutus.html')
+    
+    @app.route('/api/v1/send/<eventid>/RSVP', methods=['POST','GET'])
+    def send_RSVP(eventid):
+            if 'username' in session:
+                rsvp =[event for event in event_object.events if event[str(eventid)]==eventid]
+                rsvps = rsvp
+                name = session['username']
+                user.user_rsvps.append(rsvps)
+                print(rsvps)
+                return render_template('dashboard.html',
+                                      rsvps=rsvps,
+                                      name=name)
+            else:
+                logout = user.logout
+                name = user.guest
+                flash("Please Sign In or Sign Up")
+                return render_template('dashboard.html', logout=logout, name=name)
 
 if __name__ == '__main__':
     app.run(debug=True)
