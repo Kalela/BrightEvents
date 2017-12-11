@@ -1,7 +1,7 @@
 import unittest
 import requests
 
-from app import my_apis
+from app import MyApis
 from app import app
 from entities import Users
 from entities import Events
@@ -9,7 +9,7 @@ from entities import Events
 
 class TestAPIs(unittest.TestCase):
     def setUp(self):
-        self.api_yangu = my_apis()
+        self.api_yangu = MyApis()
     #Index Page 'GET'
     def test_index_page_loads(self):
         tester = app.test_client(self)

@@ -1,7 +1,7 @@
 import unittest
 import requests
 
-from routes import my_apis
+from routes import MtApis
 from routes import app
 from entities import Users
 from entities import Events
@@ -9,7 +9,7 @@ from entities import Events
 
 class TestAPIs(unittest.TestCase):
     def setUp(self):
-        self.api_yangu = my_apis()
+        self.api_yangu = MyApis()
 
     def test_register_page_json(self):
         tester = app.test_client(self)

@@ -7,7 +7,7 @@ users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}]
 events = []
 user_events = []
 
-class my_apis(object):
+class MyApis(object):
     #Works
     @app.route('/api/v2/auth/register', methods=['POST'])
     def register_page_json():

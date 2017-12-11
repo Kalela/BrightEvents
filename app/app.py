@@ -31,7 +31,7 @@ class EventForm(FlaskForm):
     eventlocation = StringField('Location', validators=[InputRequired()])
     eventcategory = SelectField('Event Category',choices=[('corporate','Corporate'),('partys','Partys'),('casual','Casual'),('other','Other')] )
 
-class my_apis(object):
+class MyApis(object):
 
     #Tested and working
     @app.route('/', methods=['GET'])
