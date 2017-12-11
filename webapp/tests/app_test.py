@@ -2,18 +2,19 @@ import os, sys, inspect
 import unittest
 import requests
 
-#from app import MyApis
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
+sys.path.insert(0,parentdir)
+from app import MyApis
 from app import app
 from entities import Users
 from entities import Events
 
 
 class TestAPIs(unittest.TestCase):
-#    def setUp(self):
-#        self.api_yangu = MyApis()
+    def setUp(self):
+        self.api_yangu = MyApis()
+
     #Index Page 'GET'
     def test_index_page_loads(self):
         tester = app.test_client(self)
