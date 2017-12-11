@@ -1,8 +1,8 @@
 import unittest
 import requests
 
-from app.app import MyApis
-from app.app import app
+from app import MyApis
+from app import app
 from entities import Users
 from entities import Events
 
