@@ -1,7 +1,11 @@
+import os, sys, inspect
 import unittest
 import requests
 
 #from routes import MyApis
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
 from routes import app
 from entities import Users
 from entities import Events
