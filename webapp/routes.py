@@ -11,10 +11,11 @@ class MyApis(object):
     #Works
     @app.route('/api/v2/auth/register', methods=['POST'])
     def register_page_json():
-        user = {}
-        user[request.json['username']] = request.json['password']
-        users.append(user)
-        return jsonify({'users':users}), 201
+        if request.method == 'POST':
+            user = {}
+            user[request.json['username']] = request.json['password']
+            users.append(user)
+            return jsonify({'users':users}), 201
     #{"username":"user" , "password":"123"} for input
     #Works
     @app.route('/api/v2/auth/login', methods=['POST'])

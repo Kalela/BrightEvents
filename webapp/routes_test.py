@@ -17,7 +17,7 @@ class TestAPIs(unittest.TestCase):
 
     def test_register_page_json(self):
         tester = app.test_client(self)
-        response = tester.post('/api/v2/auth/register',data=dict(username='Abe',password='1234'), content_type='json')
+        response = tester.post('/api/v2/auth/register')
         self.assertEqual(response.status_code, 201, msg="Register api not working")
         
 #    def test_login_json(self):
