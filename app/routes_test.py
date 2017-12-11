@@ -1,8 +1,8 @@
 import unittest
 import requests
 
-from routes import MtApis
-from routes import app
+from app.routes import MyApis
+from app.routes import app
 from entities import Users
 from entities import Events
 
