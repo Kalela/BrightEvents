@@ -1,7 +1,7 @@
 import unittest
 import requests
 
-from routes import MyApis
+#from routes import MyApis
 from routes import app
 from entities import Users
 from entities import Events
