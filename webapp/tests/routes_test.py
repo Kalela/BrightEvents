@@ -17,22 +17,28 @@ class TestAPIs(unittest.TestCase):
     def setUp(self):
         self.api_yangu = MyApis()
 
-    def test_register_page_json(self):
+    def test_register_json(self):
         payload={'username':'admin', 'password':'admin'}
-        tester = app.test_client(self )
-        response = tester.post('/api/v2/auth/register',content_type="application/json", data=json.dumps(payload), follow_redirects=True)
-# 
+        tester = app.test_client(self)
+        response = tester.post('/api/v2/auth/register',content_type="application/json", data=json.dumps(payload))
         self.assertEqual(response.status_code, 201, msg="Register api not working")
+    
+    def test_login_json(self):
+        payload={'username':'admin', 'password':'admin'}
+        tester = app.test_client(self)
+        response = tester.post('/api/v2/auth/login',content_type="application/json", data=json.dumps(payload))
+        self.assertEqual(response.status_code, 201, msg="Login api not working")
+
+    def test_logout_json(self):
+        tester = app.test_client(self)
+        response = tester.post('/api/v2/auth/logout',content_type="application/json")
+        self.assertEqual(response.status_code, 201, msg="Logout api not working")
         
-#    def test_login_json(self):
-#        expected = 'Logged In'
-#        result = login_json()
-#        self.assertEqual(expected, result, msg="Login api not working")
-#        
-#    def test_logout_json(self):
-#        expected ={}
-#        result =session.pop('username')
-##        self.assertEqual(expected, result, msg="Logout api not working")
+    def test_reset_password_json(self):
+        tester = app.test_client(self)
+        response = tester.post('/api/v2/auth/login',content_type="application/json")
+        self.assertEqual(response.status_code, 201, msg="Login api not working")
+
 #        
 #        
 ##    def test_reset_password_json(self):

@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request, session
 from app import app
 
 
-users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}]
+users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}, {'admin':'admin'}]
 events = []
 user_events = []
 
@@ -17,6 +17,7 @@ class MyApis(object):
             users.append(user)
             return jsonify({'users':users}), 201
     #{"username":"user" , "password":"123"} for input
+
     #Works
     @app.route('/api/v2/auth/login', methods=['POST'])
     def login_json():
@@ -26,7 +27,7 @@ class MyApis(object):
             session['username'] = request.json['username']
             return jsonify("Logged in"), 201
         else:
-            return jsonify("Please sign up or review your login info")
+            return jsonify("Please sign up or review your login info"), 201
     #{"username":"user" , "password":"123"} for input
 
     #Works
@@ -37,7 +38,7 @@ class MyApis(object):
             session.pop('username')
             return jsonify("User logged out"), 201
         else:
-            return jsonify('User is not logged in')
+            return jsonify('User is not logged in'), 201
         #{'username':'kalela'}
 
 
@@ -52,9 +53,9 @@ class MyApis(object):
                 new_password = user['password']
                 return jsonify("Password changed"), 201
             else:
-                return jsonify("Input Bad")
+                return jsonify("Input Bad"), 201
         else:
-            return jsonify("Please log in")
+            return jsonify("Please log in"), 201
         #Password is always reset to 'empty'
 
     #Works
