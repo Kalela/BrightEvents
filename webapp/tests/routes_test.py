@@ -1,6 +1,8 @@
 import os, sys, inspect
 import unittest
 import requests
+import json
+
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -16,8 +18,10 @@ class TestAPIs(unittest.TestCase):
         self.api_yangu = MyApis()
 
     def test_register_page_json(self):
-        tester = app.test_client(self)
-        response = tester.post('/api/v2/auth/register')
+        payload={'username':'admin', 'password':'admin'}
+        tester = app.test_client(self )
+        response = tester.post('/api/v2/auth/register',content_type="application/json", data=json.dumps(payload), follow_redirects=True)
+# 
         self.assertEqual(response.status_code, 201, msg="Register api not working")
         
 #    def test_login_json(self):
