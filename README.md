@@ -9,7 +9,7 @@ Build Status
 Code Style
 ----------
 Standard PEP-8.
-[![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)]
+![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Screenshots of Latest Build
 ---------------------------
