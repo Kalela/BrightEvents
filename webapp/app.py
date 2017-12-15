@@ -160,23 +160,24 @@ class MyApis(object):
         """Load about us page"""
         return render_template('aboutus.html')
 
-    @app.route('/api/v1/send/<eventid>/rsvp', methods=['POST', 'GET'])
+    @app.route('/api/v1/send/<eventid>/rsvp', methods=['POST'])
     def send_RSVP(eventid):
         """Send RSVP for an event for logged in users"""
-        if 'username' in session:
-            print(event_object.events)
-            rsvp = [event for event in event_object.events if event[str(eventid)]]
-            rsvps = rsvp
-            name = session['username']
-            user.user_rsvps.append(rsvp)
-            return render_template('dashboard.html',
-                                   rsvps=rsvps,
-                                   name=name)
-        else:
-            logout = user.logout
-            name = user.guest
-            flash("Please Sign In or Sign Up")
-            return render_template('dashboard.html', logout=logout, name=name)
+        if request.method == 'POST':
+            if 'username' in session:
+                print(event_object.events)
+                rsvp = [event for event in event_object.events if event[str(eventid)]]
+                rsvps = rsvp
+                name = session['username']
+                user.user_rsvps.append(rsvp)
+                return render_template('dashboard.html',
+                                       rsvps=rsvps,
+                                       name=name), 201
+            else:
+                logout = user.logout
+                name = user.guest
+                flash("Please Sign In or Sign Up")
+                return render_template('dashboard.html', logout=logout, name=name)
 
 if __name__ == '__main__':
     app.run(debug=True)
