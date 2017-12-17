@@ -1,10 +1,12 @@
 #contains RESTful apis
 from flask import jsonify, request, session
 from app import app
+from flasgger import Swagger, swag_from
 
+swagger = Swagger(app)
 
 users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}, {'admin':'admin'}]
-events = []
+events = [{"MyParty": "['Myparty','Nairobi', '12/25/2017', 'Party']"}]
 user_events = []
 rsvps = []
 
@@ -12,6 +14,7 @@ class MyApis(object):
     """Hold all api routes"""
     #Works
     @app.route('/api/v2/auth/register', methods=['POST'])
+    @swag_from('swagger.yaml')
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
@@ -53,28 +56,24 @@ class MyApis(object):
     #Works  ??
     @app.route('/api/v2/auth/reset-password', methods=['POST'])
     def reset_password_json():
+        """Reset users password"""
         if 'username' in session:
-            """Reset users password"""
             user = {}
-            user[request.json['username']] = request.json['password']
-            user[request.json['username']] = request.json['new_password']
-            if user in users:
-                new_password = user['password']
-                return jsonify("Password changed"), 201
-            else:
-                return jsonify("Input Bad"), 201
+            user[session['username']] = request.json['new_password']
+            users.append(user)
+            return jsonify("Password changed"), 201
         else:
             return jsonify("Please log in"), 201
-        #Password is always reset to 'empty'
-
+        #pop old user and password
+        
     #Works
     @app.route('/api/v2/events', methods=['POST', 'GET'])
     def events_json():
         """Add or view events"""
         if request.method == 'POST':
             if 'username' in session:
-                location = {}
-                location = {request.json['location'], request.json['date']}
+                location = []
+                location = [request.json['eventid'], request.json['location'], request.json['date'], request.json['category']]
                 event = {}
                 event[request.json['eventid']] = str(location)
 
@@ -93,22 +92,54 @@ class MyApis(object):
     @app.route('/api/v2/events/<eventid>', methods=['PUT', 'DELETE'])
     def event_update_json(eventid):#check if event exists
         """Edit existing events"""
-#        if eventid==events['eventid']:
         if request.method == 'PUT':
-            evnts = [event for event in events if event['eventid'] == eventid]
-            evnts[0]['eventid'] = {request.json['eventid'],
-                                   request.json['location'],
-                                   request.json['date']}
-
-            return jsonify({'event':evnts[0]}), 201
+            i = 0
+            while i < len(events):
+                try:
+                    if events[i][str(eventid)]:
+                        old_eventname = events[i][str(eventid)][0]
+                        old_date = events[i][str(eventid)][2] 
+                        old_location = events[i][str(eventid)][1] 
+                        old_category = events[i][str(eventid)][3]
+                        old_event = {}
+                        old_event = {str(eventid):[old_eventname, old_location, old_date, old_category]}
+                        events.remove(old_event)
+                        print (events)
+                        
+                        eventname = request.json['eventid']
+                        date = request.json['date']
+                        location = request.json['location']
+                        category = request.json['category']
+                        updated_event = {}
+                        updated_event = {str(eventid):[eventname, location, date, category]}
+                        events.append(updated_event)
+                        print(updated_event)
+                        i += 1
+                        return jsonify({"Edited to":updated_event}), 201
+                except (KeyError, ValueError):
+                    i += 1
+                    pass
 
         if request.method == 'DELETE':
-            evnt = [event for event in events if event['eventid'] == eventid]
-            events.remove(evnt[0])
-#            return jsonify({"events":events})
-#        else:
-#            return jsonify("Please edit or delete an existing event")
-
+            i = 0
+            while i < len(events):
+                try:
+                    if events[i][str(eventid)]: 
+                        eventname = events[i][str(eventid)][0]
+                        date = events[i][str(eventid)][2]
+                        location = events[i][str(eventid)][1]
+                        category = events[i][str(eventid)][3]
+                        updated_event = {}
+                        target_event = {str(eventid):[eventname, location, date]}
+                        print(target_event)
+                        i += 1
+                        if target_event in events:
+                            events.pop(target_event)
+                            return jsonify({"Events":events}), 201
+                except (KeyError, ValueError):
+                    i += 1
+                    pass
+            
     #Fails with more than 1 event
     @app.route('/api/v2/events/<eventid>/rsvp', methods=['POST'])
     def rsvp_json(eventid):

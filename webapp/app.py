@@ -31,7 +31,7 @@ class EventForm(FlaskForm):
     eventdate = DateField('mm/dd/yy', format='%m/%d/%Y')
     eventlocation = StringField('Location', validators=[InputRequired()])
     eventcategory = SelectField('Event Category', choices=[('corporate', 'Corporate'),
-                                                           ('partys', 'Partys'),
+                                                           ('party', 'Party'),
                                                            ('casual', 'Casual'),
                                                            ('other', 'Other')])
 
@@ -120,9 +120,10 @@ class MyApis(object):
             eventid = form.eventname.data
             directions = form.eventlocation.data
             date = form.eventdate.data
+            category = form.eventcategory.data
 
-            location = {}
-            location = {str(directions), str(date)}
+            location = []
+            location = [str(directions), str(date), str(category)]
             evt = {}
             evt[str(eventid)] = str(location)
             if 'username' in session:

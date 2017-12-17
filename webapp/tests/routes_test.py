@@ -53,7 +53,7 @@ class TestAPIs(unittest.TestCase):
 #        response = tester.put('/api/v2/events/<eventid>', content_type="application/json")
 #        self.assertEqual(response.status_code, 201, msg="Update event api not working")
 
-#    def test_update_event_json(self):
+#    def test_delete_event_json(self):
 #        tester = app.test_client(self)
 #        response = tester.delete('/api/v2/events/<eventid>', content_type="application/json")
 #        self.assertEqual(response.status_code, 201, msg="Update event api not working")
