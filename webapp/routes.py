@@ -2,8 +2,10 @@
 from flask import jsonify, request, session
 from app import app
 from flasgger import Swagger, swag_from
+from api_documentation import Documentation
 
 swagger = Swagger(app)
+docs = Documentation()
 
 users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}, {'admin':'admin'}]
 events = [{"MyParty": "['Myparty','Nairobi', '12/25/2017', 'Party']"}]
@@ -14,14 +16,14 @@ class MyApis(object):
     """Hold all api routes"""
     #Works
     @app.route('/api/v2/auth/register', methods=['POST'])
-    @swag_from('swagger.yaml')
+    @swag_from(docs.register_dict)
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
             user = {}
-            user[request.json['username']] = request.json['password']
+            user[request.form['username']] = request.form['password']
             if user in users:
-                return jsonify("User already registered"), 201
+                return jsonify("User already registered"), 409
             else:
                 users.append(user)
                 return jsonify({'users':users}), 201
@@ -29,19 +31,21 @@ class MyApis(object):
 
     #Works
     @app.route('/api/v2/auth/login', methods=['POST'])
+    @swag_from(docs.login_dict)
     def login_json():
         """Login registered users"""
         user = {}
-        user[request.json['username']] = request.json['password']
+        user[request.form['username']] = request.form['password']
         if user in users:
-            session['username'] = request.json['username']
+            session['username'] = request.form['username']
             return jsonify("Logged in"), 201
         else:
-            return jsonify("Please sign up or review your login info"), 201
+            return jsonify("Please sign up or review your login info"), 401
     #{"username":"user" , "password":"123"} for input
 
     #Works
     @app.route('/api/v2/auth/logout', methods=['POST'])
+    @swag_from(docs.logout_dict)
     def logout_json():
         """Log out users"""
         user = {}
@@ -49,42 +53,48 @@ class MyApis(object):
             session.pop('username')
             return jsonify("User logged out"), 201
         else:
-            return jsonify('User is not logged in'), 201
+            return jsonify('User is not logged in'), 200
         #{'username':'kalela'}
 
 
-    #Works  ??
+    #Works
     @app.route('/api/v2/auth/reset-password', methods=['POST'])
+    @swag_from(docs.pass_reset_dict)
     def reset_password_json():
         """Reset users password"""
         if 'username' in session:
-            user = {}
-            user[session['username']] = request.json['new_password']
-            users.append(user)
-            return jsonify("Password changed"), 201
+            old_user = {}
+            old_user[request.form['username']] = request.form['password']
+            if old_user in users:
+                user = {}
+                user[session['username']] = request.form['new_password']
+                users.append(user)
+                return jsonify({"Password changed from": old_user},{"To":user}), 201
+            else:
+                return jsonify("User does not exist"), 404
         else:
-            return jsonify("Please log in"), 201
-        #pop old user and password
+            return jsonify("Please log in"), 401
         
     #Works
     @app.route('/api/v2/events', methods=['POST', 'GET'])
+    @swag_from(docs.event_dict)
     def events_json():
         """Add or view events"""
         if request.method == 'POST':
             if 'username' in session:
                 location = []
-                location = [request.json['eventid'], request.json['location'], request.json['date'], request.json['category']]
+                location = [request.form['eventid'], request.form['location'], request.form['date'], request.form['category']]
                 event = {}
-                event[request.json['eventid']] = str(location)
+                event[request.form['eventid']] = str(location)
 
                 if event in events:
-                    return jsonify("Event is already added"), 201
+                    return jsonify("Event is already added"), 409
                 else:
                     events.append(event)
                     user_events.append(event)
                     return jsonify({'events':events}, {"user events":user_events}), 201
             else:
-                return jsonify("Please Log In to add events"), 201
+                return jsonify("Please Log In to add events"), 401
         if request.method == 'GET':
             return jsonify({'events':events}), 200
 
@@ -106,16 +116,18 @@ class MyApis(object):
                         events.remove(old_event)
                         print (events)
                         
-                        eventname = request.json['eventid']
-                        date = request.json['date']
-                        location = request.json['location']
-                        category = request.json['category']
+                        eventname = request.form['eventid']
+                        date = request.form['date']
+                        location = request.form['location']
+                        category = request.form['category']
                         updated_event = {}
                         updated_event = {str(eventid):[eventname, location, date, category]}
                         events.append(updated_event)
                         print(updated_event)
                         i += 1
                         return jsonify({"Edited to":updated_event}), 201
+                    else:
+                        i += 1
                 except (KeyError, ValueError):
                     i += 1
                     pass
@@ -147,12 +159,12 @@ class MyApis(object):
         if 'username' in session:
             evn = [event for event in events if event[str(eventid)] == str(eventid)]
             if evn in rsvps:
-                return jsonify("RSVP already sent"), 201
+                return jsonify("RSVP already sent"), 409
             else:
                 rsvps.append(evn)
                 return jsonify({"RSVP Sent to":rsvps}), 201
         else:
-            return jsonify("Please log in Before sending RSVP"), 201
+            return jsonify("Please log in Before sending RSVP"), 401
 
     if __name__ == '__main__':
         app.run(debug=True)
