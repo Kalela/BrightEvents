@@ -1,17 +1,51 @@
 from flask import Flask, render_template, request, flash, session
+from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users
 from entities import Events
-
+#from entities_db import User
 
 user = Users()
 event_object = Events()
 app = Flask(__name__)
 Bootstrap(app)
+db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = 'secretmine'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:business2@localhost/eventhub'
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(120), unique=True)
+    
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = password
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    eventname = db.Column(db.String(80), unique=True)
+    date = db.Column(db.String(120), unique=True)
+    location = db.Column(db.String(120), unique=True)
+    category = db.Column(db.String(120), unique=True)
+    
+    def __init__(self, eventname, date, location, category):
+        self.eventname = eventname
+        self.date = date
+        self.location = location
+        self.category = category
+        
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 class LoginForm(FlaskForm):
     '''Create variables for wtforms Login form input'''
@@ -47,12 +81,15 @@ class MyApis(object):
     def register_page():
         """Register a new user"""
         form = RegistrationForm()
+        db_user = User(form.username.data, form.email.data, form.password.data)
         if request.method == 'POST':
             usrname = form.username.data
             pwd = form.password.data
             usr = {}
             usr[str(usrname)] = str(pwd)
             user.users.append(usr)
+            db.session.add(db_user)
+            db.session.commit()
             return render_template('login.html', title='Login', form=form)
 
         if request.method == 'GET':
