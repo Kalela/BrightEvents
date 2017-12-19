@@ -6,7 +6,6 @@ from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users
 from entities import Events
-#from entities_db import User
 
 user = Users()
 event_object = Events()
@@ -160,7 +159,7 @@ class MyApis(object):
             category = form.eventcategory.data
 
             location = []
-            location = [str(directions), str(date), str(category)]
+            location = [str(eventid), str(directions), str(date), str(category)]
             evt = {}
             evt[str(eventid)] = str(location)
             if 'username' in session:
@@ -197,7 +196,8 @@ class MyApis(object):
     def about():
         """Load about us page"""
         return render_template('aboutus.html')
-
+    
+    #use try except from routes.py
     @app.route('/api/v1/send/<eventid>/rsvp', methods=['POST'])
     def send_RSVP(eventid):
         """Send RSVP for an event for logged in users"""

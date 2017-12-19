@@ -97,7 +97,9 @@
     <div class="row">
         <div class="col-sm-6">
           <h1>Your Events</h1>
-          <h1>{{ events }}</h1>
+          {% for event in events  %}
+            <li><h1>{{ event }}</h1></li>
+            {% endfor %}
 
             <a href="login.html" title="Registration">
            
