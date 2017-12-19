@@ -3,8 +3,8 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
-from entities import Users
-from entities import Events
+from .entities import Users
+from .entities import Events
 
 
 user = Users()
