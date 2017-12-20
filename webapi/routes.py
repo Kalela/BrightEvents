@@ -1,14 +1,14 @@
 #contains RESTful apis
+from flask_api import FlaskAPI
 from flask import jsonify, request, session
-from app import app
 from flasgger import Swagger, swag_from
+from api_data import Users
+from api_data import Events
 
+app = FlaskAPI(__name__)
 swagger = Swagger(app)
-
-users = [{'kalela':'Kalela'}, {'khal':'khal'}, {'user':'password'}, {'admin':'admin'}]
-events = [{"MyParty": "['Myparty','Nairobi', '12/25/2017', 'Party']"}]
-user_events = []
-rsvps = []
+users = Users()
+events = Events()
 
 class MyApis(object):
     """Hold all api routes"""
@@ -19,12 +19,12 @@ class MyApis(object):
         """Add new users to data"""
         if request.method == 'POST':
             user = {}
-            user[request.json['username']] = request.json['password']
-            if user in users:
+            user[request.form['username']] = request.form['password']
+            if user in users.users:
                 return jsonify("User already registered"), 201
             else:
-                users.append(user)
-                return jsonify({'users':users}), 201
+                users.users.append(user)
+                return jsonify({'users':users.users}), 201
     #{"username":"user" , "password":"123"} for input
 
     #Works
@@ -32,9 +32,9 @@ class MyApis(object):
     def login_json():
         """Login registered users"""
         user = {}
-        user[request.json['username']] = request.json['password']
-        if user in users:
-            session['username'] = request.json['username']
+        user[request.form['username']] = request.form['password']
+        if user in users.users:
+            session['username'] = request.form['username']
             return jsonify("Logged in"), 201
         else:
             return jsonify("Please sign up or review your login info"), 201
@@ -59,8 +59,8 @@ class MyApis(object):
         """Reset users password"""
         if 'username' in session:
             user = {}
-            user[session['username']] = request.json['new_password']
-            users.append(user)
+            user[session['username']] = request.form['new_password']
+            users.users.append(user)
             return jsonify("Password changed"), 201
         else:
             return jsonify("Please log in"), 201
@@ -73,16 +73,16 @@ class MyApis(object):
         if request.method == 'POST':
             if 'username' in session:
                 location = []
-                location = [request.json['eventid'], request.json['location'], request.json['date'], request.json['category']]
+                location = [request.form['eventid'], request.form['location'], request.form['date'], request.form['category']]
                 event = {}
-                event[request.json['eventid']] = str(location)
+                event[request.form['eventid']] = str(location)
 
-                if event in events:
+                if event in events.events:
                     return jsonify("Event is already added"), 201
                 else:
-                    events.append(event)
-                    user_events.append(event)
-                    return jsonify({'events':events}, {"user events":user_events}), 201
+                    events.events.append(event)
+                    events.user_events.append(event)
+                    return jsonify({'events':events.events}, {"user events":events.user_events}), 201
             else:
                 return jsonify("Please Log In to add events"), 201
         if request.method == 'GET':
@@ -94,7 +94,7 @@ class MyApis(object):
         """Edit existing events"""
         if request.method == 'PUT':
             i = 0
-            while i < len(events):
+            while i < len(events.events):
                 try:
                     if events[i][str(eventid)]:
                         old_eventname = events[i][str(eventid)][0]
@@ -103,17 +103,15 @@ class MyApis(object):
                         old_category = events[i][str(eventid)][3]
                         old_event = {}
                         old_event = {str(eventid):[old_eventname, old_location, old_date, old_category]}
-                        events.remove(old_event)
-                        print (events)
+                        events.events.remove(old_event)
                         
-                        eventname = request.json['eventid']
-                        date = request.json['date']
-                        location = request.json['location']
-                        category = request.json['category']
+                        eventname = request.form['eventid']
+                        date = request.form['date']
+                        location = request.form['location']
+                        category = request.form['category']
                         updated_event = {}
                         updated_event = {str(eventid):[eventname, location, date, category]}
-                        events.append(updated_event)
-                        print(updated_event)
+                        events.events.append(updated_event)
                         i += 1
                         return jsonify({"Edited to":updated_event}), 201
                 except (KeyError, ValueError):
@@ -122,7 +120,7 @@ class MyApis(object):
 
         if request.method == 'DELETE':
             i = 0
-            while i < len(events):
+            while i < len(events.events):
                 try:
                     if events[i][str(eventid)]: 
                         eventname = events[i][str(eventid)][0]
@@ -134,8 +132,8 @@ class MyApis(object):
                         print(target_event)
                         i += 1
                         if target_event in events:
-                            events.pop(target_event)
-                            return jsonify({"Events":events}), 201
+                            events.events.pop(target_event)
+                            return jsonify({"Events":events.events}), 201
                 except (KeyError, ValueError):
                     i += 1
                     pass
@@ -145,11 +143,11 @@ class MyApis(object):
     def rsvp_json(eventid):
         """Send RSVPs to existing events"""
         if 'username' in session:
-            evn = [event for event in events if event[str(eventid)] == str(eventid)]
-            if evn in rsvps:
+            evn = [event for event in events.events if event[str(eventid)] == str(eventid)]
+            if evn in events.rsvps:
                 return jsonify("RSVP already sent"), 201
             else:
-                rsvps.append(evn)
+                events.rsvps.append(evn)
                 return jsonify({"RSVP Sent to":rsvps}), 201
         else:
             return jsonify("Please log in Before sending RSVP"), 201
