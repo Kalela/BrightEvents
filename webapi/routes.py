@@ -118,7 +118,6 @@ class MyApis(object):
                         updated_event = {}
                         updated_event = {str(eventid):[eventname, location, date, category]}
                         events.events.append(updated_event)
-                        print(updated_event)
                         i += 1
                         return jsonify({"Edited to":updated_event}), 201
                     else:
