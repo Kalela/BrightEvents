@@ -37,35 +37,45 @@ class TestAPIs(unittest.TestCase):
     def test_reset_password_json(self):
         tester = app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-        response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", password = "password", new_password = "somethingnew"))
+        response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", 
+                                                                        password = "password", 
+                                                                        new_password = "somethingnew"))
         self.assertEqual(response.status_code, 201, msg="Reset password api not working")
 
     def test_new_event_json(self):
         tester = app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-        response = tester.post('/api/v2/events', data=dict(eventid = "myevent", location = "mombasa", date = "21/04/2018", category = "Party"))
+        response = tester.post('/api/v2/events', data=dict(eventid = "myevent", 
+                                                           location = "mylocation", 
+                                                           date = "mydate", 
+                                                           category = "mycategory"))
         self.assertEqual(response.status_code, 201, msg="Add new event api not working")
 
-#    def test_update_event_json(self):
-#        tester = app.test_client(self)
-#        response = tester.put('/api/v2/events/<eventid>', content_type="application/json")
-#        self.assertEqual(response.status_code, 201, msg="Update event api not working")
+    def test_update_event_json(self):
+        tester = app.test_client(self)
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.put('/api/v2/events/MyParty', data=dict(eventid = "myevent", 
+                                                                  location = "mylocation", 
+                                                                  date = "mydate", 
+                                                                  category = "mycategory"))
+        self.assertEqual(response.status_code, 201, msg="Update event api not working")
 
-#    def test_delete_event_json(self):
-#        tester = app.test_client(self)
-#        response = tester.delete('/api/v2/events/<eventid>', content_type="application/json")
-#        self.assertEqual(response.status_code, 201, msg="Update event api not working")
+    def test_delete_event_json(self):
+        tester = app.test_client(self)
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.delete('/api/v2/events/Friends')
+        self.assertEqual(response.status_code, 201, msg="Delete event api not working")
 
     def test_view_events_json(self):
         tester = app.test_client(self)
         response = tester.get('/api/v2/events')
         self.assertEqual(response.status_code, 200, msg="View all events api not working")
 
-#    def test_send_rsvp_json(self):
-#        tester = app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.post('/api/v2/events/MyParty/rsvp')
-#        self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
+    def test_send_rsvp_json(self):
+        tester = app.test_client(self)
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.post('/api/v2/events/MyParty/rsvp')
+        self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
 
 if __name__ == '__main__':
     unittest.main(exit=False)
