@@ -2,13 +2,11 @@
 from flask_api import FlaskAPI
 from flask import Flask, jsonify, request, session, Blueprint
 from flasgger import Swagger, swag_from
-from api_data import Users
-from api_data import Events
+from api_data import Users, Events
 from api_documentation import Documentation
 
 api = Blueprint('api', __name__)
 app = FlaskAPI(__name__)
-app.register_blueprint(api, url_prefix='/api/v2')
 swagger = Swagger(app)
 users = Users()
 events = Events()
@@ -94,7 +92,7 @@ class MyApis(object):
             else:
                 return jsonify("Please Log In to add events"), 401
         if request.method == 'GET':
-            return jsonify({'events':events}), 200
+            return jsonify({'events':events.events}), 200
 
     #Fails
     @api.route('/events/<eventid>', methods=['PUT', 'DELETE'])
@@ -120,6 +118,7 @@ class MyApis(object):
                         updated_event = {}
                         updated_event = {str(eventid):[eventname, location, date, category]}
                         events.events.append(updated_event)
+                        print(updated_event)
                         i += 1
                         return jsonify({"Edited to":updated_event}), 201
                     else:
@@ -163,5 +162,6 @@ class MyApis(object):
         else:
             return jsonify("Please log in Before sending RSVP"), 401
 
+    app.register_blueprint(api, url_prefix='/api/v2')
     if __name__ == '__main__':
         app.run(debug=True)

@@ -7,10 +7,8 @@ import requests
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from routes import MyApis
-from routes import app
-from api_data import Users
-from api_data import Events
+from routes import MyApis, app
+from api_data import Users, Events
 
 
 class TestAPIs(unittest.TestCase):
@@ -18,35 +16,35 @@ class TestAPIs(unittest.TestCase):
         self.api_yangu = MyApis()
 
     def test_register_json(self):
-        payload = {'username':'admin', 'password':'admin'}
         tester = app.test_client(self)
-        response = tester.post('/api/v2/auth/register',
-                               content_type="application/json",
-                               data=json.dumps(payload))
+        response = tester.post('api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234"))
         self.assertEqual(response.status_code, 201, msg="Register api not working")
 
     def test_login_json(self):
         payload = {'username':'admin', 'password':'admin'}
         tester = app.test_client(self)
         response = tester.post('/api/v2/auth/login',
-                               content_type="application/json",
-                               data=json.dumps(payload))
+                               data=dict(username = "user", password = "password"))
         self.assertEqual(response.status_code, 201, msg="Login api not working")
 
     def test_logout_json(self):
         tester = app.test_client(self)
-        response = tester.post('/api/v2/auth/logout', content_type="application/json")
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.post('/api/v2/auth/logout')
         self.assertEqual(response.status_code, 201, msg="Logout api not working")
 
     def test_reset_password_json(self):
         tester = app.test_client(self)
-        response = tester.post('/api/v2/auth/reset-password', content_type="application/json")
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", password = "password", new_password = "somethingnew"))
         self.assertEqual(response.status_code, 201, msg="Reset password api not working")
 
     def test_new_event_json(self):
         tester = app.test_client(self)
-        response = tester.post('/api/v2/events', content_type="application/json")
-        self.assertEqual(response.status_code, 201, msg="Reset password api not working")
+        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+        response = tester.post('/api/v2/events', data=dict(eventid = "myevent", location = "mombasa", date = "21/04/2018", category = "Party"))
+        self.assertEqual(response.status_code, 201, msg="Add new event api not working")
 
 #    def test_update_event_json(self):
 #        tester = app.test_client(self)
@@ -60,18 +58,14 @@ class TestAPIs(unittest.TestCase):
 
     def test_view_events_json(self):
         tester = app.test_client(self)
-        response = tester.get('/api/v2/events', content_type="application/json")
+        response = tester.get('/api/v2/events')
         self.assertEqual(response.status_code, 200, msg="View all events api not working")
 
-    def test_send_rsvp_json(self):
-        tester = app.test_client(self)
-        response = tester.post('/api/v2/events/<eventid>/rsvp', content_type="application/json")
-        self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
-
-##    def test_rsvp_json(self):
-##        expected = eventid + ' RSVP Sent'
-##        result = evn[0]['eventid'] += ' RSVP Sent'
-##        self.assertEqual(expected, result, msg="Rsvp api not working")
+#    def test_send_rsvp_json(self):
+#        tester = app.test_client(self)
+#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
+#        response = tester.post('/api/v2/events/MyParty/rsvp')
+#        self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
 
 if __name__ == '__main__':
     unittest.main(exit=False)
