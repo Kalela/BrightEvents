@@ -30,12 +30,11 @@ Viewing the Site
 ----------------
 1.Run a terminal such as cmd on windows or terminal on ubuntu.
 ![CMD](https://image.ibb.co/hc6HPb/Screenshot_101_LI.jpg "Bright Events")
-![CMD](https://image.ibb.co/eBoc9w/Screenshot_from_2017_12_29_20_52_37.png "Bright Events")
 
 2. cd into main folder and run command flask run. This should start the server to our Event Hub RESTful api on port 5000.
-![CMD](https://image.ibb.co/d1Q79w/Screenshot_from_2017_12_29_20_46_38.png "Bright Events") 
+![CMD](https://image.ibb.co/jSxZNG/Screenshot_from_2017_12_29_20_58_25.png "Bright Events")
    If your lucky (*winks*) You won't get any errors and server will be up.
-![CMD](https://image.ibb.co/mpHtVG/Screenshot_104_LI.jpg "Bright Events")
+![CMD](https://image.ibb.co/d1Q79w/Screenshot_from_2017_12_29_20_46_38.png "Bright Events") 
    
 3. Now you can test your endpoints using Postman or Curl.
 Your good to go.
