@@ -1,19 +1,17 @@
-import os, sys, inspect
+import os
 import unittest
 import json
 import requests
 
+from webapi.routes import create_app
+from webapi.api_data import Users, Events
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-from routes import MyApis, app
-from api_data import Users, Events
+
 
 
 class TestAPIs(unittest.TestCase):
     def setUp(self):
-        self.api_yangu = MyApis()
+        self.app = create_app(config_name="testing")
 
     def test_register_json(self):
         tester = app.test_client(self)

@@ -1,20 +1,23 @@
-#contains RESTful apis
 from flask_api import FlaskAPI
-from flask import Flask, jsonify, request, session, Blueprint
+from flask import jsonify, request, session, Blueprint
 from flasgger import Swagger, swag_from
 from api_data import Users, Events
 from api_documentation import Documentation
 
+from instance.config import app_config
+
 api = Blueprint('api', __name__)
-app = FlaskAPI(__name__)
-swagger = Swagger(app)
 users = Users()
 events = Events()
 docs = Documentation()
-app.config['SECRET_KEY'] = "mysecret"
 
-class MyApis(object):
-    """Hold all api routes"""
+def create_app(config_name):
+    """Create the api flask app"""
+    app = FlaskAPI(__name__, instance_relative_config=True)
+    app.config.from_object(app_config[config_name])
+    app.config.from_pyfile('config.py')
+    swagger = Swagger(app)
+
     #Works
     @api.route('/auth/register', methods=['POST'])
     @swag_from(docs.register_dict)
@@ -179,5 +182,4 @@ class MyApis(object):
             return jsonify("Please log in Before sending RSVP"), 401
 
     app.register_blueprint(api, url_prefix='/api/v2')
-    if __name__ == '__main__':
-        app.run(debug=True)
+    return app
