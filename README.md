@@ -26,8 +26,8 @@ Features
 *Users can RSVP events and view people who RSVP their own
 *Users can find events by location and category
 
-Viewing the Site
-----------------
+Running the API Endpoints
+-------------------------
 1.Run a terminal such as cmd on windows or terminal on ubuntu.
 ![CMD](https://image.ibb.co/hc6HPb/Screenshot_101_LI.jpg "Bright Events")
 
