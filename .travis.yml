@@ -1,7 +1,7 @@
 
 language: python
 python:
-  - 3.6.1
+  - 2.7
 env:
   - FLASK=0.12.2  # recent Flask
 # command to install dependencies
