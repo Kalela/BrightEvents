@@ -4,11 +4,12 @@ Event Hub is an offshoot website of of Bright Events collaborative development t
 
 Build Status
 ------------
-Build running. Checking for bugs.
+[![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-Better-UI-and-Logic-153324164)](https://travis-ci.org/Kalela/BrightEvents)
 
 Code Style
 ----------
 Standard PEP-8.
+![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Screenshots of Latest Build
 ---------------------------
@@ -67,8 +68,11 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
     
    
 
-Files like entities_test.py and app_test.py run TDD tests on their corresponding python files.
-_Coming Soon_
+#####Test Driven Development#####
+1.cd Into where the test files are located. As shown in image below.
+    ![Postman](https://image.ibb.co/kVs9n6/Screenshot_140_LI.jpg "TDD")
+2. Run python app_test.py or python routes_test.py to test the flask app or RESTful apis respectfully.
+
 
 Versioning
 ----------
