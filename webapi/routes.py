@@ -20,7 +20,7 @@ def create_app(config_name):
     swagger = Swagger(app)
 
     #Works
-    @api.route('/auth/register', view_func=Main.as_view('register'), methods=['POST'])
+    @api.route('/auth/register', methods=['POST'])
     @swag_from(docs.register_dict)
     def register_page_json():
         """Add new users to data"""
