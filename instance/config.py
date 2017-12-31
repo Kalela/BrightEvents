@@ -3,7 +3,7 @@ import os
 class Config(object):
     """Parent configuration class."""
     DEBUG = False
-    CSRF_ENABLED = True
+    CSRF_ENABLED = False
     SECRET = os.getenv('SECRET')
 
 class DevelopmentConfig(Config):
