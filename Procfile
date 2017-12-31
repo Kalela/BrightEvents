@@ -1,1 +1,1 @@
-web: gunicorn run:app --log-file=-
+web: gunicorn -b 127.0.0.1:8000 --env
