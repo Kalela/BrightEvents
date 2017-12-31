@@ -4,7 +4,7 @@ Event Hub is an offshoot website of of Bright Events collaborative development t
 
 Build Status
 ------------
-[![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-Better-UI-and-Logic-153324164)](https://travis-ci.org/Kalela/BrightEvents)
+[![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-flask-app)](https://travis-ci.org/Kalela/BrightEvents)
 
 Code Style
 ----------
