@@ -11,6 +11,7 @@ Code Style
 ----------
 Standard PEP-8.
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
+=======
 
 Tech and FrameWork used
 -----------------------
