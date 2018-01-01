@@ -183,5 +183,3 @@ def create_app(config_name):
                 return render_template('dashboard.html', logout=logout, name=name)
 
     return app
-
-

@@ -2,8 +2,8 @@ import os, sys, inspect
 import unittest
 import requests
 
-from webapp.app import create_app
-from webapp.entities import Users, Events
+from app import create_app
+from app.entities import Users, Events
 
 class TestAPIs(unittest.TestCase):
     """Enclose all tests"""
