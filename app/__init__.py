@@ -4,7 +4,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users, Events
-from instance.config import app_config
 
 user = Users()
 event_object = Events()
@@ -33,6 +32,7 @@ class EventForm(FlaskForm):
 
 def create_app(config_name):
     '''Enclose all api routes'''
+    from instance.config import app_config
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
