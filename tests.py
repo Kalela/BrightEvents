@@ -16,7 +16,7 @@ class TestAPIs(unittest.TestCase):
 
     def test_register_json(self):
         tester = self.app.test_client(self)
-        response = tester.post('api/v2/auth/register',
+        response = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234"))
         self.assertEqual(response.status_code, 201, msg="Register api not working")
 
@@ -61,7 +61,7 @@ class TestAPIs(unittest.TestCase):
     def test_delete_event_json(self):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-        response = tester.delete('/api/v2/events/Friends')
+        response = tester.delete('api/v2/events/Friends')
         self.assertEqual(response.status_code, 201, msg="Delete event api not working")
 
     def test_view_events_json(self):

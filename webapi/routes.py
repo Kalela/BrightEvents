@@ -6,7 +6,6 @@ from api_documentation import Documentation
 
 from instance.config import app_config
 
-
 users = Users()
 events = Events()
 docs = Documentation()
