@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, flash, session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
+from flasgger import Swagger, swag_from
 from wtforms import StringField, PasswordField, DateField, SelectField
 from wtforms.validators import InputRequired, Email, Length, EqualTo
 from entities import Users, Events
+from api_documentation import Documentation
 from instance.config import app_config
 
 user = Users()
 event_object = Events()
+docs = Documentation()
 
 class LoginForm(FlaskForm):
     '''Create variables for wtforms Login form input'''
@@ -37,14 +40,17 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config['SECRET_KEY'] = 'my-secret'
     Bootstrap(app)
+    swagger = Swagger(app)
 
     #Tested and working
     @app.route('/', methods=['GET'])
+    @swag_from(docs.index_dict)
     def index():
         return render_template('index.html', title='Event Hub'), 200
 
     #Tested and working
     @app.route('/api/v1/auth/register', methods=['POST', 'GET'])
+    @swag_from(docs.register_dict)
     def register_page():
         """Register a new user"""
         form = RegistrationForm()
@@ -60,6 +66,7 @@ def create_app(config_name):
             return render_template('register.html', form=form), 200
 
     @app.route('/api/v1/auth/login', methods=['POST', 'GET'])
+    @swag_from(docs.login_dict)
     def login():
         """Log a user in"""
         form = LoginForm()
@@ -84,6 +91,7 @@ def create_app(config_name):
             return render_template('login.html', title='Login', form=form)
 
     @app.route('/api/v1/auth/logout', methods=['POST', 'GET'])
+    @swag_from(docs.logout_dict)
     def logout():
         """Log a user out"""
         if 'username' in session:
@@ -94,6 +102,7 @@ def create_app(config_name):
             return render_template('index.html', title='Home Page')
 
     @app.route('/api/v1/auth/dashboard', methods=['POST', 'GET'])
+    @swag_from(docs.dashboard_dict)
     def dashboard():
         """View sites dashboard"""
         if 'username' in session:
@@ -107,6 +116,7 @@ def create_app(config_name):
             return render_template('dashboard.html', logout=logout, name=name)
 
     @app.route('/api/v1/auth/reset-password', methods=['POST', 'GET'])
+    @swag_from(docs.pass_reset_dict)
     def reset_password():
         """Reset users password"""
         user.password = ''
@@ -145,6 +155,7 @@ def create_app(config_name):
             return render_template('new_event.html', form=form)
 
     @app.route('/api/v1/events/view', methods=['GET', 'POST', 'PUT', 'DELETE'])
+    @swag_from(docs.view_event_dict)
     def event_view():
         """View and edit user events"""
         events = event_object.events
@@ -152,17 +163,20 @@ def create_app(config_name):
             return render_template('event_view.html', events=events)
 
     #view popular events(trailer)
-    @app.route('/api/v1/events', methods=['GET', 'POST'])
+    @app.route('/api/v1/events', methods=['GET', 'POST', 'PUT', 'DELETE'])
+    @swag_from(docs.event_dict)
     def event_page():
         """Load a page for popular events"""
         return render_template('event.html')
 
     @app.route('/api/v1/about', methods=['GET'])
+    @swag_from(docs.register_dict)
     def about():
         """Load about us page"""
         return render_template('aboutus.html')
 
     @app.route('/api/v1/send/<eventid>/rsvp', methods=['POST'])
+    @swag_from(docs.rsvp_dict)
     def send_RSVP(eventid):
         """Send RSVP for an event for logged in users"""
         if request.method == 'POST':
