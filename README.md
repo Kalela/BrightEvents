@@ -15,10 +15,10 @@ Standard PEP-8.
 
 Tech and FrameWork used
 -----------------------
-### Built using: ###
-    * [Python 2.7](https://www.python.org/downloads/)
-    * Flask and Flask-api
-    * [Brackets](http://brackets.io/)
+### Built using ###
+* [Python 2.7](https://www.python.org/downloads/)
+* Flask and Flask-api
+* [Brackets](http://brackets.io/)
     
 Features
 ========
@@ -53,8 +53,8 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
    
 
 ##### Test Driven Development #####
-1.cd Into the main directory.
-2. Run python tests.py to run tests on Bright Events Website RESTful apis.
+* 1.cd Into the main directory.
+* 2. Run python tests.py to run tests on Bright Events Website RESTful apis.
 
 
 
