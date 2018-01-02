@@ -43,8 +43,8 @@ Your good to go.
 Tests
 =====
 _You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
-    1. Start the api server through your terminal by running _python routes.py_
-    2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
+    * 1.Start the api server through your terminal by running _python routes.py_
+    * 2.Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
     ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
     ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
     ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
