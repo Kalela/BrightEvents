@@ -29,7 +29,7 @@ Features
 
 Running the API Endpoints
 -------------------------
-1.Run a terminal such as cmd on windows or terminal on ubuntu.
+1. Run a terminal such as cmd on windows or terminal on ubuntu.
 ![CMD](https://image.ibb.co/hc6HPb/Screenshot_101_LI.jpg "Bright Events")
 
 2. cd into main folder and run command flask run. This should start the server to our Event Hub RESTful api on port 5000.
@@ -43,8 +43,8 @@ Your good to go.
 Tests
 =====
 _You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
-    1.Start the api server through your terminal by running _python routes.py_
-    2.Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
+    1. Start the api server through your terminal by running _python routes.py_
+    2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
     ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
     ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
     ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
