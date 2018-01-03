@@ -19,18 +19,21 @@ class TestAPIs(unittest.TestCase):
         response = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234"))
         self.assertEqual(response.status_code, 201, msg="Register api not working")
+        self.assertIn("1234", str(response.data))
 
-#    def test_login_json(self):
+    def test_login_json(self):
         tester = self.app.test_client(self)
         response = tester.post('/api/v2/auth/login',
                                data=dict(username = "user", password = "password"))
         self.assertEqual(response.status_code, 201, msg="Login api not working")
+        self.assertIn("Logged in", str(response.data))
 
     def test_logout_json(self):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/auth/logout')
         self.assertEqual(response.status_code, 201, msg="Logout api not working")
+        self.assertIn("logged out", str(response.data))
 
     def test_reset_password_json(self):
         tester = self.app.test_client(self)
@@ -39,6 +42,7 @@ class TestAPIs(unittest.TestCase):
                                                                         password = "password", 
                                                                         new_password = "somethingnew"))
         self.assertEqual(response.status_code, 201, msg="Reset password api not working")
+        self.assertIn("Password changed", str(response.data))
 
     def test_new_event_json(self):
         tester = self.app.test_client(self)
@@ -57,23 +61,27 @@ class TestAPIs(unittest.TestCase):
                                                                   date = "mydate", 
                                                                   category = "mycategory"))
         self.assertEqual(response.status_code, 201, msg="Update event api not working")
+        self.assertIn("edited to", str(response.data))
 
     def test_delete_event_json(self):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.delete('api/v2/events/Friends')
         self.assertEqual(response.status_code, 201, msg="Delete event api not working")
+        self.assertIn("User events", str(response.data))
 
     def test_view_events_json(self):
         tester = self.app.test_client(self)
         response = tester.get('/api/v2/events')
         self.assertEqual(response.status_code, 200, msg="View all events api not working")
+        self.assertIn("user events", str(response.data))
 
     def test_send_rsvp_json(self):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/events/MyParty/rsvp')
         self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
+        self.assertIn("RSVPs sent", str(response.data))
 
 if __name__ == '__main__':
     unittest.main(exit=False)

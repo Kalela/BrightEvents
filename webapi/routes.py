@@ -78,7 +78,7 @@ def create_app(config_name):
         
     #Works
     @api.route('/events', methods=['POST', 'GET'])
-    @swag_from(docs.event_dict)
+    @swag_from(docs.event_get_dict)
     def events_json():
         """Add or view events"""
         if request.method == 'POST':
@@ -102,58 +102,57 @@ def create_app(config_name):
     @api.route('/events/<eventid>', methods=['PUT', 'DELETE'])
     def event_update_json(eventid):
         """Edit existing events"""
-        if request.method == 'PUT':
-            if 'username' in session:
-                i = 0
-                while i < len(events.user_events):
-                    try:
-                        if events.user_events[i][str(eventid)]:
-                            old_event ={str(eventid):events.user_events[i][str(eventid)]}
-                            if old_event in events.user_events:
-                                events.user_events.remove(old_event)
-                                events.events.remove(old_event)
-                                eventname = request.form['eventid']
-                                date = request.form['date']
-                                location = request.form['location']
-                                category = request.form['category']
-                                updated_event = {}
-                                updated_event = {str(eventid):[eventname, location, date, category]}
-                                events.user_events.append(updated_event)
-                                events.events.append(updated_event)
-                                i += 1
-                                return jsonify({"Edited from: ": old_event}, {"To": updated_event}), 201
-                            else:
-                                i += 1
-                        else:
-                            i += 1
-                    except (KeyError, ValueError, TypeError):
-                        i += 1
-                        pass
-                    if TypeError:
-                        return jsonify("The event you are editing does not exist"), 404
-            else:
-                return jsonify("Please log in to edit events"), 401
+        if 'username' in session:
+            if request.method == 'PUT':
 
-        if request.method == 'DELETE':
-            if 'username' in session:
-                i = 0
-                while i < len(events.user_events):
-                    try:
-                        if events.user_events[i][str(eventid)]: 
-                            target_event = {str(eventid):events.user_events[i][str(eventid)]}
-                            i += 1
-                            if target_event in events.user_events:
-                                events.user_events.remove(target_event)
-                                events.events.remove(target_event)
-                                return jsonify({"User events":events.user_events}), 201
-                    except (KeyError, ValueError, TypeError):
-                        i += 1
-                        pass
-                    if TypeError:
-                        return jsonify("The event you are deleting does not exist"), 404
-                        
-            else:
-                return jsonify("Please log in to delete events"), 401
+                    i = 0
+                    status_code = 0
+                    while i < len(events.user_events):
+                        try:
+                            if events.user_events[i][str(eventid)]:
+                                old_event ={str(eventid):events.user_events[i][str(eventid)]}
+                                if old_event in events.user_events:
+                                    eventname = request.form['eventid']
+                                    date = request.form['date']
+                                    location = request.form['location']
+                                    category = request.form['category']
+                                    updated_event = {}
+                                    updated_event = {str(eventid):[eventname, location, date, category]}
+                                    events.user_events.append(updated_event)
+                                    events.events.append(updated_event)         
+                                    status_code = 201
+                                    events.user_events.remove(old_event)
+                                    events.events.remove(old_event)
+                                    return jsonify({"Event edited to: ": updated_event}), 201
+
+                        except (KeyError, ValueError, TypeError):
+                            if TypeError:
+                                i += 1
+                        if i >= len(events.user_events):
+                            if status_code != 201:
+                                return jsonify("The event you are editing does not exist"), 404
+            if request.method == 'DELETE':
+                    i = 0
+                    status_code = 0
+                    while i < len(events.user_events):
+                        try:
+                            if events.user_events[i][str(eventid)]:
+                                target_event = {str(eventid):events.user_events[i][str(eventid)]}
+                                status_code = 201
+                                i += 1
+
+                        except (KeyError, ValueError, TypeError):
+                            if TypeError:
+                                i += 1
+                        if i >= len(events.user_events):
+                                    if status_code != 201:
+                                        return jsonify("The event you are deleting does not exist"), 404
+                                    else:
+                                        events.user_events.remove(target_event)
+                                        return jsonify({"User events":events.user_events}), 201
+                    
+        else:
+            return jsonify("Please log in to edit or delete events"), 401
             
     #Works
     @api.route('/events/<eventid>/rsvp', methods=['POST'])
@@ -165,20 +164,22 @@ def create_app(config_name):
                 try:
                     if events.user_events[i][str(eventid)]: 
                         rsvp_event = {str(eventid):events.user_events[i][str(eventid)]}
-                        i += 1
                         if rsvp_event in events.user_events:
                             if rsvp_event in events.rsvps :
-                                return jsonify("Event already RSVPd")
+                                status_code = 409
+                                return jsonify("Event already RSVPd"), 409
                             else:
                                 events.rsvps.append(rsvp_event)
+                                status_code = 201
                                 return jsonify({"RSVPs sent":events.rsvps}), 201
                         else:
                             i += 1
                 except (KeyError, ValueError, TypeError):
-                    i += 1
-                    pass
-                if TypeError:
-                    return jsonify("The event does not exist"), 404
+                    if TypeError:
+                        i += 1
+                if i >= len(events.user_events):
+                    if status_code != 201 and status_code != 409:
+                        return jsonify("The event does not exist"), 404
         else:
             return jsonify("Please log in Before sending RSVP"), 401
 

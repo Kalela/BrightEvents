@@ -170,7 +170,7 @@ class Documentation(object):
     }
   }  
 }
-    event_dict = {
+    event_post_dict = {
     "tags": ["Event"],
     "parameters":[
     {
@@ -223,6 +223,29 @@ class Documentation(object):
     "409":
       {
       "description": "The event already exists"
+      }
+    }, 
+    "definitions" : {
+      "Users": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+        }
+      }
+    }
+  }  
+}
+    event_get_dict = {
+    "tags": ["Event"],
+    "responses":
+    { 
+    "200":
+      {
+      "description": "viewing events successful"
       }
     }, 
     "definitions" : {
