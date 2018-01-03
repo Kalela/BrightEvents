@@ -100,6 +100,7 @@ def create_app(config_name):
 
     #Works
     @api.route('/events/<eventid>', methods=['PUT', 'DELETE'])
+    @swag_from(docs.event_put_dict)
     def event_update_json(eventid):
         """Edit existing events"""
         if 'username' in session:
@@ -156,6 +157,7 @@ def create_app(config_name):
             
     #Works
     @api.route('/events/<eventid>/rsvp', methods=['POST'])
+    @swag_from(docs.event_rsvp_dict)
     def rsvp_json(eventid):
         """Send RSVPs to existing events"""
         if 'username' in session:

@@ -212,7 +212,7 @@ class Documentation(object):
         "type": "array",
         "items": 
         {
-        "$ref": "#/definitions/Users"
+        "$ref": "#/definitions/Events"
         }
         }
           },
@@ -223,21 +223,28 @@ class Documentation(object):
     "409":
       {
       "description": "The event already exists"
-      }
-    }, 
-    "definitions" : {
-      "Users": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
+      },
+      "definitions" : {
+        "Events": {
+          "type": "object",
+          "properties": {
+            "eventid": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
           },
-          "password": {
-            "type": "string"
+            "location": {
+              "type": "string"
+          },
+            "category": {
+              "type": "string"
+          }
         }
       }
-    }
-  }  
+    }  
+    }, 
+    
 }
     event_get_dict = {
     "tags": ["Event"],
@@ -245,20 +252,174 @@ class Documentation(object):
     { 
     "200":
       {
-      "description": "viewing events successful"
+      "description": "viewing events successful",
+      "schema": 
+        {
+        "type": "array",
+        "items": 
+        {
+        "$ref": "#/definitions/Events"
+        }
+        }
       }
     }, 
     "definitions" : {
-      "Users": {
+      "Events": {
         "type": "object",
         "properties": {
-          "username": {
+          "eventid": {
             "type": "string"
           },
-          "password": {
+          "date": {
+            "type": "string"
+        },
+          "location": {
+            "type": "string"
+        },
+          "category": {
             "type": "string"
         }
       }
     }
   }  
+}
+    event_put_dict = {
+    "tags": ["Event"],
+    "parameters":[
+    {
+        "in": "path",
+        "name": "eventid",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "event",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "location",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "date",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "category",
+        "required": "true",
+        "type": "string",
+    }
+    ],
+    "responses":
+    {
+    
+    "200":
+      {
+      "description": "viewing events successful"
+      },
+    "201":{
+      "description": "event added successfully",
+      "schema": 
+        {
+        "type": "array",
+        "items": 
+        {
+        "$ref": "#/definitions/Events"
+        }
+        }
+          },
+    "401":
+      {
+      "description": "Only logged in users can add events"
+      },
+    "409":
+      {
+      "description": "The event already exists"
+      },
+      "definitions" : {
+        "Events": {
+          "type": "object",
+          "properties": {
+            "eventid": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+          },
+            "location": {
+              "type": "string"
+          },
+            "category": {
+              "type": "string"
+          }
+        }
+      }
+    }  
+    }, 
+    
+}
+    event_rsvp_dict = {
+    "tags": ["Event"],
+    "parameters":[
+    {
+        "in": "path",
+        "name": "eventid",
+        "required": "true",
+        "type": "string",
+    }
+    ],
+    "responses":
+    {
+    
+    "200":
+      {
+      "description": "viewing events successful"
+      },
+    "201":{
+      "description": "event added successfully",
+      "schema": 
+        {
+        "type": "array",
+        "items": 
+        {
+        "$ref": "#/definitions/Events"
+        }
+        }
+          },
+    "401":
+      {
+      "description": "Only logged in users can add events"
+      },
+    "409":
+      {
+      "description": "The event already exists"
+      },
+      "definitions" : {
+        "Events": {
+          "type": "object",
+          "properties": {
+            "eventid": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+          },
+            "location": {
+              "type": "string"
+          },
+            "category": {
+              "type": "string"
+          }
+        }
+      }
+    }  
+    }, 
+    
 }
