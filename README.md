@@ -70,7 +70,7 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
 ##### To access the api documentation:
 * Make sure the server is up
 * Visit localhost:5000/apidocs
-[Documentation](https://image.ibb.co/hKeNXG/Screenshot_from_2018_01_04_15_08_26.png)
+![Documentation](https://image.ibb.co/hKeNXG/Screenshot_from_2018_01_04_15_08_26.png "Documentation")
 
 Versioning
 ----------
