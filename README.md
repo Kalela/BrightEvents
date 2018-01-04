@@ -12,14 +12,19 @@ Code Style
 ----------
 Standard PEP-8.
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
-=======
 
 Tech and FrameWork used
 -----------------------
-### Built using ###
 * [Python 2.7](https://www.python.org/downloads/)
 * Flask and Flask-api
+
 * [Brackets](http://brackets.io/)
+
+Installation
+============
+1. Clone the Github repository:
+    >git clone
+    
     
 Features
 ========
@@ -27,6 +32,8 @@ Features
 * Users can manage their own events
 * Users can RSVP events and view people who RSVP their own
 * Users can find events by location and category
+
+IInstallation
 
 Running the API Endpoints
 -------------------------
