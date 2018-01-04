@@ -42,7 +42,7 @@ def create_app(config_name):
         user[request.form['username']] = request.form['password']
         if user in users.users:
             session['username'] = request.form['username']
-            return jsonify("Logged in"), 201
+            return jsonify("Logged in"), 202
         else:
             return jsonify("Please sign up or review your login info"), 401
 
@@ -54,7 +54,7 @@ def create_app(config_name):
         user = {}
         if 'username' in session:
             session.pop('username')
-            return jsonify("User logged out"), 201
+            return jsonify("User logged out"), 202
         else:
             return jsonify('User is not logged in'), 200
 
@@ -70,7 +70,7 @@ def create_app(config_name):
                 user = {}
                 user[session['username']] = request.form['new_password']
                 users.users.append(user)
-                return jsonify({"Password changed from": old_user},{"To":user}), 201
+                return jsonify({"Password changed from": old_user},{"To":user}), 205
             else:
                 return jsonify("User does not exist"), 404     
         else:
@@ -123,16 +123,16 @@ def create_app(config_name):
                                     updated_event = {str(eventid):[eventname, location, date, category]}
                                     events.user_events.append(updated_event)
                                     events.events.append(updated_event)         
-                                    status_code = 201
+                                    status_code = 202
                                     events.user_events.remove(old_event)
                                     events.events.remove(old_event)
-                                    return jsonify({"Event edited to: ": updated_event}), 201
+                                    return jsonify({"Event edited to: ": updated_event}), 202
 
                         except (KeyError, ValueError, TypeError):
                             if TypeError:
                                 i += 1
                         if i >= len(events.user_events):
-                            if status_code != 201:
+                            if status_code != 202:
                                 return jsonify("The event you are editing does not exist"), 404
             if request.method == 'DELETE':
                     i = 0
@@ -141,18 +141,18 @@ def create_app(config_name):
                         try:
                             if events.user_events[i][str(eventid)]:
                                 target_event = {str(eventid):events.user_events[i][str(eventid)]}
-                                status_code = 201
+                                status_code = 205
                                 i += 1
 
                         except (KeyError, ValueError, TypeError):
                             if TypeError:
                                 i += 1
                         if i >= len(events.user_events):
-                                    if status_code != 201:
+                                    if status_code != 205:
                                         return jsonify("The event you are deleting does not exist"), 404
                                     else:
                                         events.user_events.remove(target_event)
-                                        return jsonify({"User events":events.user_events}), 201
+                                        return jsonify({"User events":events.user_events}), 205
                     
         else:
             return jsonify("Please log in to edit or delete events"), 401

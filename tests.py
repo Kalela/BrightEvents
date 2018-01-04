@@ -28,7 +28,7 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         response = tester.post('/api/v2/auth/login',
                                data=dict(username = "user", password = "password"))
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 202)
         self.assertIn("Logged in", str(response.data))
 
     def test_logout_json(self):
@@ -36,7 +36,7 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/auth/logout')
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 202)
         self.assertIn("logged out", str(response.data))
 
     def test_reset_password_json(self):
@@ -46,7 +46,7 @@ class TestAPIs(unittest.TestCase):
         response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", 
                                                                         password = "password", 
                                                                         new_password = "somethingnew"))
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 205)
         self.assertIn("Password changed", str(response.data))
 
     def test_new_event_json(self):
@@ -68,7 +68,7 @@ class TestAPIs(unittest.TestCase):
                                                                   location = "mylocation", 
                                                                   date = "mydate", 
                                                                   category = "mycategory"))
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 202)
         self.assertIn("edited to", str(response.data))
 
     def test_delete_event_json(self):
@@ -76,7 +76,7 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.delete('api/v2/events/Friends')
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 205)
         self.assertIn("User events", str(response.data))
 
     def test_view_events_json(self):

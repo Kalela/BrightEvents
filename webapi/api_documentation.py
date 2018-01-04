@@ -67,7 +67,7 @@ class Documentation(object):
     ],
     "responses":
     {
-    "201":
+    "202":
         {
       "description": "successful user login",
       "schema": 
@@ -106,7 +106,7 @@ class Documentation(object):
     "200":{
         "description": "No user in current session"
     },
-    "201":{
+    "202":{
       "description": "User successfully logged out",
         }
     }  
@@ -135,7 +135,7 @@ class Documentation(object):
     ],
     "responses":
     {
-    "201":
+    "205":
       {
       "description": "password successfully reset",
       "schema": 
@@ -314,7 +314,7 @@ class Documentation(object):
     ],
     "responses":
     {
-    "201":{
+    "202":{
       "description": "event updated successfully",
       "schema": 
         {
@@ -360,7 +360,7 @@ class Documentation(object):
     "tags": ["Event"],
     "responses":
     {
-    "201":{
+    "205":{
       "description": "event deleted successfully",
       "schema": 
         {
