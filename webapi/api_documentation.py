@@ -151,7 +151,7 @@ class Documentation(object):
       {
       "description": "Can't reset password if not logged in"
       },
-    "403":
+    "404":
       {
       "description": "No such user is registered"
       }
@@ -200,11 +200,6 @@ class Documentation(object):
     ],
     "responses":
     {
-    
-    "200":
-      {
-      "description": "viewing events successful"
-      },
     "201":{
       "description": "event added successfully",
       "schema": 
@@ -319,13 +314,8 @@ class Documentation(object):
     ],
     "responses":
     {
-    
-    "200":
-      {
-      "description": "viewing events successful"
-      },
     "201":{
-      "description": "event added successfully",
+      "description": "event updated successfully",
       "schema": 
         {
         "type": "array",
@@ -337,11 +327,57 @@ class Documentation(object):
           },
     "401":
       {
-      "description": "Only logged in users can add events"
+      "description": "Only logged in users can edit events"    
       },
-    "409":
+    "404":
       {
-      "description": "The event already exists"
+      "description": "The event you are editing does not exist"
+      },
+    
+      "definitions" : {
+        "Events": {
+          "type": "object",
+          "properties": {
+            "eventid": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+          },
+            "location": {
+              "type": "string"
+          },
+            "category": {
+              "type": "string"
+          }
+        }
+      }
+    }  
+    }, 
+    
+}
+    event_delete_dict = {
+    "tags": ["Event"],
+    "responses":
+    {
+    "201":{
+      "description": "event deleted successfully",
+      "schema": 
+        {
+        "type": "array",
+        "items": 
+        {
+        "$ref": "#/definitions/Events"
+        }
+        }
+          },
+    "401":
+      {
+      "description": "Only logged in users can delete events"
+      },
+    "404":
+      {
+      "description": "The event you are deleting does not exist"
       },
       "definitions" : {
         "Events": {
@@ -377,13 +413,8 @@ class Documentation(object):
     ],
     "responses":
     {
-    
-    "200":
-      {
-      "description": "viewing events successful"
-      },
     "201":{
-      "description": "event added successfully",
+      "description": "event RSVPd successfully",
       "schema": 
         {
         "type": "array",
@@ -395,11 +426,11 @@ class Documentation(object):
           },
     "401":
       {
-      "description": "Only logged in users can add events"
+      "description": "Only logged in users can rsvp to events"
       },
     "409":
       {
-      "description": "The event already exists"
+      "description": "RSVP has already been sent"
       },
       "definitions" : {
         "Events": {

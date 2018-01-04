@@ -78,7 +78,8 @@ def create_app(config_name):
         
     #Works
     @api.route('/events', methods=['POST', 'GET'])
-    @swag_from(docs.event_get_dict)
+    @swag_from(docs.event_get_dict, methods=['GET'])
+    @swag_from(docs.event_post_dict, methods=['POST'])
     def events_json():
         """Add or view events"""
         if request.method == 'POST':
@@ -100,7 +101,8 @@ def create_app(config_name):
 
     #Works
     @api.route('/events/<eventid>', methods=['PUT', 'DELETE'])
-    @swag_from(docs.event_put_dict)
+    @swag_from(docs.event_put_dict, methods=['PUT'])
+    @swag_from(docs.event_delete_dict, methods=['DELETE'])
     def event_update_json(eventid):
         """Edit existing events"""
         if 'username' in session:
