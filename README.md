@@ -58,6 +58,7 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
 1. cd Into the main directory.
 2. Run python tests.py to run tests on Bright Events Website RESTful apis.
     >$ python tests.py
+  ![Tests](https://image.ibb.co/jSawsG/Screenshot_from_2018_01_04_15_27_20.png "Tests")
 
 ##### To access the api documentation:
 * Make sure the server is up
