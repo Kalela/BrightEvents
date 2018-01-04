@@ -41,9 +41,8 @@ Installation
 Running the API Endpoints
 -------------------------
 1. Run a terminal such as cmd on windows or terminal on ubuntu.
-![CMD](https://image.ibb.co/hc6HPb/Screenshot_101_LI.jpg "Bright Events")
-
 2. cd into main folder and run command flask run. This should start the server to our Event Hub RESTful api on port 5000.
+    >$ flask run
 ![CMD](https://image.ibb.co/jSxZNG/Screenshot_from_2017_12_29_20_58_25.png "Bright Events")
    If your lucky (*winks*) You won't get any errors and server will be up on localhost port 5000.
 ![CMD](https://image.ibb.co/d1Q79w/Screenshot_from_2017_12_29_20_46_38.png "Bright Events") 
