@@ -57,11 +57,6 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
     >$ flask run
 2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below. For Postman installation, search for appropriate documentation.
     ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
-    ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
-    ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
-    ![Postman](https://image.ibb.co/hpNUnw/Screenshot_118.png "Api Tests")
-    
-   
 
 ##### Test Driven Development #####
 1. cd Into the main directory.
