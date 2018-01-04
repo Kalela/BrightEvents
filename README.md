@@ -34,6 +34,7 @@ Installation
     >$ sudo pip install --upgrade virtualenv
 4. Set up autoenv using pip and create a .env file for it to access every time this path is accessed.
     >$ pip install autoenv
+    
 ![env](https://image.ibb.co/f75eUw/Screenshot_from_2018_01_04_15_48_41.png "env")
 5. Set up a virtualenv 
 * In this case, _virtualenv venv_
