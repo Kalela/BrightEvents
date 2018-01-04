@@ -46,6 +46,20 @@ Running the API Endpoints
 3. Now you can test your endpoints using Postman or Curl.
 Your good to go.
 
+### Endpoints
+
+Endpoint|Functionality
+--------|-------------
+POST /api/v2/auth/register|Registers a user
+POST /api/v2/auth/login|Logs a registered user in
+POST /api/v2/auth/logout|Logs a logged in user out
+POST /api/v2/auth/reset-password|Resets a logged in users password
+GET /api/v2/events|Views all events
+POST /api/v2/events|Adds an event 
+PUT /api/v2/events/<eventid>|Edits an existing event
+DELETE /api/v2/events/<eventid>|Deletes an existing event
+POST /api/v2/events/<eventid>/rsvp|Sends an rsvp to a event
+
 Tests
 =====
 _You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
