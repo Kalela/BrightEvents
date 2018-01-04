@@ -23,7 +23,10 @@ Tech and FrameWork used
 Installation
 ============
 1. Clone the Github repository:
-    >git clone
+    >$ git clone https://github.com/Kalela/BrightEvents.git
+2. Install pip
+    >$ sudo apt-get install python-pip python-dev build-essential
+    >$ sudo pip install --upgrade pip
     
     
 Features
