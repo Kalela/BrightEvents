@@ -13,6 +13,13 @@ Code Style
 Standard PEP-8.
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
+Features
+========
+* Users can advertise events and share them easily 
+* Users can manage their own events
+* Users can RSVP events and view people who RSVP their own
+* Users can find events by location and category
+
 Tech and FrameWork used
 -----------------------
 * [Python 2.7](https://www.python.org/downloads/)
@@ -28,15 +35,8 @@ Installation
     >$ sudo apt-get install python-pip python-dev build-essential
     >$ sudo pip install --upgrade pip
     
-    
-Features
-========
-* Users can advertise events and share them easily 
-* Users can manage their own events
-* Users can RSVP events and view people who RSVP their own
-* Users can find events by location and category
-
-IInstallation
+3. Install all application requirements using pip
+    >$ pip install -r requirements.txt
 
 Running the API Endpoints
 -------------------------
@@ -70,6 +70,7 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
 ##### To access the api documentation:
 * Make sure the server is up
 * Visit localhost:5000/apidocs
+[Documentation](https://image.ibb.co/hKeNXG/Screenshot_from_2018_01_04_15_08_26.png)
 
 Versioning
 ----------
