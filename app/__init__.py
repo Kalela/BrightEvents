@@ -134,16 +134,22 @@ def create_app(config_name):
             category = form.eventcategory.data
 
             location = []
-            location = [str(directions), str(date), str(category)]
+            location = [str(eventid), str(directions), str(date), str(category)]
             evt = {}
             evt[str(eventid)] = str(location)
             if 'username' in session:
                 name = session['username']
-                event_object.events.append(evt)
-                return render_template('dashboard.html',
+                if event in event_object.events:
+                     return render_template('dashboard.html',
+                                       eventid='Event already added',
+                                       name=name)  
+                else:
+                    event_object.events.append(evt)
+                    return render_template('dashboard.html',
                                        eventid=eventid,
                                        directions=directions,
                                        date=date,
+                                       category = category
                                        name=name)
             else:
                 logout = user.logout
@@ -154,10 +160,10 @@ def create_app(config_name):
         if request.method == 'GET':
             return render_template('new_event.html', form=form)
 
-    @app.route('/api/v1/events/view', methods=['GET', 'POST', 'PUT', 'DELETE'])
+    @app.route('/api/v1/events/view', methods=['GET'])
     @swag_from(docs.view_event_dict)
     def event_view():
-        """View and edit user events"""
+        """View user events"""
         events = event_object.events
         if request.method == 'GET':
             return render_template('event_view.html', events=events)
