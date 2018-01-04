@@ -9,78 +9,89 @@ from webapi.api_data import Users, Events
 class TestAPIs(unittest.TestCase):
     """Contains all tests"""
     def setUp(self):
+        """Set up the application with configurations for testing"""
         self.app = create_app(config_name="testing")
         self.app.config['SECRET_KEY'] = 'my-secret-key'
         with self.app.app_context():
             pass
 
     def test_register_json(self):
+        """Test the register user endpoint"""
         tester = self.app.test_client(self)
         response = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234"))
-        self.assertEqual(response.status_code, 201, msg="Register api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("1234", str(response.data))
 
     def test_login_json(self):
+        """Test the user login endpoint"""
         tester = self.app.test_client(self)
         response = tester.post('/api/v2/auth/login',
                                data=dict(username = "user", password = "password"))
-        self.assertEqual(response.status_code, 201, msg="Login api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("Logged in", str(response.data))
 
     def test_logout_json(self):
+        """Test the logout user endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/auth/logout')
-        self.assertEqual(response.status_code, 201, msg="Logout api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("logged out", str(response.data))
 
     def test_reset_password_json(self):
+        """Test the reset password endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", 
                                                                         password = "password", 
                                                                         new_password = "somethingnew"))
-        self.assertEqual(response.status_code, 201, msg="Reset password api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("Password changed", str(response.data))
 
     def test_new_event_json(self):
+        """Test the create new event endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/events', data=dict(eventid = "myevent", 
                                                            location = "mylocation", 
                                                            date = "mydate", 
                                                            category = "mycategory"))
-        self.assertEqual(response.status_code, 201, msg="Add new event api not working")
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("events", str(response.data))
 
     def test_update_event_json(self):
+        """Test the update existing event endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.put('/api/v2/events/MyParty', data=dict(eventid = "myevent", 
                                                                   location = "mylocation", 
                                                                   date = "mydate", 
                                                                   category = "mycategory"))
-        self.assertEqual(response.status_code, 201, msg="Update event api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("edited to", str(response.data))
 
     def test_delete_event_json(self):
+        """Test the delete event endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.delete('api/v2/events/Friends')
-        self.assertEqual(response.status_code, 201, msg="Delete event api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("User events", str(response.data))
 
     def test_view_events_json(self):
+        """Test the view all events endpoint"""
         tester = self.app.test_client(self)
         response = tester.get('/api/v2/events')
-        self.assertEqual(response.status_code, 200, msg="View all events api not working")
+        self.assertEqual(response.status_code, 200)
         self.assertIn("user events", str(response.data))
 
     def test_send_rsvp_json(self):
+        """Test the send rsvp endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
         response = tester.post('/api/v2/events/MyParty/rsvp')
-        self.assertEqual(response.status_code, 201, msg="Send rsvp api not working")
+        self.assertEqual(response.status_code, 201)
         self.assertIn("RSVPs sent", str(response.data))
 
 if __name__ == '__main__':
