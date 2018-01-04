@@ -53,8 +53,9 @@ Your good to go.
 Tests
 =====
 _You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
-1. Start the api server through your terminal by running _python routes.py_
-2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
+1. Start the api server through your terminal by running _flask run_.
+    >$ flask run
+2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below. For Postman installation, search for appropriate documentation.
     ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
     ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
     ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
@@ -65,6 +66,7 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
 ##### Test Driven Development #####
 1. cd Into the main directory.
 2. Run python tests.py to run tests on Bright Events Website RESTful apis.
+    >$ python tests.py
 
 ##### To access the api documentation:
 * Make sure the server is up
