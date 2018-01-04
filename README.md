@@ -30,9 +30,24 @@ Installation
 2. Install pip
     >$ sudo apt-get install python-pip python-dev build-essential
     >$ sudo pip install --upgrade pip
+3. Install virtualenv
+    >$ sudo pip install --upgrade virtualenv
+4. Set up autoenv using pip and create a .env file for it to access every time this path is accessed.
+    >$ pip install autoenv
+    ![env](https://image.ibb.co/f75eUw/Screenshot_from_2018_01_04_15_48_41.png "env")
+5. Set up a virtualenv 
+* In this case, _virtualenv venv_
+  (If you can't see the .env file make sure your file explorer has viewing hidden files enabled)
+    >$ virtualenv venv
+* Run the following to update and refresh your .bashrc:
+   >$ echo "source `which activate.sh`" >> ~/.bashrc
+   >$ source ~/.bashrc
     
-3. Install all application requirements using pip
+   * cd Out of the folder and back in to get autoenv up and running and thus your virtualenv venv activated.
+   
+6. Install all application requirements using pip
     >$ pip install -r requirements.txt
+    _To check if installed run pip freeze to see all installed packages_
 
 Running the API Endpoints
 -------------------------
