@@ -6,7 +6,7 @@ Heroku app: https://event-hub-bright-events.herokuapp.com/
 Build Status
 ------------
 [![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=master)](https://travis-ci.org/Kalela/BrightEvents)
-[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-Better-UI-and-Logic-153324164)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-Better-UI-and-Logic-153324164)
+[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=master)](https://coveralls.io/github/Kalela/BrightEvents?branch=master)(https://coveralls.io/github/Kalela/BrightEvents?branch=ft-Better-UI-and-Logic-153324164)]
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
