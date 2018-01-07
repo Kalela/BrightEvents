@@ -1,0 +1,5 @@
+*.pyc
+newenv/*
+venv/*
+appenv/*
+.coverage

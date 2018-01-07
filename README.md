@@ -1,74 +1,100 @@
 Event Hub
 =========
-Event Hub is an offshoot website of of Bright Events collaborative development training, hosted by Andela. The Site allows users to view and manage their own events as well as inform potential attendants of the event's existence. Visit our link at https://kalela.github.io/BrightEvents/.
+Event Hub is an offshoot website of Bright Events collaborative development training, hosted by Andela. The Site allows users to view and manage their own events as well as inform potential attendants of the event's existence. Visit our link at https://kalela.github.io/BrightEvents/.
+Heroku app: https://event-hub-bright-events.herokuapp.com/
 
 Build Status
 ------------
-Build running. Checking for bugs.
+[![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-Better-UI-and-Logic-153324164)](https://travis-ci.org/Kalela/BrightEvents)
+[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-Better-UI-and-Logic-153324164)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-Better-UI-and-Logic-153324164)
+![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
-Code Style
-----------
-Standard PEP-8.
-
-Screenshots of Latest Build
----------------------------
-![Welcome Screen](https://image.ibb.co/btMLEb/Screenshot_124.png "Bright Events")
-![Login Screen](https://image.ibb.co/eQYp7w/Screenshot_126.png "Bright Events")
-![Sign Up screen](https://image.ibb.co/h4VrLG/Screenshot_125.png "Bright Events")
-
+Features
+========
+* Users can advertise events and share them easily 
+* Users can manage their own events
+* Users can RSVP events and view people who RSVP their own
+* Users can find events by location and category
 
 Tech and FrameWork used
 -----------------------
-###Built using:###
-    *[Bootstrap/CSS](https://getbootstrap.com/docs/4.0/getting-started/download/):
-        __Bootstrap CDN:__
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
-        __If you’re using their compiled JavaScript,include CDN versions of jQuery and Popper.js:__
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    
-    
-    *[Python 3.7.0a1](https://www.python.org/downloads/)
-    *Flask and Flask-api and Flask wtforms
-    *Html
-    
-    *[Brackets](http://brackets.io/)
-    
-Features
-========
-*Users can advertise events and share them easily 
-*Users can manage their own events
-*Users can RSVP events and view people who RSVP their own
-*Users can find events by location and category
+* [Python 2.7](https://www.python.org/downloads/)
+* Flask and Flask-api
 
-Viewing the Site
-----------------
-1.Run a terminal such as cmd on windows.
-![CMD](https://image.ibb.co/hc6HPb/Screenshot_101_LI.jpg "Bright Events")
-2. cd into app folder and run command _python app.py_. This should start the server to our Event Hub Site on port 5000.
-![CMD](https://image.ibb.co/gHuqAG/Screenshot_102_LI.jpg "Bright Events") 
-   If your lucky (*winks*) You won't get any errors and server will be up.
-![CMD](https://image.ibb.co/mpHtVG/Screenshot_104_LI.jpg "Bright Events")
+* [Brackets](http://brackets.io/)
+
+Installation
+============
+1. Clone the Github repository:
+    >$ git clone https://github.com/Kalela/BrightEvents.git
+2. Install pip
+    >$ sudo apt-get install python-pip python-dev build-essential
+    >$ sudo pip install --upgrade pip
+3. Install virtualenv
+    >$ sudo pip install --upgrade virtualenv
+4. Set up autoenv using pip and create a .env file for it to access every time this path is accessed.
+    >$ pip install autoenv
+    
+![env](https://image.ibb.co/f75eUw/Screenshot_from_2018_01_04_15_48_41.png "env")
+5. Set up a virtualenv 
+* In this case, _virtualenv venv_
+  (If you can't see the .env file make sure your file explorer has viewing hidden files enabled)
+    >$ virtualenv venv
+* Run the following to update and refresh your .bashrc:
+   >$ echo "source `which activate.sh`" >> ~/.bashrc
+   >$ source ~/.bashrc
+    
+   * cd Out of the folder and back in to get autoenv up and running and thus your virtualenv venv activated.
    
-3. Now open your browser and visit localhost port 5000 to arrive at landing page via the index api.
-![CMD](https://image.ibb.co/gxECPb/Screenshot_105_LI.jpg "Bright Events")
+6. Install all application requirements using pip
+    >$ pip install -r requirements.txt
+    _To check if installed run pip freeze to see all installed packages_
+
+Running the API Endpoints
+-------------------------
+1. Run a terminal such as cmd on windows or terminal on ubuntu.
+2. cd into main folder and run command flask run. This should start the server to our Event Hub RESTful api on port 5000.
+    >$ flask run
+    
+![CMD](https://image.ibb.co/jSxZNG/Screenshot_from_2017_12_29_20_58_25.png "Bright Events")
+   If your lucky (*winks*) You won't get any errors and server will be up on localhost port 5000.
+![CMD](https://image.ibb.co/d1Q79w/Screenshot_from_2017_12_29_20_46_38.png "Bright Events") 
+   
+3. Now you can test your endpoints using Postman or Curl.
 Your good to go.
+
+### Endpoints
+
+Endpoint|Functionality
+--------|-------------
+POST /api/v2/auth/register|Registers a user
+POST /api/v2/auth/login|Logs a registered user in
+POST /api/v2/auth/logout|Logs a logged in user out
+POST /api/v2/auth/reset-password|Resets a logged in users password
+GET /api/v2/events|Views all events
+POST /api/v2/events|Adds an event 
+PUT /api/v2/events/<eventid>|Edits an existing event
+DELETE /api/v2/events/<eventid>|Deletes an existing event
+POST /api/v2/events/<eventid>/rsvp|Sends an rsvp to a event
 
 Tests
 =====
 _You will need [Postman](https://www.getpostman.com/apps) to run tests on api endpoints:_
-    1.Start the api server through your terminal by running _python routes.py_
-    2.Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below.
+1. Start the api server through your terminal by running _flask run_.
+    >$ flask run
+2. Start up postman. (Through postman, you can emulate all http verbs('PUT', 'GET', 'DELETE', 'POST',etc) as shown in screenshots below. For Postman installation, search for appropriate documentation.
     ![Postman](https://image.ibb.co/gHy27w/Screenshot_111.png "Api Tests")
-    ![Postman](https://image.ibb.co/hXVRZb/Screenshot_113.png "Api Tests")
-    ![Postman](https://image.ibb.co/kdMN7w/Screenshot_115.png "Api Tests")
-    ![Postman](https://image.ibb.co/hpNUnw/Screenshot_118.png "Api Tests")
-    
-   
 
-Files like entities_test.py and app_test.py run TDD tests on their corresponding python files.
-_Coming Soon_
+##### Test Driven Development #####
+1. cd Into the main directory.
+2. Run python tests.py to run tests on Bright Events Website RESTful apis.
+    >$ python tests.py
+  ![Tests](https://image.ibb.co/jSawsG/Screenshot_from_2018_01_04_15_27_20.png "Tests")
+
+##### To access the api documentation:
+* Make sure the server is up
+* Visit localhost:5000/apidocs
+![Documentation](https://image.ibb.co/hKeNXG/Screenshot_from_2018_01_04_15_08_26.png "Documentation")
 
 Versioning
 ----------
