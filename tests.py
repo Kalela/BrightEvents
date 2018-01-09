@@ -13,7 +13,6 @@ class TestAPIs(unittest.TestCase):
         self.app = create_app(config_name="testing")
         with self.app.app_context():
             db.create_all()
-            
 
     def test_register_json(self):
         """Test the register user endpoint"""
@@ -22,22 +21,30 @@ class TestAPIs(unittest.TestCase):
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
         self.assertEqual(response.status_code, 201)
         self.assertIn("1234", str(response.data))
+    
+    def test_register_noinput_json(self):
+        """Test the register user endpoint"""
+        tester = self.app.test_client(self)
+        response = tester.post('/api/v2/auth/register',
+                               data=dict(username = "", password = "1234", email = "test@email.com"))
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("Please insert missing", str(response.data))
 
-#    def test_login_json(self):
-#        """Test the user login endpoint"""
-#        tester = self.app.test_client(self)
-#        response = tester.post('/api/v2/auth/login',
-#                               data=dict(username = "user", password = "password"))
-#        self.assertEqual(response.status_code, 202)
-#        self.assertIn("Logged in", str(response.data))
-#
-#    def test_logout_json(self):
-#        """Test the logout user endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.post('/api/v2/auth/logout')
-#        self.assertEqual(response.status_code, 202)
-#        self.assertIn("logged out", str(response.data))
+    def test_login_json(self):
+        """Test the user login endpoint"""
+        tester = self.app.test_client(self)
+        response = tester.post('/api/v2/auth/login',
+                               data=dict(username = "Admin", password = "admin"))
+        self.assertEqual(response.status_code, 202)
+        self.assertIn("Logged in", str(response.data))
+
+    def test_logout_json(self):
+        """Test the logout user endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/login', data=dict(username = "Admin", password = "admin"))
+        response = tester.post('/api/v2/auth/logout')
+        self.assertEqual(response.status_code, 202)
+        self.assertIn("logged out", str(response.data))
 #
 #    def test_reset_password_json(self):
 #        """Test the reset password endpoint"""
@@ -93,6 +100,13 @@ class TestAPIs(unittest.TestCase):
 #        response = tester.post('/api/v2/events/MyParty/rsvp')
 #        self.assertEqual(response.status_code, 201)
 #        self.assertIn("RSVPs sent", str(response.data))
+
+    def tearDown(self):
+        """teardown all initialized variables."""
+        with self.app.app_context():
+            # drop all tables
+            db.session.remove()
+            db.drop_all()
 
 if __name__ == '__main__':
     unittest.main(exit=False)

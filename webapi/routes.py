@@ -9,8 +9,6 @@ from instance.config import app_config
 docs = Documentation()
 db = SQLAlchemy()
 
-
-
 def create_app(config_name):
     """Create the api flask app"""
     from models import User, Event
@@ -21,7 +19,7 @@ def create_app(config_name):
     
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
     with app.app_context():
         db.create_all()
@@ -32,55 +30,59 @@ def create_app(config_name):
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
-            username = request.form['username']
-            email = request.form['email']
-            password = request.form['password']
+                username = request.form['username']
+                email = request.form['email']
+                password = request.form['password']
+
+                if username and email and password:
+                    try:
+                        user = User(username=username, email=email, password=password)
+                        user.save()
+                        return jsonify({'id':user.id,
+                                        'username':user.username,
+                                        'password':user.password,
+                                        'email':user.email,
+                                        'date_created': user.date_created,
+                                        'date_modified': user.date_modified}), 201
+                    except:
+                        return jsonify("Username or email already registered"), 409   
+                else:
+                    return jsonify("Please insert missing value(s)"), 409
+
+    #Works
+    @api.route('/auth/login', methods=['POST'])
+#    @swag_from(docs.login_dict)
+    def login_json():
+        """Login registered users"""
+        username = request.form['username']
+        password = request.form['password']
+        
+        if username and password:
+            users = User.get_all()
+            results = []
             
-            if username and email and password:
-                user = User(username=username, email=email, password=password)
-                user.save()
-                users = User.get_all()
-                return jsonify({'id':user.id,
-                                'username':user.username,
-                                'password':user.password,
-                                'email':user.email,
-                                'date_created': user.date_created,
-                                'date_modified': user.date_modified}), 201
+            for user in users:
+                if user.username == username and user.password == password:
+                    results.append(user.username)
+                    session['username'] = user.username
+                    break
+                else:
+                    msg = "The Password and Username combination is not correct"
+                    results.append(msg)
+                    break
 
-#    #Works
-#    @api.route('/auth/login', methods=['POST'])
-##    @swag_from(docs.login_dict)
-#    def login_json():
-#        """Login registered users"""
-#        username = request.form['username']
-#        email = request.form['email']
-#        password = request.form['password']
-#        
-#        if username and password and email:
-#            user = User(username=username, email=email, password=password)
-#            users = User.get_all()
-#            results = []
-#        
-#            if user in users:
-#                return jsonify({'id':user.id,
-#                                'username':user.username,
-#                                'password':user.password,
-#                                'email':user.email,
-#                                'date_created': user.date_created,
-#                                'date_modified': user.date_modified}), 201
+            return jsonify("Logged in as", results), 202
 
-#
-#    #Works
-#    @api.route('/auth/logout', methods=['POST'])
+    #Works
+    @api.route('/auth/logout', methods=['POST'])
 #    @swag_from(docs.logout_dict)
-#    def logout_json():
-#        """Log out users"""
-#        user = {}
-#        if 'username' in session:
-#            session.pop('username')
-#            return jsonify("User logged out"), 202
-#        else:
-#            return jsonify('User is not logged in'), 200
+    def logout_json():
+        """Log out users"""
+        if 'username' in session:
+            session.pop('username')
+            return jsonify("User logged out"), 202
+        else:
+            return jsonify('User is not logged in'), 200
 #
 #    #Works
 #    @api.route('/auth/reset-password', methods=['POST'])
