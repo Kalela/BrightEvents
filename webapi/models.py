@@ -6,6 +6,7 @@ class User(db.Model):
     __tablename__ = "Users"
     
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
     username = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(80))
@@ -14,10 +15,11 @@ class User(db.Model):
                               default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
     
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, public_id):
         self.username = username
         self.email = email
         self.password = password
+        self.public_id = public_id
     
     def save(self):
         db.session.add(self)

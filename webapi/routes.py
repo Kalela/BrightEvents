@@ -1,13 +1,40 @@
+import uuid
+import jwt
+import datetime
 from flask_api import FlaskAPI
-from flask import jsonify, request, session, Blueprint
+from flask import jsonify, request, session, Blueprint, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger, swag_from
 from api_documentation import Documentation
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 from instance.config import app_config
 
 docs = Documentation()
 db = SQLAlchemy()
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+            
+        if not token:
+            return jsonify({"message":"Token is missing!"}), 401
+        
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = User.query.filter_by(public_id=data['public_id']).first()
+        except:
+            return jsonify({"message":"Token is invalid"}), 401
+        return f(current_user, *args, **kwargs)
+    
+    return decorated
+        
+    
 
 def create_app(config_name):
     """Create the api flask app"""
@@ -33,42 +60,43 @@ def create_app(config_name):
                 username = request.form['username']
                 email = request.form['email']
                 password = request.form['password']
+                hashed_password = generate_password_hash(request.form['password'], method='sha256')
 
-                if username and email and password:
-                    try:
-                        user = User(username=username, email=email, password=password)
+                if username and email and hashed_password:
+                        user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()))
                         user.save()
-                        return jsonify({'id':user.id,
-                                        'username':user.username,
-                                        'password':user.password,
-                                        'email':user.email,
-                                        'date_created': user.date_created,
-                                        'date_modified': user.date_modified}), 201
-                    except:
+                        if not user:
+                            return jsonify({"message":"Please insert missing value(s)"}), 409
+                        else:
+                            return jsonify({'id':user.public_id,
+                                            'username':user.username,
+                                            'password':user.password,
+                                            'email':user.email,
+                                            'date_created': user.date_created,
+                                            'date_modified': user.date_modified}), 201
                         return jsonify("Username or email already registered"), 409   
-                else:
-                    return jsonify("Please insert missing value(s)"), 409
 
     #Works
     @api.route('/auth/login', methods=['POST'])
 #    @swag_from(docs.login_dict)
     def login_json():
         """Login registered users"""
-        if 'username' in session:
-            return jsonify("User", session['username'], "already logged in."), 409
-        else:
-            username = request.form['username']
-            password = request.form['password']
-            user = User.get_one(username)
-
-            if username and password:
-                if user.username == username and user.password == password:
-                    results = user.username
-                    session['username'] = user.username
-                    return jsonify({"Logged in as": results}), 202
-                else:
-                    return jsonify("The Password and Username combination is not correct"), 401
-
+        auth = request.authorization
+        
+        if not auth or not auth.username or not auth.password:
+            return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+        
+        user = User.query.filter_by(username=auth.username).first()
+        
+        if not user:
+            return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+        
+        if check_password_hash(user.password, auth.password):
+            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+            return jsonify({'token':token.decode('UTF-8')}), 202
+        
+        return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+            
     #Works
     @api.route('/auth/logout', methods=['POST'])
 #    @swag_from(docs.logout_dict)
@@ -82,8 +110,9 @@ def create_app(config_name):
 
     #Works
     @api.route('/auth/reset-password', methods=['POST'])
-    @swag_from(docs.pass_reset_dict)
-    def reset_password_json():
+    @token_required
+#    @swag_from(docs.pass_reset_dict)
+    def reset_password_json(current_user):
         """Reset users password"""
         old_password = request.form['old_password']
         new_password = request.form['new_password']
@@ -101,9 +130,10 @@ def create_app(config_name):
         
     #Works
     @api.route('/events', methods=['POST', 'GET'])
+    @token_required
 #    @swag_from(docs.event_get_dict, methods=['GET'])
 #    @swag_from(docs.event_post_dict, methods=['POST'])
-    def events_json():
+    def events_json(current_user):
         """Add or view events"""
         if request.method == 'POST':
             if 'username' in session:
@@ -130,13 +160,22 @@ def create_app(config_name):
                 return jsonify("Please Log In to add events"), 401
         if request.method == 'GET':
             events = Event.get_all()
-            return jsonify("Events", str(events)), 200
+            result = []
+            for event in events:
+                event_data = {}
+                event_data['eventname'] = event.eventname
+                event_data['location'] = event.location
+                event_data['date'] = event.date
+                event_data['category'] = event.category
+                result.append(event_data)
+            return jsonify({"Events": result}), 200
 
     #Works
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
+    @token_required
 #    @swag_from(docs.event_put_dict, methods=['PUT'])
 #    @swag_from(docs.event_delete_dict, methods=['DELETE'])
-    def event_update_json(eventname):
+    def event_update_json(current_user, eventname):
         """Edit existing events"""
         if 'username' in session:
             if request.method == 'PUT':
@@ -174,8 +213,9 @@ def create_app(config_name):
             
     #Works
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
-    @swag_from(docs.event_rsvp_dict)
-    def rsvp_json(eventname):
+    @token_required
+#    @swag_from(docs.event_rsvp_dict)
+    def rsvp_json(current_user, eventname):
         """Send RSVPs to existing events"""
         if 'username' in session:
             try:
