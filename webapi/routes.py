@@ -54,24 +54,20 @@ def create_app(config_name):
 #    @swag_from(docs.login_dict)
     def login_json():
         """Login registered users"""
-        username = request.form['username']
-        password = request.form['password']
-        
-        if username and password:
-            users = User.get_all()
-            results = []
-            
-            for user in users:
-                if user.username == username and user.password == password:
-                    results.append(user.username)
-                    session['username'] = user.username
-                    break
-                else:
-                    msg = "The Password and Username combination is not correct"
-                    results.append(msg)
-                    break
+        if 'username' in session:
+            return jsonify("User", session['username'], "already logged in."), 409
+        else:
+            username = request.form['username']
+            password = request.form['password']
+            user = User.get_one(username)
 
-            return jsonify("Logged in as", results), 202
+            if username and password:
+                if user.username == username and user.password == password:
+                    results = user.username
+                    session['username'] = user.username
+                    return jsonify({"Logged in as": results}), 202
+                else:
+                    return jsonify("The Password and Username combination is not correct"), 401
 
     #Works
     @api.route('/auth/logout', methods=['POST'])
@@ -83,24 +79,25 @@ def create_app(config_name):
             return jsonify("User logged out"), 202
         else:
             return jsonify('User is not logged in'), 200
-#
-#    #Works
-#    @api.route('/auth/reset-password', methods=['POST'])
-#    @swag_from(docs.pass_reset_dict)
-#    def reset_password_json():
-#        """Reset users password"""
-#        if 'username' in session:
-#            old_user = {}
-#            old_user[request.form['username']] = request.form['password']
-#            if old_user in users.users:
-#                user = {}
-#                user[session['username']] = request.form['new_password']
-#                users.users.append(user)
-#                return jsonify({"Password changed from": old_user},{"To":user}), 205
-#            else:
-#                return jsonify("User does not exist"), 404     
-#        else:
-#            return jsonify("Please log in"), 401
+
+    #Works
+    @api.route('/auth/reset-password', methods=['POST'])
+    @swag_from(docs.pass_reset_dict)
+    def reset_password_json():
+        """Reset users password"""
+        old_password = request.form['old_password']
+        new_password = request.form['new_password']
+        
+        if 'username' in session:
+            user = User.get_one(session['username'])
+            if user.password == old_password:
+                user.password == new_password
+                user.save()
+                return jsonify({"Password changed from": old_password},{"To":new_password}), 205
+            else:
+                return jsonify("Wrong password input. Review your input."), 400  
+        else:
+            return jsonify("Please log in"), 401
 #        
 #    #Works
 #    @api.route('/events', methods=['POST', 'GET'])

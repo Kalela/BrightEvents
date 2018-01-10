@@ -27,9 +27,9 @@ class User(db.Model):
     def get_all():
         return User.query.all()
     
-#    @staticmethod
-#    def get_one(name):
-#        return User.query.filter(name).first()
+    @staticmethod
+    def get_one(username):
+        return User.query.filter_by(username=username).first()
         
     def __repr__(self):
         return '<User %r>' % self.username

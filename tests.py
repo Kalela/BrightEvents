@@ -33,28 +33,33 @@ class TestAPIs(unittest.TestCase):
     def test_login_json(self):
         """Test the user login endpoint"""
         tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
         response = tester.post('/api/v2/auth/login',
-                               data=dict(username = "Admin", password = "admin"))
+                               data=dict(username = "admin", password = "1234"))
         self.assertEqual(response.status_code, 202)
         self.assertIn("Logged in", str(response.data))
 
     def test_logout_json(self):
         """Test the logout user endpoint"""
         tester = self.app.test_client(self)
-        tester.post('/api/v2/auth/login', data=dict(username = "Admin", password = "admin"))
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         response = tester.post('/api/v2/auth/logout')
         self.assertEqual(response.status_code, 202)
         self.assertIn("logged out", str(response.data))
-#
-#    def test_reset_password_json(self):
-#        """Test the reset password endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.post('/api/v2/auth/reset-password', data=dict(username = "user", 
-#                                                                        password = "password", 
-#                                                                        new_password = "somethingnew"))
-#        self.assertEqual(response.status_code, 205)
-#        self.assertIn("Password changed", str(response.data))
+
+    def test_reset_password_json(self):
+        """Test the reset password endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+        response = tester.post('/api/v2/auth/reset-password', data=dict(old_password = "1234", 
+                                                                        new_password = "somethingnew"))
+        self.assertEqual(response.status_code, 205)
+        self.assertIn("Password changed", str(response.data))
 #
 #    def test_new_event_json(self):
 #        """Test the create new event endpoint"""
