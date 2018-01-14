@@ -64,16 +64,18 @@ def create_app(config_name):
                         user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()), logged_in = False)
                         user.save()
                         if not user:
-                            return jsonify({"message":"Please insert missing value(s)"}), 409
+                            return jsonify({"message":"Please insert correct value(s)"}), 409
                         else:
                             return jsonify({'id':user.public_id,
-                                            'loggen in':user.logged_in,
+                                            'logged in':user.logged_in,
                                             'username':user.username,
                                             'password':user.password,
                                             'email':user.email,
                                             'date_created': user.date_created,
                                             'date_modified': user.date_modified}), 201
-                        return jsonify("Username or email already registered"), 409   
+                        return jsonify("Username or email already registered"), 409
+                else:
+                    return jsonify({"message":"Please insert missing value(s)"}), 409
 
     #Works
     @api.route('/auth/login', methods=['POST'])
@@ -81,13 +83,17 @@ def create_app(config_name):
     def login_json():
         """Login registered users"""
         auth = request.authorization
+        print(auth.username)
+        print(auth.password)
         
         if not auth or not auth.username or not auth.password:
+            print('one')
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
         user = User.query.filter_by(username=auth.username).first()
         
         if not user:
+            print('two')
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
         if check_password_hash(user.password, auth.password):
@@ -96,6 +102,7 @@ def create_app(config_name):
             db.session.commit()
             return jsonify({'Logged in':user.username, 'token':token.decode('UTF-8')}), 202
         
+        print('three')
         return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
             
     #Works
