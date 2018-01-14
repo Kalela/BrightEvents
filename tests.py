@@ -20,7 +20,7 @@ class TestAPIs(unittest.TestCase):
         response = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
         self.assertEqual(response.status_code, 201)
-        self.assertIn("1234", str(response.data))
+#        self.assertIn("1234", str(response.data))
     
     def test_register_noinput_json(self):
         """Test the register user endpoint"""
@@ -35,6 +35,9 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        auth = request.authorization
+        auth.username = "admin"
+        auth.password = "1234"
         response = tester.post('/api/v2/auth/login',
                                data=dict(username = "admin", password = "1234"))
         self.assertEqual(response.status_code, 202)
@@ -51,7 +54,7 @@ class TestAPIs(unittest.TestCase):
         self.assertIn("logged out", str(response.data))
 
     def test_reset_password_json(self):
-#        """Test the reset password endpoint"""
+        """Test the reset password endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
