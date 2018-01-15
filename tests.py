@@ -71,11 +71,11 @@ class TestAPIs(unittest.TestCase):
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
-                               headers={'x-access-token':token},
                                data=dict(eventname = "newevent", 
                                          location = "newlocation", 
                                          date = "21/05/2018", 
-                                         category = "newcategory"))
+                                         category = "newcategory"),
+                               headers={'x-access-token':token})
         self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
 
@@ -93,11 +93,11 @@ class TestAPIs(unittest.TestCase):
                               date = "21/05/2018", 
                               category = "newcategory"))
         response = tester.put('/api/v2/events/newevent',
-                              headers={'x-access-token':token},
                               data=dict(eventid = "myevent", 
-                              location = "mylocation", 
-                              date = "19/03/2018", 
-                              category = "mycategory"))
+                                        location = "mylocation", 
+                                        date = "19/03/2018", 
+                                        category = "mycategory"),
+                              headers={'x-access-token':token})
         self.assertEqual(response.status_code, 202)
         self.assertIn("updated to", str(response.data))
 
@@ -109,11 +109,11 @@ class TestAPIs(unittest.TestCase):
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         token = json.loads(tkn.data.decode())['access-token']
         tester.post('/api/v2/events',
-                    headers={'x-access-token':token},
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
                               date = "21/05/2018", 
-                              category = "newcategory"))
+                              category = "newcategory"),
+                    headers={'x-access-token':token})
         response = tester.delete('api/v2/events/newevent', headers={'x-access-token':token})
         self.assertEqual(response.status_code, 205)
         self.assertIn("Event(s)", str(response.data))
@@ -137,11 +137,11 @@ class TestAPIs(unittest.TestCase):
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         token = json.loads(tkn.data.decode())['access-token']
         tester.post('/api/v2/events',
-                    headers={'x-access-token':token},
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
                               date = "21/05/2018", 
-                              category = "newcategory"))
+                              category = "newcategory"),
+                    headers={'x-access-token':token})
         response = tester.post('/api/v2/events/newevent/rsvp', headers={'x-access-token':token})
         self.assertEqual(response.status_code, 201)
         self.assertIn("RSVP sent", str(response.data))
