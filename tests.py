@@ -47,7 +47,7 @@ class TestAPIs(unittest.TestCase):
 #                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
 #        tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
 #        token = json.loads(tkn.data.decode())['access-token']
-#        response = tester.post('/api/v2/auth/logout', headers=dict(Authorization="Bearer " + token))
+#        response = tester.post('/api/v2/auth/logout', headers=dict(x-access-token=token))
 #        self.assertEqual(response.status_code, 202)
 #        self.assertIn("logged out", str(response.data))
 
