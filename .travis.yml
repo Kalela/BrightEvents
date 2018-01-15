@@ -6,7 +6,6 @@ services:
 # command to set up database
 before_script:
   - psql -c "CREATE DATABASE testing_db;" -U postgres
-  - psql -c "CREATE USER postgres WITH PASSWORD 'challenge123';" -U postgres
 env:
   - FLASK=0.12.2  # recent Flask
 # command to install dependencies
