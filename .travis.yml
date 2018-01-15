@@ -8,6 +8,8 @@ before_script:
   - psql -c "CREATE DATABASE testing_db;" -U postgres
 env:
   - FLASK=0.12.2  # recent Flask
+  global:
+      - DATABASE_URL=postgresql://postgres:challenge123@localhost/bright_events_db
 # command to install dependencies
 install:
   - pip install -r requirements.txt
