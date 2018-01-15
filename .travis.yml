@@ -3,6 +3,8 @@ python:
   - 2.7
 env:
   - FLASK=0.12.2  # recent Flask
+  - DB=postgres
+  
 # command to install dependencies
 install:
   - pip install -r requirements.txt

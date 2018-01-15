@@ -9,7 +9,7 @@ class User(db.Model):
     public_id = db.Column(db.String(50), unique=True)
     username = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(80))
+    password = db.Column(db.String(120))
     logged_in = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,

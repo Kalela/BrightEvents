@@ -82,27 +82,22 @@ def create_app(config_name):
 #    @swag_from(docs.login_dict)
     def login_json():
         """Login registered users"""
-        auth = request.authorization
-        print(auth.username)
-        print(auth.password)
+        name = request.form['username']
+        passwd = request.form['password']
         
-        if not auth or not auth.username or not auth.password:
-            print('one')
+        if not name or not passwd:
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
-        user = User.query.filter_by(username=auth.username).first()
-        
+        user = User.query.filter_by(username=name).first()
         if not user:
-            print('two')
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
-        if check_password_hash(user.password, auth.password):
+        if check_password_hash(user.password, passwd):
             token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
             user.logged_in = True
             db.session.commit()
-            return jsonify({'Logged in':user.username, 'token':token.decode('UTF-8')}), 202
+            return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
         
-        print('three')
         return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
             
     #Works
@@ -132,7 +127,7 @@ def create_app(config_name):
         if user.logged_in == True:
                 user.password = new_password
                 db.session.commit()
-                return jsonify({"Password changed from": old_password},{"To":new_password}), 205 
+                return jsonify({"Message":"Password reset!"}), 205 
         else:
             return jsonify("Please log in"), 401
         

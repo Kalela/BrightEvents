@@ -2,7 +2,6 @@ import os
 import unittest
 import json
 import requests
-from requests.auth import HTTPBasicAuth
 
 from webapi.routes import create_app, db
 from webapi.api_data import Users, Events
@@ -14,15 +13,6 @@ class TestAPIs(unittest.TestCase):
         self.app = create_app(config_name="testing")
         with self.app.app_context():
             db.create_all()      
-
-#    def open_with_auth(self, url, method, username, password):
-#        return self.app.open(url,
-#            method=method,
-#            headers={
-#                'Authorization': 'Basic ' + base64.b64encode(username + \
-#                ":" + password)
-#            }
-#        )
 
     def test_register_json(self):
         """Test the register user endpoint"""
@@ -45,9 +35,8 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
-        auth = HTTPBasicAuth(username='admin', password='1234')
         response = tester.post('/api/v2/auth/login',
-                               auth)
+                               data=dict(username="admin", password="1234"))
         self.assertEqual(response.status_code, 202)
         self.assertIn("Logged in", str(response.data))
 
@@ -56,11 +45,12 @@ class TestAPIs(unittest.TestCase):
 #        tester = self.app.test_client(self)
 #        tester.post('/api/v2/auth/register',
 #                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
-#        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
-#        response = tester.post('/api/v2/auth/logout')
+#        tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+#        token = json.loads(tkn.data.decode())['access-token']
+#        response = tester.post('/api/v2/auth/logout', headers=dict(Authorization="Bearer " + token))
 #        self.assertEqual(response.status_code, 202)
 #        self.assertIn("logged out", str(response.data))
-#
+
 #    def test_reset_password_json(self):
 #        """Test the reset password endpoint"""
 #        tester = self.app.test_client(self)
@@ -140,7 +130,6 @@ class TestAPIs(unittest.TestCase):
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
-            # drop all tables
             db.session.remove()
             db.drop_all()
 
