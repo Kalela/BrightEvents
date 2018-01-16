@@ -208,7 +208,7 @@ def create_app(config_name):
             event_data['date'] = event.date
             event_data['category'] = event.category
             result.append(event_data)
-            return jsonify({"Events": result}), 200
+        return jsonify({"Events": result}), 200
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
@@ -244,7 +244,16 @@ def create_app(config_name):
                     event = Event.get_one(eventname)
                     event.delete()
                     events = Event.get_all()
-                    return jsonify("Event(s)", str(Event.get_all())), 205
+                    result = []
+                    for event in events:
+                        event_data = {}
+                        event_data['eventname'] = event.eventname
+                        event_data['location'] = event.location
+                        event_data['date'] = event.date
+                        event_data['category'] = event.category
+                        result.append(event_data)
+                        
+                    return jsonify({"Event(s)": result}), 205
                 except:
                     return jsonify({"message":"Event you are deleting does not exist"}), 404
                     
