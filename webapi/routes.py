@@ -164,15 +164,40 @@ def create_app(config_name):
                 return jsonify("Please Log In to add events"), 401
         if request.method == 'GET':
             events = Event.get_all()
+            location = request.args.get('location')
+            category = request.args.get('category')
             result = []
-            for event in events:
-                event_data = {}
-                event_data['eventname'] = event.eventname
-                event_data['location'] = event.location
-                event_data['date'] = event.date
-                event_data['category'] = event.category
-                result.append(event_data)
-            return jsonify({"Events": result}), 200
+            if category:
+                evnts = Event.filter_category(category)
+                for event in evnts:
+                    event_data = {}
+                    event_data['eventname'] = event.eventname
+                    event_data['location'] = event.location
+                    event_data['date'] = event.date
+                    event_data['category'] = event.category
+                    result.append(event_data)
+                return jsonify({"Events": result}), 200
+            
+            if location:
+                evnts = Event.filter_location(location)
+                for event in evnts:
+                    event_data = {}
+                    event_data['eventname'] = event.eventname
+                    event_data['location'] = event.location
+                    event_data['date'] = event.date
+                    event_data['category'] = event.category
+                    result.append(event_data)
+                return jsonify({"Events": result}), 200
+      
+            if not location and not category:
+                for event in events:
+                    event_data = {}
+                    event_data['eventname'] = event.eventname
+                    event_data['location'] = event.location
+                    event_data['date'] = event.date
+                    event_data['category'] = event.category
+                    result.append(event_data)
+                return jsonify({"Events": result}), 200
 
     #Works
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])

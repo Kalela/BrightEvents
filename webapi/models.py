@@ -72,6 +72,14 @@ class Event(db.Model):
     @staticmethod
     def get_one(eventname):
         return Event.query.filter_by(eventname=eventname).first()
+    
+    @staticmethod
+    def filter_category(category):
+        return Event.query.filter_by(category=category).all()
+    
+    @staticmethod
+    def filter_location(location):
+        return Event.query.filter_by(location=location).all()
 
     def delete(self):
         db.session.delete(self)
