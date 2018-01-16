@@ -144,7 +144,7 @@ def create_app(config_name):
                     try:
                         event = Event(eventname=eventname, location=location, date=date, category=category, rsvp="None")
                         event.save()
-                        return jsonify("New event",
+                        return jsonify({"New event":
                                        {"id":event.id,
                                         "eventname":event.eventname,
                                         "location":event.location,
@@ -152,7 +152,7 @@ def create_app(config_name):
                                         "category":event.category,
                                         'date_created': event.date_created,
                                         'date_modified': event.date_modified
-                                        }), 201
+                                        }}), 201
                     except:
                         return jsonify({"message":"Event already exists"}), 409 
             else:
