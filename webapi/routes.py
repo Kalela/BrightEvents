@@ -49,7 +49,6 @@ def create_app(config_name):
 
         return decorated
 
-    #Works
     @api.route('/auth/register', methods=['POST'])
 #    @swag_from(docs.register_dict)
     def register_page_json():
@@ -77,7 +76,6 @@ def create_app(config_name):
                 else:
                     return jsonify({"message":"Please insert missing value(s)"}), 409
 
-    #Works
     @api.route('/auth/login', methods=['POST'])
 #    @swag_from(docs.login_dict)
     def login_json():
@@ -99,8 +97,7 @@ def create_app(config_name):
             return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
         
         return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
-            
-    #Works
+
     @api.route('/auth/logout', methods=['POST'])
     @token_required
 #    @swag_from(docs.logout_dict)
@@ -110,11 +107,10 @@ def create_app(config_name):
         if user.logged_in == True:
             user.logged_in = False
             db.session.commit()
-            return jsonify("User logged out"), 202
+            return jsonify({"message":"User logged out"}), 202
         else:
-            return jsonify('User is not logged in'), 200
+            return jsonify({"message":"User is not logged in"}), 200
 
-    #Works
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
 #    @swag_from(docs.pass_reset_dict)
@@ -129,9 +125,8 @@ def create_app(config_name):
                 db.session.commit()
                 return jsonify({"Message":"Password reset!"}), 205 
         else:
-            return jsonify("Please log in"), 401
-        
-    #Works
+            return jsonify({"message":"Please log in"}), 401
+
     @api.route('/events', methods=['POST', 'GET'])
     @token_required
 #    @swag_from(docs.event_get_dict, methods=['GET'])
@@ -159,9 +154,10 @@ def create_app(config_name):
                                         'date_modified': event.date_modified
                                         }), 201
                     except:
-                        return jsonify("Event already exists"), 409 
+                        return jsonify({"message":"Event already exists"}), 409 
             else:
-                return jsonify("Please Log In to add events"), 401
+                return jsonify({"message":"Please Log In to add events"}), 401
+
         if request.method == 'GET':
             events = Event.get_all()
             location = request.args.get('location')
@@ -198,8 +194,22 @@ def create_app(config_name):
                     event_data['category'] = event.category
                     result.append(event_data)
                 return jsonify({"Events": result}), 200
+            
+    @api.route('/events/search', methods=['GET'])
+    @token_required
+    def search(current_user):
+        q = request.args.get("q")
+        found_events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+        result = []
+        for event in found_events:
+            event_data = {}
+            event_data['eventname'] = event.eventname
+            event_data['location'] = event.location
+            event_data['date'] = event.date
+            event_data['category'] = event.category
+            result.append(event_data)
+            return jsonify({"Events": result}), 200
 
-    #Works
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
 #    @swag_from(docs.event_put_dict, methods=['PUT'])
@@ -227,7 +237,7 @@ def create_app(config_name):
                                     "category":category
                                    }}), 202
                 except:
-                    return jsonify("Event you are editing does not exist"), 404
+                    return jsonify({"message":"Event you are editing does not exist"}), 404
 
             if request.method == 'DELETE':
                 try:
@@ -236,12 +246,11 @@ def create_app(config_name):
                     events = Event.get_all()
                     return jsonify("Event(s)", str(Event.get_all())), 205
                 except:
-                    return jsonify("Event you are deleting does not exist"), 404
+                    return jsonify({"message":"Event you are deleting does not exist"}), 404
                     
         else:
-            return jsonify("Please log in to edit or delete events"), 401
-            
-    #Works
+            return jsonify({"message":"Please log in to edit or delete events"}), 401
+
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
     @token_required
 #    @swag_from(docs.event_rsvp_dict)
@@ -254,13 +263,13 @@ def create_app(config_name):
                 if event.rsvp == "None":
                     event.rsvp = "Sent"
                     db.session.commit()
-                    return jsonify("RSVP sent"), 201
+                    return jsonify({"message":"RSVP sent"}), 201
                 else:
-                    return jsonify("RSVP already sent"), 409
+                    return jsonify({"message":"RSVP already sent"}), 409
             except:
-                return jsonify("Event does not exist"), 404
+                return jsonify({"message":"Event does not exist"}), 404
         else:
-            return jsonify("Please log in Before sending RSVP"), 401
+            return jsonify({"message":"Please log in Before sending RSVP"}), 401
 
     app.register_blueprint(api, url_prefix='/api/v2')
     return app
