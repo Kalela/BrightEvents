@@ -48,6 +48,17 @@ def create_app(config_name):
             return f(current_user, *args, **kwargs)
 
         return decorated
+    
+    def print_events(events):
+        result = []
+        for event in events:
+            event_data = {}
+            event_data['eventname'] = event.eventname
+            event_data['location'] = event.location
+            event_data['date'] = event.date
+            event_data['category'] = event.category
+            result.append(event_data)
+        return result
 
     @api.route('/auth/register', methods=['POST'])
 #    @swag_from(docs.register_dict)
@@ -60,18 +71,18 @@ def create_app(config_name):
                 hashed_password = generate_password_hash(request.form['password'], method='sha256')
 
                 if username and email and hashed_password:
+                    user = User.query.filter_by(username=username).first()
+                    if not user:
                         user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()), logged_in = False)
                         user.save()
-                        if not user:
-                            return jsonify({"message":"Please insert correct value(s)"}), 409
-                        else:
-                            return jsonify({'id':user.public_id,
-                                            'logged in':user.logged_in,
-                                            'username':user.username,
-                                            'password':user.password,
-                                            'email':user.email,
-                                            'date_created': user.date_created,
-                                            'date_modified': user.date_modified}), 201
+                        return jsonify({'id':user.public_id,
+                                        'logged in':user.logged_in,
+                                        'username':user.username,
+                                        'password':user.password,
+                                        'email':user.email,
+                                        'date_created': user.date_created,
+                                        'date_modified': user.date_modified}), 201
+                    else:
                         return jsonify("Username or email already registered"), 409
                 else:
                     return jsonify({"message":"Please insert missing value(s)"}), 409
@@ -91,7 +102,7 @@ def create_app(config_name):
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
         if check_password_hash(user.password, passwd):
-            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
             user.logged_in = True
             db.session.commit()
             return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
@@ -109,7 +120,7 @@ def create_app(config_name):
             db.session.commit()
             return jsonify({"message":"User logged out"}), 202
         else:
-            return jsonify({"message":"User is not logged in"}), 200
+            return jsonify({"message":"User is already logged out"}), 200
 
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
@@ -142,19 +153,24 @@ def create_app(config_name):
                 category = request.form['category']
                 if eventname and location and date and category:
                     try:
-                        event = Event(eventname=eventname, location=location, date=date, category=category, rsvp="None")
-                        event.save()
-                        return jsonify({"New event":
-                                       {"id":event.id,
-                                        "eventname":event.eventname,
-                                        "location":event.location,
-                                        "date":event.date,
-                                        "category":event.category,
-                                        'date_created': event.date_created,
-                                        'date_modified': event.date_modified
-                                        }}), 201
+                        event = Event.query.filter_by(eventname=eventname).first()
+                        if event and event.location == location:
+                            return jsonify({"message":"Event already exists"}), 409
+                        else:
+                            event = Event(eventname=eventname, location=location, date=date, category=category, rsvp="None")
+                            event.save()
+                            return jsonify({"New event":
+                                           {"id":event.id,
+                                            "eventname":event.eventname,
+                                            "location":event.location,
+                                            "date":event.date,
+                                            "category":event.category,
+                                            'date_created': event.date_created,
+                                            'date_modified': event.date_modified
+                                            }}), 201
                     except:
-                        return jsonify({"message":"Event already exists"}), 409 
+                        return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
+                     
             else:
                 return jsonify({"message":"Please Log In to add events"}), 401
 
@@ -162,24 +178,28 @@ def create_app(config_name):
             location = request.args.get('location')
             category = request.args.get('category')
             q = request.args.get('q')
-            result = []
+
+            limit = request.args.get('limit')
+            if limit:
+                limit = int(limit)
+
+            _next = request.args.get('next')
+            prev = request.args.get('prev')
+            _next = False
+            prev = False
+            
             if category:
                 events = Event.filter_category(category)
             if location:
                 events = Event.filter_location(location)
             if q:
-                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()   
             if not category and not location and not q:
-                events = Event.get_all()
-    
-            for event in events:
-                event_data = {}
-                event_data['eventname'] = event.eventname
-                event_data['location'] = event.location
-                event_data['date'] = event.date
-                event_data['category'] = event.category
-                result.append(event_data)
-            return jsonify({"Events": result}), 200
+                if not limit:
+                    limit = 10
+                event_pages = Event.get_all_pages(limit)
+                events = event_pages.items
+            return jsonify({"Events": print_events(events)}), 200
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
@@ -194,38 +214,33 @@ def create_app(config_name):
                 date = request.form['date']
                 location = request.form['location']
                 category = request.form['category']
+                event = Event.get_one(eventname)
                 try:
-                    event = Event.get_one(eventname)
-                    event.eventname = event_name
-                    event.location = location
-                    event.date = date
-                    event.category = category
-                    db.session.commit()
-                    return jsonify({"Event updated to:":{
+                    if event:
+                        event.eventname = event_name
+                        event.location = location
+                        event.date = date
+                        event.category = category
+                        db.session.commit()
+                        return jsonify({"Event updated to:":{
                                     "eventname":event_name,
                                     "location":location,
                                     "date":date,
                                     "category":category
                                    }}), 202
+                    else:
+                        return jsonify({"message":"Event you are editing does not exist"}), 404
                 except:
-                    return jsonify({"message":"Event you are editing does not exist"}), 404
+                    return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
 
             if request.method == 'DELETE':
-                try:
-                    event = Event.get_one(eventname)
+                event = Event.get_one(eventname)
+                if event:
                     event.delete()
-                    events = Event.get_all()
-                    result = []
-                    for event in events:
-                        event_data = {}
-                        event_data['eventname'] = event.eventname
-                        event_data['location'] = event.location
-                        event_data['date'] = event.date
-                        event_data['category'] = event.category
-                        result.append(event_data)
-                        
-                    return jsonify({"Event(s)": result}), 205
-                except:
+                    event_pages = Event.get_all_pages(limit=10)
+                    events = event_pages.items
+                    return jsonify({"Event(s)": print_events(events)}), 205
+                else:
                     return jsonify({"message":"Event you are deleting does not exist"}), 404
                     
         else:
@@ -238,15 +253,15 @@ def create_app(config_name):
         """Send RSVPs to existing events"""
         user = current_user
         if user.logged_in == True:
-            try:
-                event = Event.get_one(eventname)
+            event = Event.get_one(eventname)
+            if event:
                 if event.rsvp == "None":
                     event.rsvp = "Sent"
                     db.session.commit()
                     return jsonify({"message":"RSVP sent"}), 201
                 else:
                     return jsonify({"message":"RSVP already sent"}), 409
-            except:
+            else:
                 return jsonify({"message":"Event does not exist"}), 404
         else:
             return jsonify({"message":"Please log in Before sending RSVP"}), 401

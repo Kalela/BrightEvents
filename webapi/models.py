@@ -26,10 +26,6 @@ class User(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
-
-    @staticmethod
-    def get_all():
-        return User.query.all()
     
     @staticmethod
     def get_one(username):
@@ -66,8 +62,8 @@ class Event(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all():
-        return Event.query.all()
+    def get_all_pages(limit):
+        return Event.query.paginate(per_page=limit)
     
     @staticmethod
     def get_one(eventname):
