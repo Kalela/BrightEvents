@@ -159,56 +159,27 @@ def create_app(config_name):
                 return jsonify({"message":"Please Log In to add events"}), 401
 
         if request.method == 'GET':
-            events = Event.get_all()
             location = request.args.get('location')
             category = request.args.get('category')
+            q = request.args.get('q')
             result = []
             if category:
-                evnts = Event.filter_category(category)
-                for event in evnts:
-                    event_data = {}
-                    event_data['eventname'] = event.eventname
-                    event_data['location'] = event.location
-                    event_data['date'] = event.date
-                    event_data['category'] = event.category
-                    result.append(event_data)
-                return jsonify({"Events": result}), 200
-            
+                events = Event.filter_category(category)
             if location:
-                evnts = Event.filter_location(location)
-                for event in evnts:
-                    event_data = {}
-                    event_data['eventname'] = event.eventname
-                    event_data['location'] = event.location
-                    event_data['date'] = event.date
-                    event_data['category'] = event.category
-                    result.append(event_data)
-                return jsonify({"Events": result}), 200
-      
-            if not location and not category:
-                for event in events:
-                    event_data = {}
-                    event_data['eventname'] = event.eventname
-                    event_data['location'] = event.location
-                    event_data['date'] = event.date
-                    event_data['category'] = event.category
-                    result.append(event_data)
-                return jsonify({"Events": result}), 200
-            
-    @api.route('/events/search', methods=['GET'])
-    @token_required
-    def search(current_user):
-        q = request.args.get("q")
-        found_events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
-        result = []
-        for event in found_events:
-            event_data = {}
-            event_data['eventname'] = event.eventname
-            event_data['location'] = event.location
-            event_data['date'] = event.date
-            event_data['category'] = event.category
-            result.append(event_data)
-        return jsonify({"Events": result}), 200
+                events = Event.filter_location(location)
+            if q:
+                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+            if not category and not location and not q:
+                events = Event.get_all()
+    
+            for event in events:
+                event_data = {}
+                event_data['eventname'] = event.eventname
+                event_data['location'] = event.location
+                event_data['date'] = event.date
+                event_data['category'] = event.category
+                result.append(event_data)
+            return jsonify({"Events": result}), 200
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
@@ -230,7 +201,7 @@ def create_app(config_name):
                     event.date = date
                     event.category = category
                     db.session.commit()
-                    return jsonify({"Event updated to: ":{
+                    return jsonify({"Event updated to:":{
                                     "eventname":event_name,
                                     "location":location,
                                     "date":date,
