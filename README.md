@@ -5,7 +5,7 @@ Heroku app: https://event-hub-bright-events.herokuapp.com/
 
 Build Status
 ------------
-![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-setup-postgres-db-153738107)
+![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-searching-and-filtering-154311788)
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
