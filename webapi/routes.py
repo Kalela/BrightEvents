@@ -59,6 +59,9 @@ def create_app(config_name):
             event_data['category'] = event.category
             result.append(event_data)
         return result
+    app.route('/', methods=['GET'])
+    def docs():
+        return ""
 
     @api.route('/auth/register', methods=['POST'])
 #    @swag_from(docs.register_dict)
