@@ -134,8 +134,8 @@ class TestAPIs(unittest.TestCase):
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
-                               data=dict(eventname = "newevent", location = "newlocation", 
-                                         date = "21/05/2018", category = "newcategory"),
+                               data={"eventname":"newevent", "location":"newlocation", 
+                                         "date":"21/05/2018", "category":"newcategory"},
                                          headers={'x-access-token':token})
         self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
@@ -148,8 +148,8 @@ class TestAPIs(unittest.TestCase):
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
-                               data=dict(eventname = "newevent", location = "newlocation", 
-                                         date = "21052018", category = "newcategory"),
+                               data={"eventname":"newevent", "location":"newlocation", 
+                                         "date":"21052018", "category":"newcategory"},
                                          headers={'x-access-token':token})
         self.assertEqual(response.status_code, 400)
         self.assertIn("Something went wrong", str(response.data))
