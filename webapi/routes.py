@@ -75,13 +75,7 @@ def create_app(config_name):
                     if not user:
                         user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()), logged_in = False)
                         user.save()
-                        return jsonify({'id':user.public_id,
-                                        'logged in':user.logged_in,
-                                        'username':user.username,
-                                        'password':user.password,
-                                        'email':user.email,
-                                        'date_created': user.date_created,
-                                        'date_modified': user.date_modified}), 201
+                        return jsonify({"message":"Registration successful, log in to access your account"}), 201
                     else:
                         return jsonify("Username or email already registered"), 409
                 else:

@@ -20,7 +20,7 @@ class TestAPIs(unittest.TestCase):
         response = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
         self.assertEqual(response.status_code, 201)
-        self.assertIn("date_created", str(response.data))
+        self.assertIn("Registration successful", str(response.data))
     
     def test_register_noinput_json(self):
         """Test a blank input on register endpoint"""
@@ -137,7 +137,6 @@ class TestAPIs(unittest.TestCase):
                                data=dict(eventname = "newevent", location = "newlocation", 
                                          date = "21/05/2018", category = "newcategory"),
                                          headers={'x-access-token':token})
-        print(token)
         self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
         
