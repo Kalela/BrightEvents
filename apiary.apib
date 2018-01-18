@@ -1,0 +1,224 @@
+FORMAT: 1A
+HOST: http://brightevents.apiblueprint.org/
+
+# Bright Events
+
+Bright Events is a simple API allowing users to add, view and edit events.
+
+# Group Users
+## Register User [/auth/register]
+### Register a User [POST]
++ Request(application/register)
+
+        {
+        "username":"Admin",
+        "email":"test@gmail.com"
+        "password":"1234"
+        }
+
++ Response 201(application/json)
+
+        
+        {
+                "date_created": "Tue, 16 Jan 2018 12:59:17 GMT",
+                "date_modified": "Tue, 16 Jan 2018 12:59:17 GMT",
+                "email": "test@email.com",
+                "id": "a35c7470-a438-4de2-953f-51d35cfe3be6",
+                "logged in": false,
+                "password": "sha256$uKh5bBTz$9606dfa990e85bd975fd645969a7ce2edd1c8e97f39e181246a8bec41515976a",
+                "username": "Admin"
+        }
+        
++ Response 409(application/json)
+
+        {"message":"Please insert missing value(s)"}
+        
+
+
+## Login User [/auth/login]
+### Login existing user [POST]
++ Request(application/register)
+
+        {
+        "username":"Admin",
+        "password":"1234"
+        }
+
++ Response 201(application/json)
+
+        {
+                "Logged in": "Admin",
+                "access-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiJjMWMyNWJmNC1mZmZmLTRhNDItOGQwYi05ZTZhYjI3YmRlNzUiLCJleHAiOjE1MTYwOTIyODd9._ztXgJJR7HbSitRdyNnam0anjOR3lMSa8araeeI4P5I"
+        }
+
++ Response 401(application/json)
+
+            Could not verify
+            
+## Logout User [/auth/logout]
+### Logout logged in user [POST]
++ Request
+
+    + Headers
+    
+            x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiJjMWMyNWJmNC1mZmZmLTRhNDItOGQwYi05ZTZhYjI3YmRlNzUiLCJleHAiOjE1MTYwOTIyODd9._ztXgJJR7HbSitRdyNnam0anjOR3lMSa8araeeI4P5I
+
++ Response 200(application/json)
+
+        {"message":"User is not logged in"}
+
++ Response 202(application/json)
+
+        {"message":"User logged out"}
+        
+## Reset User Password [/auth/reset-password]
+### Reset a users password [POST]
++ Response 205(application/json)
+
+        {"Message":"Password reset!"}
+
++ Response 401(application/json)
+
+        {"message":"Please log in"}
+
+
+# Group Events
+## Create and view events [/auth/events]
+### Create a new event [POST]
++ Request(application/register)
+
+        {
+        "eventname":"Young Leaders",
+        "location":"Mombasa",
+        "date":"11/04/2018",
+        "category":"Corporate"
+        }
+
++ Response 201
+
+        {   
+            "New event":
+            {
+                "category": "Corporate",
+                "date": "Wed, 11 Apr 2018 00:00:00 GMT",
+                "date_created": "Tue, 16 Jan 2018 14:34:23 GMT",
+                "date_modified": "Tue, 16 Jan 2018 14:34:23 GMT",
+                "eventname": "Young Leaders",
+                "id": 3,
+                "location": "Mombasa"
+            }
+        }
+        
+
++ Response 401
+        
+        {"message":"Please Log In to add events"}
+
++ Response 409
+
+        {"message":"Event already exists"}
+
+### View all events or filter events using location/category[GET]
++ Response 200
+
+        {
+            "Events":   [
+                            {
+                                "category": "Young Leaders",
+                                "date": "Wed, 11 Apr 2018 00:00:00 GMT",
+                                "eventname": "MyParty",
+                                "location": "Mombasa"
+                            },
+                            {
+                                "category": "Party",
+                                "date": "Mon, 10 Dec 2018 00:00:00 GMT",
+                                "eventname": "NewParty",
+                                "location": "Town"
+                            }
+                        ]
+        }
+        
+## Edit and delete events [/auth/events/{eventname}]
+### Edit an existing event [PUT]
++ Parameters
+    + eventname(required, string) - Name of event to be edited
+    
++ Request(application/register)
+
+        {
+        "eventname":"TheEvent",
+        "location":"Mombasa",
+        "date":"13/04/2018",
+        "category":"Corporate"
+        }
+        
++ Response 202
+
+        [
+            {
+                "Event updated to:":
+                {
+                    "category": "Corporate",
+                    "date": "Sun, 21 Jan 2018 00:00:00 GMT",
+                    "eventname": "TheEvent",
+                    "id": 3,
+                    "location": "Mombasa"
+                }
+            }
+        ]
++ Response 401
+
+        {"message":"Event you are deleting does not exist"}
+
++ Response 404
+        
+        {"message":"Event you are editing does not exist"}
+        
+### Delete an existing event [DELETE]
++ Parameters
+    + eventname(required, string) - Name of event to be deleted
+
++ Response 202
+
+        [
+            {
+                "Event(s)":
+                {
+                    "category": "Corporate",
+                    "date": "Wed, 13 Apr 2018 00:00:00 GMT",
+                    "eventname": "Young Leaders",
+                    "id": 3,
+                    "location": "Mombasa"
+                }
+            }
+        ]
+        
++ Response 401
+
+        {"message":"Event you are deleting does not exist"}
+
++ Response 404
+        
+        {"message":"Event you are deleting does not exist"}
+        
+
+## Send rsvp to existing events [/auth/events/{eventname}/rsvp]
+### Send rsvp [POST]
++ Parameters
+    + eventname(required, string) - Name of event to rsvp
+
++ Response 201
+
+        {"message":"RSVP sent"}
+
++ Response 401
+        
+        {"message":"Please log in Before sending RSVP"}
+        
++ Response 404
+        
+        {"message":"Event does not exist"}
+
++ Response 409
+
+        {"message":"RSVP already sent"}
