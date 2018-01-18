@@ -136,14 +136,14 @@ def create_app(config_name):
             return jsonify({"message":"Please log in"}), 401
 
     @api.route('/events', methods=['POST', 'GET'])
-    @token_required
+#    @token_required
 #    @swag_from(docs.event_get_dict, methods=['GET'])
 #    @swag_from(docs.event_post_dict, methods=['POST'])
-    def events_json(current_user):
+    def events_json():
         """Add or view events"""
-        user = current_user
+#        user = current_user
         if request.method == 'POST':
-            if user.logged_in == True:
+#            if user.logged_in == True:
                 eventname = request.form['eventname']
                 location = request.form['location']
                 date = request.form['date']
@@ -168,8 +168,8 @@ def create_app(config_name):
                     except:
                         return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
                      
-            else:
-                return jsonify({"message":"Please Log In to add events"}), 401
+#            else:
+#                return jsonify({"message":"Please Log In to add events"}), 401
 
         if request.method == 'GET':
             location = request.args.get('location')
