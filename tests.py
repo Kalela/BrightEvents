@@ -137,8 +137,8 @@ class TestAPIs(unittest.TestCase):
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
                                data=dict(eventname = "newevent", location = "newlocation", 
-                                         date = "21/05/2018", category = "newcategory"), headers={'x-access-token':token})
-        #self.assertEqual(response.status_code, 201)
+                                         date = "2018/05/21", category = "newcategory"), headers={'x-access-token':token})
+        self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
         
     def test_new_event_bad_format_input_json(self):
@@ -164,13 +164,13 @@ class TestAPIs(unittest.TestCase):
         token = json.loads(tkn.data.decode())['access-token']
         tester.post('/api/v2/events', data=dict(eventname = "newevent", 
                                                 location = "newlocation", 
-                                                date = "21/05/2018", 
+                                                date = "2018/05/21", 
                                                  category = "newcategory"),
                                       headers={'x-access-token':token})
         response = tester.post('/api/v2/events',
                                data=dict(eventname = "newevent", 
                                          location = "newlocation", 
-                                         date = "21/05/2018", 
+                                         date = "2018/05/21", 
                                          category = "newcategory"),
                                headers={'x-access-token':token})
         self.assertEqual(response.status_code, 409)
@@ -187,7 +187,7 @@ class TestAPIs(unittest.TestCase):
         response = tester.post('/api/v2/events',
                                data=dict(eventname = "newevent", 
                                          location = "newlocation", 
-                                         date = "21/05/2018", 
+                                         date = "2018/05/21", 
                                          category = "newcategory"),
                                headers={'x-access-token':token})
         self.assertEqual(response.status_code, 401)
@@ -204,12 +204,12 @@ class TestAPIs(unittest.TestCase):
                     headers={'x-access-token':token},
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"))
         response = tester.put('/api/v2/events/newevent',
                               data=dict(eventid = "myevent", 
                                         location = "mylocation", 
-                                        date = "19/03/2018", 
+                                        date = "2018/03/19", 
                                         category = "mycategory"),
                               headers={'x-access-token':token})
         self.assertEqual(response.status_code, 202)
@@ -226,7 +226,7 @@ class TestAPIs(unittest.TestCase):
                     headers={'x-access-token':token},
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"))
         response = tester.put('/api/v2/events/newevent',
                               data=dict(eventid = "myevent", 
@@ -247,7 +247,7 @@ class TestAPIs(unittest.TestCase):
         response = tester.put('/api/v2/events/newevent',
                               data=dict(eventid = "myevent", 
                                         location = "mylocation", 
-                                        date = "19/03/2018", 
+                                        date = "2018/03/19", 
                                         category = "mycategory"),
                               headers={'x-access-token':token})
         self.assertEqual(response.status_code, 404)
@@ -263,7 +263,7 @@ class TestAPIs(unittest.TestCase):
         tester.post('/api/v2/events',
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"),
                     headers={'x-access-token':token})
         response = tester.delete('api/v2/events/newevent', headers={'x-access-token':token})
@@ -314,7 +314,7 @@ class TestAPIs(unittest.TestCase):
         tester.post('/api/v2/events',
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"),
                     headers={'x-access-token':token})
         response = tester.post('/api/v2/events/newevent/rsvp', headers={'x-access-token':token})
@@ -331,7 +331,7 @@ class TestAPIs(unittest.TestCase):
         tester.post('/api/v2/events',
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"),
                     headers={'x-access-token':token})
         tester.post('/api/v2/events/newevent/rsvp', headers={'x-access-token':token})
@@ -361,7 +361,7 @@ class TestAPIs(unittest.TestCase):
         tester.post('/api/v2/events',
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "21/05/2018", 
+                              date = "2018/05/21", 
                               category = "newcategory"),
                     headers={'x-access-token':token})
         tester.post('/api/v2/auth/logout', headers={'x-access-token':token})
