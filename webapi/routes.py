@@ -165,8 +165,10 @@ def create_app(config_name):
                                             'date_created': event.date_created,
                                             'date_modified': event.date_modified
                                             }}), 201
-                    except:
-                        return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
+                    except Exception as E:
+                        return jsonify({"error":E}), 400
+                        
+                        #return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
                      
             else:
                 return jsonify({"message":"Please Log In to add events"}), 401
