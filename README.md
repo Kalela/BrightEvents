@@ -99,7 +99,7 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
   ![Tests](https://image.ibb.co/jSawsG/Screenshot_from_2018_01_04_15_27_20.png "Tests")
 
 ##### To access the api documentation:
-Access the api documentation at https://brightevents4.docs.apiary.io/#.(For apiary)
+Access the api documentation at https://brightevents4.docs.apiary.io/#. (For apiary)
 #### Or
 Run the server and access them with https://localhost:5000/apidocs. (For flasgger)
 
