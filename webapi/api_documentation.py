@@ -133,17 +133,6 @@ class Documentation(object):
     "parameters":[
     {
         "in": "formData",
-        "name": "username",
-        "type": "string",
-    },
-    {
-        "in": "formData",
-        "name": "password",
-        "required": "true",
-        "type": "string",
-    },
-    {
-        "in": "formData",
         "name": "new_password",
         "required": "true",
         "type": "string",

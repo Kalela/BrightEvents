@@ -26,11 +26,7 @@ class User(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
-    
-    @staticmethod
-    def get_one(username):
-        return User.query.filter_by(username=username).first()
-        
+
     def __repr__(self):
         return '<User %r>' % self.username
     
@@ -68,8 +64,12 @@ class Event(db.Model):
         return Event.query.paginate(per_page=limit)
     
     @staticmethod
-    def get_one(eventname):
-        return Event.query.filter_by(eventname=eventname).first()
+    def get_one(eventname, owner):
+        search_names = Event.query.filter(Event.eventname.ilike('%{}%'.format(eventname))).all()
+        for eventname in search_names:
+            if eventname.owner == owner:
+                return eventname
+                
     
     @staticmethod
     def filter_category(category):

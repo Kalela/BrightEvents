@@ -79,11 +79,11 @@ def create_app(config_name):
                 email = request.form['email']
                 password = request.form['password']
 
-                if email == "":
+                if email == "" or not email:
                     return jsonify("Please insert email"), 400
-                if username == "":
+                if username == "" or not username:
                     return jsonify("Please insert username"), 400
-                if password == "":
+                if password == "" or not password:
                     return jsonify("Please insert password"), 400
                     
                 hashed_password = generate_password_hash(request.form['password'], method='sha256')
@@ -157,8 +157,8 @@ def create_app(config_name):
     def events_json(current_user):
         """Add or view events"""
         user = current_user
-        if request.method == 'POST':
-            if user.logged_in == True:
+        if user.logged_in == True:
+            if request.method == 'POST' and user.logged_in == True:
                 eventname = request.form['eventname']
                 location = request.form['location']
                 date = request.form['date']
@@ -166,7 +166,7 @@ def create_app(config_name):
                 owner = user.username
                 if eventname and location and date and category:
                     try:
-                        event = Event.query.filter_by(eventname=eventname).first()
+                        event = Event.get_one(eventname, owner)
                         if event and event.location == location:
                             return jsonify({"message":"Event already exists"}), 409
                         else:
@@ -184,9 +184,8 @@ def create_app(config_name):
                                             }}), 201
                     except:
                         return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
-                     
-            else:
-                return jsonify({"message":"Please Log In to add events"}), 401
+        else:
+            return jsonify({"message":"Please Log In to add events"}), 401
 
         if request.method == 'GET':
             location = request.args.get('location')
@@ -205,7 +204,7 @@ def create_app(config_name):
             if location:
                 events = Event.filter_location(location)
             if q:
-                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()   
+                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
             if not category and not location and not q:
                 if not limit:
                     limit = 10
@@ -226,7 +225,7 @@ def create_app(config_name):
                 date = request.form['date']
                 location = request.form['location']
                 category = request.form['category']
-                event = Event.get_one(eventname)
+                event = Event.get_one(eventname, user.username)
                 try:
                     if event:
                         event.eventname = event_name
@@ -246,7 +245,7 @@ def create_app(config_name):
                     return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
 
             if request.method == 'DELETE':
-                event = Event.get_one(eventname)
+                event = Event.get_one(eventname, user.username)
                 if event:
                     event.delete()
                     event_pages = Event.get_all_pages(limit=10)
@@ -265,7 +264,7 @@ def create_app(config_name):
         """Send RSVPs to existing events"""
         user = current_user
         if user.logged_in == True:
-            event = Event.get_one(eventname)
+            event = Event.get_one(eventname, user.username)
             if event:
                 if event.rsvp == "None":
                     event.rsvp = "Sent"

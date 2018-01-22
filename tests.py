@@ -4,7 +4,6 @@ import json
 import requests
 
 from webapi.routes import create_app, db
-from webapi.api_data import Users, Events
 
 class TestAPIs(unittest.TestCase):
     """Contains all tests"""
@@ -27,8 +26,8 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         response = tester.post('/api/v2/auth/register',
                                data=dict(username = "", password = "1234", email = "test@email.com"))
-        self.assertEqual(response.status_code, 409)
-        self.assertIn("Please insert missing", str(response.data))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Please insert", str(response.data))
         
     def test_already_registered_json(self):
         """Test a user registering twice"""
@@ -131,9 +130,7 @@ class TestAPIs(unittest.TestCase):
         tester = self.app.test_client(self)
         x = tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
-        self.assertEqual(x.status_code, 201)
         tkn = tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
-        self.assertEqual(tkn.status_code, 202)
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
                                data=dict(eventname="newevent", location="newlocation", 
@@ -142,7 +139,7 @@ class TestAPIs(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
         
-    def test_new_event_bad_format_input_json(self):
+    def test_new_event_with_bad_format_input_json(self):
         """Test date or other input formatted wrong"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/register',
