@@ -11,8 +11,9 @@ from functools import wraps
 
 from instance.config import app_config
 
-docs = Documentation()
+
 db = SQLAlchemy()
+
 
 def create_app(config_name):
     """Create the api flask app"""
@@ -20,7 +21,7 @@ def create_app(config_name):
     
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
-    swagger = Swagger(app)
+    docs = Documentation()
     
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
@@ -49,6 +50,15 @@ def create_app(config_name):
 
         return decorated
     
+    swagger = Swagger(app,
+    template={
+        "swagger": "2.0",
+        "info": {
+            "title": "Bright Events API Documentation",
+            "version": "1.0",
+    }   
+    })
+    
     def print_events(events):
         result = []
         for event in events:
@@ -59,18 +69,23 @@ def create_app(config_name):
             event_data['category'] = event.category
             result.append(event_data)
         return result
-    app.route('/', methods=['GET'])
-    def docs():
-        return ""
 
     @api.route('/auth/register', methods=['POST'])
-#    @swag_from(docs.register_dict)
+    @swag_from(docs.register_dict, methods=['POST'])
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
                 username = request.form['username']
                 email = request.form['email']
                 password = request.form['password']
+
+                if email == "":
+                    return jsonify("Please insert email"), 400
+                if username == "":
+                    return jsonify("Please insert username"), 400
+                if password == "":
+                    return jsonify("Please insert password"), 400
+                    
                 hashed_password = generate_password_hash(request.form['password'], method='sha256')
 
                 if username and email and hashed_password:
@@ -85,7 +100,7 @@ def create_app(config_name):
                     return jsonify({"message":"Please insert missing value(s)"}), 409
 
     @api.route('/auth/login', methods=['POST'])
-#    @swag_from(docs.login_dict)
+    @swag_from(docs.login_dict, methods=['POST'])
     def login_json():
         """Login registered users"""
         name = request.form['username']
@@ -108,7 +123,7 @@ def create_app(config_name):
 
     @api.route('/auth/logout', methods=['POST'])
     @token_required
-#    @swag_from(docs.logout_dict)
+    @swag_from(docs.logout_dict, methods=['POST'])
     def logout_json(current_user):
         """Log out users"""
         user = current_user
@@ -121,7 +136,7 @@ def create_app(config_name):
 
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
-#    @swag_from(docs.pass_reset_dict)
+    @swag_from(docs.pass_reset_dict, methods=['POST'])
     def reset_password_json(current_user):
         """Reset users password"""
         user = current_user
@@ -148,13 +163,14 @@ def create_app(config_name):
                 location = request.form['location']
                 date = request.form['date']
                 category = request.form['category']
+                owner = user.username
                 if eventname and location and date and category:
                     try:
                         event = Event.query.filter_by(eventname=eventname).first()
                         if event and event.location == location:
                             return jsonify({"message":"Event already exists"}), 409
                         else:
-                            event = Event(eventname=eventname, location=location, date=date, category=category, rsvp="None")
+                            event = Event(eventname=eventname, location=location, date=date, category=category, owner=owner, rsvp="None")
                             event.save()
                             return jsonify({"New event":
                                            {"id":event.id,
@@ -162,8 +178,9 @@ def create_app(config_name):
                                             "location":event.location,
                                             "date":event.date,
                                             "category":event.category,
-                                            'date_created': event.date_created,
-                                            'date_modified': event.date_modified
+                                            "owner":event.owner,
+                                            "'date_created": event.date_created,
+                                            "date_modified": event.date_modified
                                             }}), 201
                     except:
                         return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
@@ -182,8 +199,6 @@ def create_app(config_name):
 
             _next = request.args.get('next')
             prev = request.args.get('prev')
-            _next = False
-            prev = False
             
             if category:
                 events = Event.filter_category(category)
@@ -245,7 +260,7 @@ def create_app(config_name):
 
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
     @token_required
-#    @swag_from(docs.event_rsvp_dict)
+#    @swag_from(docs.event_rsvp_dict, methods=['POST'])
     def rsvp_json(current_user, eventname):
         """Send RSVPs to existing events"""
         user = current_user

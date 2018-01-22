@@ -6,14 +6,20 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "username",
-        "required": "true",
         "type": "string",
+        "required": "true"
     },
     {
         "in": "formData",
         "name": "password",
-        "required": "true",
         "type": "string",
+        "required": "true"
+    },
+    {
+        "in": "formData",
+        "name": "email",
+        "type": "string",
+        "required": "true"
     }
     ],
     "responses":
@@ -30,9 +36,13 @@ class Documentation(object):
         }
         }
         },
+    "400":
+       {
+        "descrption": "Bad input"
+       },
     "409":
       {
-      "description": "User already registered"
+      "description": "User already registered or bad input"
       }
     },
     "definitions" : {
@@ -101,6 +111,13 @@ class Documentation(object):
 }
     logout_dict = {
     "tags": ["User"],
+    "parameters":[
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+    }],
     "responses":
     {
     "200":{
@@ -110,14 +127,13 @@ class Documentation(object):
       "description": "User successfully logged out",
         }
     }  
-}
+    }
     pass_reset_dict = {
     "tags": ["User"],
     "parameters":[
     {
         "in": "formData",
         "name": "username",
-        "required": "true",
         "type": "string",
     },
     {

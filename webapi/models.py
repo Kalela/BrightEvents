@@ -44,18 +44,20 @@ class Event(db.Model):
     location = db.Column(db.String(120))
     date = db.Column(db.DateTime(80))
     category = db.Column(db.String(80))
+    owner = db.Column(db.String(120))
     rsvp = db.Column(db.String(80))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
     
-    def __init__(self, eventname, location, date, category, rsvp):
+    def __init__(self, eventname, location, date, category, owner, rsvp):
         self.eventname = eventname
         self.location = location
         self.date = date
         self.category = category
         self.rsvp = rsvp
+        self.owner = owner
     
     def save(self):
         db.session.add(self)

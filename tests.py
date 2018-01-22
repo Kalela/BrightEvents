@@ -136,8 +136,9 @@ class TestAPIs(unittest.TestCase):
         self.assertEqual(tkn.status_code, 202)
         token = json.loads(tkn.data.decode())['access-token']
         response = tester.post('/api/v2/events',
-                               data=dict(eventname = "newevent", location = "newlocation", 
-                                         date = "2018/05/21", category = "newcategory"), headers={'x-access-token':token})
+                               data=dict(eventname="newevent", location="newlocation", 
+                                         date="2018/05/21", category="newcategory"),
+                               headers={'x-access-token':token})
         self.assertEqual(response.status_code, 201)
         self.assertIn("New event", str(response.data))
         
@@ -204,7 +205,7 @@ class TestAPIs(unittest.TestCase):
                     headers={'x-access-token':token},
                     data=dict(eventname = "newevent", 
                               location = "newlocation", 
-                              date = "2018/05/21", 
+                              date = "2018/05/21",
                               category = "newcategory"))
         response = tester.put('/api/v2/events/newevent',
                               data=dict(eventid = "myevent", 
