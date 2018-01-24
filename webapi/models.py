@@ -1,15 +1,12 @@
 from routes import db
 
 class User(db.Model):
-    """Represent users data as a table"""
-    
-    __tablename__ = "Users"
-    
+    """Represent users data as a table"""  
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
     logged_in = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
@@ -32,28 +29,18 @@ class User(db.Model):
     
 class Event(db.Model):
     """Represent events data as a table"""
-    
-    __tablename__ = "Events"
-    
     id = db.Column(db.Integer, primary_key=True)
-    eventname = db.Column(db.String(80), unique=True)
-    location = db.Column(db.String(120))
-    date = db.Column(db.DateTime(80))
+    eventname = db.Column(db.String(80), unique=True, nullable=False)
+    location = db.Column(db.String(120), nullable=False)
+    date = db.Column(db.DateTime(80), nullable=False)
     category = db.Column(db.String(80))
-    owner = db.Column(db.String(120))
-    rsvp = db.Column(db.String(80))
+    owner = db.Column(db.String(80))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
-    
-    def __init__(self, eventname, location, date, category, owner, rsvp):
-        self.eventname = eventname
-        self.location = location
-        self.date = date
-        self.category = category
-        self.rsvp = rsvp
-        self.owner = owner
+    event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner_id])
     
     def save(self):
         db.session.add(self)
@@ -65,6 +52,7 @@ class Event(db.Model):
     
     @staticmethod
     def get_one(eventname, owner):
+        #only logged in user can see specific events
         search_names = Event.query.filter(Event.eventname.ilike('%{}%'.format(eventname))).all()
         for eventname in search_names:
             if eventname.owner == owner:
@@ -85,4 +73,20 @@ class Event(db.Model):
         
     def __repr__(self):
         return '<Event %r>' % self.eventname
+    
+class Rsvp(db.Model):
+    """Represent all rsvps data in a table"""
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    date_sent = db.Column(db.DateTime, default=db.func.current_timestamp())
+    rsvp_event = db.relationship('Event', backref='all_rsvp', foreign_keys=[event_id])
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    event_owner = db.relationship('User', backref='all_rsvp', foreign_keys=[owner_id])
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<Rsvp %r>' % self.username
         

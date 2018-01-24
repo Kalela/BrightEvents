@@ -72,7 +72,7 @@ def create_app(config_name):
 
     @api.route('/auth/register', methods=['POST'])
     @swag_from(docs.register_dict, methods=['POST'])
-    def register_page_json():
+    def register():
         """Add new users to data"""
         if request.method == 'POST':
                 username = request.form['username']
@@ -101,7 +101,7 @@ def create_app(config_name):
 
     @api.route('/auth/login', methods=['POST'])
     @swag_from(docs.login_dict, methods=['POST'])
-    def login_json():
+    def login():
         """Login registered users"""
         name = request.form['username']
         passwd = request.form['password']
@@ -114,7 +114,7 @@ def create_app(config_name):
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
         
         if check_password_hash(user.password, passwd):
-            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
             user.logged_in = True
             db.session.commit()
             return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
@@ -124,7 +124,7 @@ def create_app(config_name):
     @api.route('/auth/logout', methods=['POST'])
     @token_required
     @swag_from(docs.logout_dict, methods=['POST'])
-    def logout_json(current_user):
+    def logout(current_user):
         """Log out users"""
         user = current_user
         if user.logged_in == True:
@@ -137,7 +137,7 @@ def create_app(config_name):
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
     @swag_from(docs.pass_reset_dict, methods=['POST'])
-    def reset_password_json(current_user):
+    def reset_password(current_user):
         """Reset users password"""
         user = current_user
         old_password = user.password
@@ -154,7 +154,7 @@ def create_app(config_name):
     @token_required
 #    @swag_from(docs.event_get_dict, methods=['GET'])
 #    @swag_from(docs.event_post_dict, methods=['POST'])
-    def events_json(current_user):
+    def events(current_user):
         """Add or view events"""
         user = current_user
         if user.logged_in == True:
@@ -170,7 +170,7 @@ def create_app(config_name):
                         if event and event.location == location:
                             return jsonify({"message":"Event already exists"}), 409
                         else:
-                            event = Event(eventname=eventname, location=location, date=date, category=category, owner=owner, rsvp="None")
+                            event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category, owner=owner)
                             event.save()
                             return jsonify({"New event":
                                            {"id":event.id,
@@ -191,7 +191,7 @@ def create_app(config_name):
             location = request.args.get('location')
             category = request.args.get('category')
             q = request.args.get('q')
-
+            
             limit = request.args.get('limit')
             if limit:
                 limit = int(limit)
@@ -210,13 +210,14 @@ def create_app(config_name):
                     limit = 10
                 event_pages = Event.get_all_pages(limit)
                 events = event_pages.items
+                print("Relation check", user.owner_events)
             return jsonify({"Events": print_events(events)}), 200
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
 #    @swag_from(docs.event_put_dict, methods=['PUT'])
 #    @swag_from(docs.event_delete_dict, methods=['DELETE'])
-    def event_update_json(current_user, eventname):
+    def event_update(current_user, eventname):
         """Edit existing events"""
         user = current_user
         if user.logged_in == True:
@@ -260,18 +261,19 @@ def create_app(config_name):
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
     @token_required
 #    @swag_from(docs.event_rsvp_dict, methods=['POST'])
-    def rsvp_json(current_user, eventname):
+    def rsvp(current_user, eventname):
         """Send RSVPs to existing events"""
         user = current_user
         if user.logged_in == True:
             event = Event.get_one(eventname, user.username)
             if event:
-                if event.rsvp == "None":
-                    event.rsvp = "Sent"
-                    db.session.commit()
+                rsvp = Rsvp(rsvp_event=event, event_owner=current_user)
+                rsvp.save()
+                print(event.all_rsvp)
+                if rsvp in event.all_rsvp and rsvp in user.all_rsvp:
+                    return jsonify({"message":"RSVP already sent"}), 409   
+                else: 
                     return jsonify({"message":"RSVP sent"}), 201
-                else:
-                    return jsonify({"message":"RSVP already sent"}), 409
             else:
                 return jsonify({"message":"Event does not exist"}), 404
         else:
