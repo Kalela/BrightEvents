@@ -6,7 +6,7 @@ Heroku app: https://event-hub-bright-events.herokuapp.com/
 Build Status
 ------------
 ![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-searching-and-filtering-154311788)
-[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=master)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-searching-and-filtering-154311788)
+[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-searching-and-filtering-154311788)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-searching-and-filtering-154311788)
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
@@ -99,7 +99,10 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
   ![Tests](https://image.ibb.co/jSawsG/Screenshot_from_2018_01_04_15_27_20.png "Tests")
 
 ##### To access the api documentation:
-Access the api documentation at https://brightevents4.docs.apiary.io/#
+Access the api documentation at https://brightevents4.docs.apiary.io/#. (For apiary)
+#### Or
+Run the server and access them with https://localhost:5000/apidocs. (For flasgger)
+
 
 Versioning
 ----------
