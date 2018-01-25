@@ -17,7 +17,7 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     """Create the api flask app"""
-    from models import User, Event
+    from models import User, Event, Rsvp
     
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
@@ -211,7 +211,6 @@ def create_app(config_name):
                     limit = 10
                 event_pages = Event.get_all_pages(limit)
                 events = event_pages.items
-                print("Relation check", user.owner_events)
             return jsonify({"Events": print_events(events)}), 200
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
@@ -268,12 +267,12 @@ def create_app(config_name):
         if user.logged_in == True:
             event = Event.get_one(eventname, user.username)
             if event:
-                rsvp = Rsvp(rsvp_event=event, event_owner=current_user)
-                rsvp.save()
-                print(event.all_rsvp)
-                if rsvp in event.all_rsvp and rsvp in user.all_rsvp:
+                rsvp = Rsvp.query.filter_by(owner_id=user.id).all()
+                if rsvp:
                     return jsonify({"message":"RSVP already sent"}), 409   
-                else: 
+                else:
+                    rsvp = Rsvp(rsvp_event=event, event_owner=current_user)
+                    rsvp.save()
                     return jsonify({"message":"RSVP sent"}), 201
             else:
                 return jsonify({"message":"Event does not exist"}), 404
