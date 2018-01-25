@@ -67,6 +67,7 @@ def create_app(config_name):
             event_data['location'] = event.location
             event_data['date'] = event.date
             event_data['category'] = event.category
+            event_data['owner'] = event.owner
             result.append(event_data)
         return result
 
@@ -152,8 +153,8 @@ def create_app(config_name):
 
     @api.route('/events', methods=['POST', 'GET'])
     @token_required
-#    @swag_from(docs.event_get_dict, methods=['GET'])
-#    @swag_from(docs.event_post_dict, methods=['POST'])
+    @swag_from(docs.event_post_dict, methods=['POST'])
+    @swag_from(docs.event_get_dict, methods=['GET'])
     def events(current_user):
         """Add or view events"""
         user = current_user
@@ -215,14 +216,14 @@ def create_app(config_name):
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
     @token_required
-#    @swag_from(docs.event_put_dict, methods=['PUT'])
-#    @swag_from(docs.event_delete_dict, methods=['DELETE'])
+    @swag_from(docs.event_put_dict, methods=['PUT'])
+    @swag_from(docs.event_delete_dict, methods=['DELETE'])
     def event_update(current_user, eventname):
         """Edit existing events"""
         user = current_user
         if user.logged_in == True:
             if request.method == 'PUT':
-                event_name = request.form['eventid']
+                event_name = request.form['event_name']
                 date = request.form['date']
                 location = request.form['location']
                 category = request.form['category']
@@ -260,8 +261,8 @@ def create_app(config_name):
 
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
     @token_required
-#    @swag_from(docs.event_rsvp_dict, methods=['POST'])
-    def rsvp(current_user, eventname):
+    @swag_from(docs.event_rsvp_dict, methods=['POST'])
+    def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
         user = current_user
         if user.logged_in == True:

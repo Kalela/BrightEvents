@@ -52,13 +52,12 @@ class Event(db.Model):
     
     @staticmethod
     def get_one(eventname, owner):
-        #only logged in user can see specific events
+        #only logged in user can see or edit specific events
         search_names = Event.query.filter(Event.eventname.ilike('%{}%'.format(eventname))).all()
         for eventname in search_names:
             if eventname.owner == owner:
                 return eventname
-                
-    
+
     @staticmethod
     def filter_category(category):
         return Event.query.filter_by(category=category).all()
@@ -88,5 +87,5 @@ class Rsvp(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<Rsvp %r>' % self.username
+        return '<Rsvp %r>' % self.rsvp_event
         

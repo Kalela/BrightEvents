@@ -155,10 +155,6 @@ class Documentation(object):
     "401":
       {
       "description": "Can't reset password if not logged in"
-      },
-    "404":
-      {
-      "description": "No such user is registered"
       }
     }, 
     "definitions" : {
@@ -180,7 +176,7 @@ class Documentation(object):
     "parameters":[
     {
         "in": "formData",
-        "name": "eventid",
+        "name": "eventname",
         "required": "true",
         "type": "string",
     },
@@ -216,6 +212,10 @@ class Documentation(object):
         }
         }
           },
+    "400":
+      {
+      "description": "Bad input"
+      },
     "401":
       {
       "description": "Only logged in users can add events"
@@ -248,6 +248,28 @@ class Documentation(object):
 }
     event_get_dict = {
     "tags": ["Event"],
+    "parameters":[
+       {
+        "in": "query",
+        "name": "q",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "location",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "category",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "limit",
+        "type": "string"
+       } 
+    ], 
     "responses":
     { 
     "200":
@@ -288,13 +310,13 @@ class Documentation(object):
     "parameters":[
     {
         "in": "path",
-        "name": "eventid",
+        "name": "eventname",
         "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
-        "name": "event",
+        "name": "event_name",
         "required": "true",
         "type": "string",
     },
@@ -432,6 +454,10 @@ class Documentation(object):
     "401":
       {
       "description": "Only logged in users can rsvp to events"
+      },
+    "404":
+      {
+      "description": "Event does not exist"
       },
     "409":
       {
