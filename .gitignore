@@ -3,3 +3,4 @@ newenv/*
 venv/*
 appenv/*
 .coverage
+.env
