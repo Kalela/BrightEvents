@@ -21,6 +21,7 @@ Tech and FrameWork used
 * Flask and Flask-api
 
 * [Brackets](http://brackets.io/)
+* [Postgresql](https://www.postgresql.org/download/)
 
 Installation
 ============

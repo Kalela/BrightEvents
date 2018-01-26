@@ -2,10 +2,13 @@ from routes import db
 
 class User(db.Model):
     """Represent users data as a table"""
+    
+    __tablename__ = "Users"
+    
     id = db.Column(db.Integer, primary_key=True)
-    username = db.column(db.String(80))
-    email = db.column(db.String(120))
-    password = db.column(db.String(80))
+    username = db.Column(db.String(80), unique=True)
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(80))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),
@@ -23,21 +26,24 @@ class User(db.Model):
     @staticmethod
     def get_all():
         return User.query.all()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+    
+    @staticmethod
+    def get_one(username):
+        return User.query.filter_by(username=username).first()
         
     def __repr__(self):
         return '<User %r>' % self.username
     
 class Event(db.Model):
-    """Represent users data as a table"""
+    """Represent events data as a table"""
+    
+    __tablename__ = "Events"
+    
     id = db.Column(db.Integer, primary_key=True)
-    eventname = db.column(db.String(80))
-    location = db.column(db.String(120))
-    date = db.column(db.DateTime(80))
-    category = db.column(db.String(80))
+    eventname = db.Column(db.String(80), unique=True)
+    location = db.Column(db.String(120))
+    date = db.Column(db.DateTime(80))
+    category = db.Column(db.String(80))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),

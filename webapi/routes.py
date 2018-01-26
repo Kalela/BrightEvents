@@ -9,8 +9,6 @@ from instance.config import app_config
 docs = Documentation()
 db = SQLAlchemy()
 
-
-
 def create_app(config_name):
     """Create the api flask app"""
     from models import User, Event
@@ -21,7 +19,7 @@ def create_app(config_name):
     
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
     with app.app_context():
         db.create_all()
@@ -32,73 +30,74 @@ def create_app(config_name):
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
+                username = request.form['username']
+                email = request.form['email']
+                password = request.form['password']
+
+                if username and email and password:
+                    try:
+                        user = User(username=username, email=email, password=password)
+                        user.save()
+                        return jsonify({'id':user.id,
+                                        'username':user.username,
+                                        'password':user.password,
+                                        'email':user.email,
+                                        'date_created': user.date_created,
+                                        'date_modified': user.date_modified}), 201
+                    except:
+                        return jsonify("Username or email already registered"), 409   
+                else:
+                    return jsonify("Please insert missing value(s)"), 409
+
+    #Works
+    @api.route('/auth/login', methods=['POST'])
+#    @swag_from(docs.login_dict)
+    def login_json():
+        """Login registered users"""
+        if 'username' in session:
+            return jsonify("User", session['username'], "already logged in."), 409
+        else:
             username = request.form['username']
-            email = request.form['email']
             password = request.form['password']
-            
-            if username and email and password:
-                user = User(username=username, email=email, password=password)
-                user.save()
-                users = User.get_all()
-                return jsonify({'id':user.id,
-                                'username':user.username,
-                                'password':user.password,
-                                'email':user.email,
-                                'date_created': user.date_created,
-                                'date_modified': user.date_modified}), 201
+            user = User.get_one(username)
 
-#    #Works
-#    @api.route('/auth/login', methods=['POST'])
-##    @swag_from(docs.login_dict)
-#    def login_json():
-#        """Login registered users"""
-#        username = request.form['username']
-#        email = request.form['email']
-#        password = request.form['password']
-#        
-#        if username and password and email:
-#            user = User(username=username, email=email, password=password)
-#            users = User.get_all()
-#            results = []
-#        
-#            if user in users:
-#                return jsonify({'id':user.id,
-#                                'username':user.username,
-#                                'password':user.password,
-#                                'email':user.email,
-#                                'date_created': user.date_created,
-#                                'date_modified': user.date_modified}), 201
+            if username and password:
+                if user.username == username and user.password == password:
+                    results = user.username
+                    session['username'] = user.username
+                    return jsonify({"Logged in as": results}), 202
+                else:
+                    return jsonify("The Password and Username combination is not correct"), 401
 
-#
-#    #Works
-#    @api.route('/auth/logout', methods=['POST'])
+    #Works
+    @api.route('/auth/logout', methods=['POST'])
 #    @swag_from(docs.logout_dict)
-#    def logout_json():
-#        """Log out users"""
-#        user = {}
-#        if 'username' in session:
-#            session.pop('username')
-#            return jsonify("User logged out"), 202
-#        else:
-#            return jsonify('User is not logged in'), 200
-#
-#    #Works
-#    @api.route('/auth/reset-password', methods=['POST'])
-#    @swag_from(docs.pass_reset_dict)
-#    def reset_password_json():
-#        """Reset users password"""
-#        if 'username' in session:
-#            old_user = {}
-#            old_user[request.form['username']] = request.form['password']
-#            if old_user in users.users:
-#                user = {}
-#                user[session['username']] = request.form['new_password']
-#                users.users.append(user)
-#                return jsonify({"Password changed from": old_user},{"To":user}), 205
-#            else:
-#                return jsonify("User does not exist"), 404     
-#        else:
-#            return jsonify("Please log in"), 401
+    def logout_json():
+        """Log out users"""
+        if 'username' in session:
+            session.pop('username')
+            return jsonify("User logged out"), 202
+        else:
+            return jsonify('User is not logged in'), 200
+
+    #Works
+    @api.route('/auth/reset-password', methods=['POST'])
+    @swag_from(docs.pass_reset_dict)
+    def reset_password_json():
+        """Reset users password"""
+        old_password = request.form['old_password']
+        new_password = request.form['new_password']
+        
+        if 'username' in session:
+            user = User.get_one(session['username'])
+            if user.password == old_password:
+                user.password == new_password
+                user.save()
+                return jsonify({"Password changed from": old_password},{"To":new_password}), 205
+            else:
+                return jsonify("Wrong password input. Review your input."), 400  
+        else:
+            return jsonify("Please log in"), 401
 #        
 #    #Works
 #    @api.route('/events', methods=['POST', 'GET'])
