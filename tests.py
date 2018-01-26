@@ -51,7 +51,7 @@ class TestAPIs(unittest.TestCase):
         self.assertIn("logged out", str(response.data))
 
     def test_reset_password_json(self):
-        """Test the reset password endpoint"""
+#        """Test the reset password endpoint"""
         tester = self.app.test_client(self)
         tester.post('/api/v2/auth/register',
                                data=dict(username = "admin", password = "1234", email = "test@email.com"))
@@ -60,51 +60,71 @@ class TestAPIs(unittest.TestCase):
                                                                         new_password = "somethingnew"))
         self.assertEqual(response.status_code, 205)
         self.assertIn("Password changed", str(response.data))
-#
-#    def test_new_event_json(self):
-#        """Test the create new event endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.post('/api/v2/events', data=dict(eventid = "myevent", 
-#                                                           location = "mylocation", 
-#                                                           date = "mydate", 
-#                                                           category = "mycategory"))
-#        self.assertEqual(response.status_code, 201)
-#        self.assertIn("events", str(response.data))
-#
-#    def test_update_event_json(self):
-#        """Test the update existing event endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.put('/api/v2/events/MyParty', data=dict(eventid = "myevent", 
-#                                                                  location = "mylocation", 
-#                                                                  date = "mydate", 
-#                                                                  category = "mycategory"))
-#        self.assertEqual(response.status_code, 202)
-#        self.assertIn("edited to", str(response.data))
-#
-#    def test_delete_event_json(self):
-#        """Test the delete event endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.delete('api/v2/events/Friends')
-#        self.assertEqual(response.status_code, 205)
-#        self.assertIn("User events", str(response.data))
-#
-#    def test_view_events_json(self):
-#        """Test the view all events endpoint"""
-#        tester = self.app.test_client(self)
-#        response = tester.get('/api/v2/events')
-#        self.assertEqual(response.status_code, 200)
-#        self.assertIn("user events", str(response.data))
-#
-#    def test_send_rsvp_json(self):
-#        """Test the send rsvp endpoint"""
-#        tester = self.app.test_client(self)
-#        tester.post('/api/v2/auth/login', data=dict(username = "user", password = "password"))
-#        response = tester.post('/api/v2/events/MyParty/rsvp')
-#        self.assertEqual(response.status_code, 201)
-#        self.assertIn("RSVPs sent", str(response.data))
+
+    def test_new_event_json(self):
+        """Test the create new event endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+        response = tester.post('/api/v2/events', data=dict(eventname = "newevent", 
+                                                           location = "newlocation", 
+                                                           date = "21/05/2018", 
+                                                           category = "newcategory"))
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("New event", str(response.data))
+
+    def test_update_event_json(self):
+        """Test the update existing event endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+        tester.post('/api/v2/events', data=dict(eventname = "newevent", 
+                                                           location = "newlocation", 
+                                                           date = "21/05/2018", 
+                                                           category = "newcategory"))
+        response = tester.put('/api/v2/events/newevent', data=dict(eventid = "myevent", 
+                                                                  location = "mylocation", 
+                                                                  date = "19/03/2018", 
+                                                                  category = "mycategory"))
+        self.assertEqual(response.status_code, 202)
+        self.assertIn("updated to", str(response.data))
+
+    def test_delete_event_json(self):
+        """Test the delete event endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+        tester.post('/api/v2/events', data=dict(eventname = "newevent", 
+                                                           location = "newlocation", 
+                                                           date = "21/05/2018", 
+                                                           category = "newcategory"))
+        response = tester.delete('api/v2/events/newevent')
+        self.assertEqual(response.status_code, 205)
+        self.assertIn("Event(s)", str(response.data))
+
+    def test_view_events_json(self):
+        """Test the view all events endpoint"""
+        tester = self.app.test_client(self)
+        response = tester.get('/api/v2/events')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Events", str(response.data))
+
+    def test_send_rsvp_json(self):
+        """Test the send rsvp endpoint"""
+        tester = self.app.test_client(self)
+        tester.post('/api/v2/auth/register',
+                               data=dict(username = "admin", password = "1234", email = "test@email.com"))
+        tester.post('/api/v2/auth/login', data=dict(username = "admin", password = "1234"))
+        tester.post('/api/v2/events', data=dict(eventname = "newevent", 
+                                                           location = "newlocation", 
+                                                           date = "21/05/2018", 
+                                                           category = "newcategory"))
+        response = tester.post('/api/v2/events/newevent/rsvp')
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("RSVP sent", str(response.data))
 
     def tearDown(self):
         """teardown all initialized variables."""
