@@ -136,6 +136,12 @@ class Documentation(object):
         "name": "new_password",
         "required": "true",
         "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
     }
     ],
     "responses":
@@ -195,6 +201,12 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "category",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }
@@ -268,7 +280,13 @@ class Documentation(object):
         "in": "query",
         "name": "limit",
         "type": "string"
-       } 
+       },
+       {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+       }
     ], 
     "responses":
     { 
@@ -337,6 +355,12 @@ class Documentation(object):
         "name": "category",
         "required": "true",
         "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
     }
     ],
     "responses":
@@ -385,6 +409,14 @@ class Documentation(object):
 }
     event_delete_dict = {
     "tags": ["Event"],
+    "parameters":[
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+    }  
+    ],
     "responses":
     {
     "205":{
@@ -434,6 +466,12 @@ class Documentation(object):
     {
         "in": "path",
         "name": "eventid",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }

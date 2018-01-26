@@ -45,6 +45,13 @@ class TestUserEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Please insert", str(response.data))
         
+    def test_register_bad_email_input(self):
+        """Test if email input on register endpoint is not valid"""
+        response = self.tester.post('/api/v2/auth/register',
+                               data=dict(username = "", password = "1234", email = "testemail.com"))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("insert a valid email", str(response.data))
+        
     def test_already_registered(self):
         """Test a user registering twice"""
         self.register_and_login("register")

@@ -1,6 +1,7 @@
 import uuid
 import jwt
 import datetime
+import re
 from flask_api import FlaskAPI
 from flask import jsonify, request, session, Blueprint, make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -82,6 +83,8 @@ def create_app(config_name):
 
                 if email == "" or not email:
                     return jsonify("Please insert email"), 400
+                if "@" not in str(email) or ".com" not in str(email):
+                    return jsonify("Please insert a valid email"), 400
                 if username == "" or not username:
                     return jsonify("Please insert username"), 400
                 if password == "" or not password:
