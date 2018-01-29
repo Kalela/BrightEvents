@@ -7,6 +7,8 @@ Build Status
 ------------
 [![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=master)](https://travis-ci.org/Kalela/BrightEvents)
 [![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=master)](https://coveralls.io/github/Kalela/BrightEvents?branch=master)
+<a href="https://codeclimate.com/github/Kalela/BrightEvents/maintainability"><img src="https://api.codeclimate.com/v1/badges/dfe41dde7938bc5fe3e3/maintainability" /></a>
+<a href="https://codeclimate.com/github/Kalela/BrightEvents/test_coverage"><img src="https://api.codeclimate.com/v1/badges/dfe41dde7938bc5fe3e3/test_coverage" /></a>
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
