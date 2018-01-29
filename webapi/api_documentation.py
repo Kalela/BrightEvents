@@ -7,19 +7,16 @@ class Documentation(object):
         "in": "formData",
         "name": "username",
         "type": "string",
-        "required": "true"
     },
     {
         "in": "formData",
         "name": "password",
         "type": "string",
-        "required": "true"
     },
     {
         "in": "formData",
         "name": "email",
         "type": "string",
-        "required": "true"
     }
     ],
     "responses":
@@ -65,13 +62,11 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "username",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "password",
-        "required": "true",
         "type": "string",
     }
     ],
@@ -138,6 +133,11 @@ class Documentation(object):
         "type": "string",
     },
     {
+        "in": "formData",
+        "name": "confirm_password",
+        "type": "string",
+    },
+    {
         "in": "header",
         "name": "x-access-token",
         "required": "true",
@@ -158,9 +158,17 @@ class Documentation(object):
       }
       }
       },
+    "400":
+      {
+      "description": "Please insert required data"
+      },
     "401":
       {
       "description": "Can't reset password if not logged in"
+      },
+    "409":
+      {
+      "description": "Conflict"
       }
     }, 
     "definitions" : {
@@ -183,25 +191,21 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "eventname",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "location",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "date",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "category",
-        "required": "true",
         "type": "string",
     },
     {
@@ -231,6 +235,10 @@ class Documentation(object):
     "401":
       {
       "description": "Only logged in users can add events"
+      },
+    "406":
+      {
+      "description": "Unspecified event category not allowed"
       },
     "409":
       {
@@ -330,31 +338,27 @@ class Documentation(object):
         "in": "path",
         "name": "eventname",
         "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "formData",
         "name": "event_name",
-        "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "formData",
         "name": "location",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "date",
-        "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "formData",
         "name": "category",
-        "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "header",
@@ -376,6 +380,10 @@ class Documentation(object):
         }
         }
           },
+    "400":
+      {
+      "description": "Wrong datetime format(yy/mm/dd)"    
+      },
     "401":
       {
       "description": "Only logged in users can edit events"    
@@ -384,7 +392,10 @@ class Documentation(object):
       {
       "description": "The event you are editing does not exist"
       },
-    
+    "406":
+      {
+      "description": "Unspecified event category is not allowed"
+      },
       "definitions" : {
         "Events": {
           "type": "object",

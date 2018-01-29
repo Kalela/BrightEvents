@@ -30,7 +30,7 @@ class User(db.Model):
 class Event(db.Model):
     """Represent events data as a table"""
     id = db.Column(db.Integer, primary_key=True)
-    eventname = db.Column(db.String(80), unique=True, nullable=False)
+    eventname = db.Column(db.String(80), nullable=False)
     location = db.Column(db.String(120), nullable=False)
     date = db.Column(db.DateTime(80), nullable=False)
     category = db.Column(db.String(80))

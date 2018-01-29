@@ -1,28 +1,39 @@
+#Import dependencies
 import uuid
 import jwt
+import time
 import datetime
 import re
+
 from flask_api import FlaskAPI
 from flask import jsonify, request, session, Blueprint, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger, swag_from
-from api_documentation import Documentation
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
+from api_documentation import Documentation
 from instance.config import app_config
 
-
 db = SQLAlchemy()
-
 
 def create_app(config_name):
     """Create the api flask app"""
     from models import User, Event, Rsvp
+    from helper_functions import print_events, Category
     
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
     docs = Documentation()
+    catgory = Category()
+    swagger = Swagger(app,
+    template={
+        "swagger": "2.0",
+        "info": {
+            "title": "Bright Events API Documentation",
+            "version": "1.0",
+    }   
+    })
     
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
@@ -50,44 +61,23 @@ def create_app(config_name):
             return f(current_user, *args, **kwargs)
 
         return decorated
-    
-    swagger = Swagger(app,
-    template={
-        "swagger": "2.0",
-        "info": {
-            "title": "Bright Events API Documentation",
-            "version": "1.0",
-    }   
-    })
-    
-    def print_events(events):
-        result = []
-        for event in events:
-            event_data = {}
-            event_data['eventname'] = event.eventname
-            event_data['location'] = event.location
-            event_data['date'] = event.date
-            event_data['category'] = event.category
-            event_data['owner'] = event.owner
-            result.append(event_data)
-        return result
 
     @api.route('/auth/register', methods=['POST'])
     @swag_from(docs.register_dict, methods=['POST'])
     def register():
         """Add new users to data"""
         if request.method == 'POST':
-                username = request.form['username']
-                email = request.form['email']
-                password = request.form['password']
+                username = request.form['username'].strip()
+                email = request.form['email'].strip()
+                password = request.form['password'].strip()
 
-                if email == "" or not email:
+                if not email:
                     return jsonify("Please insert email"), 400
                 if "@" not in str(email) or ".com" not in str(email):
                     return jsonify("Please insert a valid email"), 400
-                if username == "" or not username:
+                if not username:
                     return jsonify("Please insert username"), 400
-                if password == "" or not password:
+                if not password:
                     return jsonify("Please insert password"), 400
                     
                 hashed_password = generate_password_hash(request.form['password'], method='sha256')
@@ -107,8 +97,8 @@ def create_app(config_name):
     @swag_from(docs.login_dict, methods=['POST'])
     def login():
         """Login registered users"""
-        name = request.form['username']
-        passwd = request.form['password']
+        name = request.form['username'].strip()
+        passwd = request.form['password'].strip()
         
         if not name or not passwd:
             return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
@@ -144,8 +134,16 @@ def create_app(config_name):
     def reset_password(current_user):
         """Reset users password"""
         user = current_user
-        old_password = user.password
-        new_password = generate_password_hash(request.form['new_password'], method='sha256')
+        new_password = request.form['new_password'].strip()
+        confirm_password = request.form['confirm_password'].strip()
+        if not new_password or not confirm_password:
+            return jsonify({"message":"Please insert required fields"}), 400
+        if check_password_hash(user.password, new_password):
+            return jsonify({"message":"Password already set"}), 409
+        if new_password == confirm_password:
+            new_password = generate_password_hash(request.form['new_password'], method='sha256')
+        else:
+            return jsonify({"message":"Passwords don't match"}), 409
 
         if user.logged_in == True:
                 user.password = new_password
@@ -162,32 +160,48 @@ def create_app(config_name):
         """Add or view events"""
         user = current_user
         if user.logged_in == True:
-            if request.method == 'POST' and user.logged_in == True:
-                eventname = request.form['eventname']
-                location = request.form['location']
-                date = request.form['date']
-                category = request.form['category']
+            if request.method == 'POST':
+                eventname = request.form['eventname'].strip()
+                location = request.form['location'].strip()
+                date = request.form['date'].strip()
                 owner = user.username
+                try:
+                    date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+                except ValueError:
+                    return jsonify({"message":"Wrong date format input(Correct:yy/mm/dd)"}), 400
+                category = request.form['category'].strip()
+                if catgory.category_check(category) == "OK":
+                    pass
+                else:
+                    return jsonify({"message":"Please select a viable category"},
+                                  {"options": catgory.category_list}), 406
                 if eventname and location and date and category:
-                    try:
-                        event = Event.get_one(eventname, owner)
-                        if event and event.location == location:
+                    event = Event.get_one(eventname, owner)
+                    if event and event.location == location:
+                        event_date = datetime.datetime.strptime(str(event.date), '%Y-%m-%d %H:%M:%S+03:00')
+                        if event_date == date_object:
                             return jsonify({"message":"Event already exists"}), 409
                         else:
                             event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category, owner=owner)
                             event.save()
-                            return jsonify({"New event":
-                                           {"id":event.id,
-                                            "eventname":event.eventname,
-                                            "location":event.location,
-                                            "date":event.date,
-                                            "category":event.category,
-                                            "owner":event.owner,
-                                            "'date_created": event.date_created,
-                                            "date_modified": event.date_modified
-                                            }}), 201
-                    except:
-                        return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
+                            return jsonify({"message":"Event has been created"},
+                                           {"caution!":"Event with same name and location exists"}), 201
+
+                    else:
+                        event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category, owner=owner)
+                        event.save()
+                        return jsonify({"New event":
+                                       {"id":event.id,
+                                        "eventname":event.eventname,
+                                        "location":event.location,
+                                        "date":event.date,
+                                        "category":event.category,
+                                        "owner":event.owner,
+                                        "'date_created": event.date_created,
+                                        "date_modified": event.date_modified
+                                        }}), 201
+                else:
+                    return jsonify({"message":"Please insert valid event"}), 400
         else:
             return jsonify({"message":"Please Log In to add events"}), 401
 
@@ -225,28 +239,34 @@ def create_app(config_name):
         user = current_user
         if user.logged_in == True:
             if request.method == 'PUT':
-                event_name = request.form['event_name']
-                date = request.form['date']
-                location = request.form['location']
-                category = request.form['category']
-                event = Event.get_one(eventname, user.username)
+                event_name = request.form['event_name'].strip()
+                date = request.form['date'].strip()
                 try:
-                    if event:
-                        event.eventname = event_name
-                        event.location = location
-                        event.date = date
-                        event.category = category
-                        db.session.commit()
-                        return jsonify({"Event updated to:":{
-                                    "eventname":event_name,
-                                    "location":location,
-                                    "date":date,
-                                    "category":category
-                                   }}), 202
-                    else:
-                        return jsonify({"message":"Event you are editing does not exist"}), 404
-                except:
-                    return jsonify({"message":"Something went wrong(Common cause: Bad date input)"}), 400
+                    date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+                except ValueError:
+                    return jsonify({"message":"Wrong date format input(Correct:yy/mm/dd)"}), 400
+                location = request.form['location'].strip()
+                category = request.form['category'].strip()
+                if catgory.category_check(category) == "OK":
+                    pass
+                else:
+                    return jsonify({"message":"Please select a viable category"},
+                                  {"options": catgory.category_list}), 406
+                event = Event.get_one(eventname, user.username)
+                if event:
+                    event.eventname = event_name
+                    event.location = location
+                    event.date = date
+                    event.category = category
+                    db.session.commit()
+                    return jsonify({"Event updated to:":{
+                                "eventname":event_name,
+                                "location":location,
+                                "date":date,
+                                "category":category
+                               }}), 202
+                else:
+                    return jsonify({"message":"Event you are editing does not exist"}), 404
 
             if request.method == 'DELETE':
                 event = Event.get_one(eventname, user.username)

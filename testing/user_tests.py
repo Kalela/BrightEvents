@@ -108,9 +108,27 @@ class TestUserEndpoints(unittest.TestCase):
         self.register_and_login("both")
         response = self.tester.post('/api/v2/auth/reset-password',
                                headers={'x-access-token':self.token},
-                               data=dict(new_password = "somethingnew"))
+                               data=dict(new_password="somethingnew", confirm_password="somethingnew"))
         self.assertEqual(response.status_code, 205)
         self.assertIn("Password reset!", str(response.data))
+    
+    def test_reset_password_wrongconfirm(self):
+        """Test the reset password endpoint if confirm and new don't match"""
+        self.register_and_login("both")
+        response = self.tester.post('/api/v2/auth/reset-password',
+                               headers={'x-access-token':self.token},
+                               data=dict(new_password="somethingnew", confirm_password="omethingnew"))
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("Passwords don't match", str(response.data))
+
+    def test_reset_password_old(self):
+        """Test the reset password endpoint if user input is same as old password"""
+        self.register_and_login("both")
+        response = self.tester.post('/api/v2/auth/reset-password',
+                               headers={'x-access-token':self.token},
+                               data=dict(new_password="1234", confirm_password="1234"))
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("Password already set", str(response.data))
         
     def test_reset_password_nologin(self):
         """Test the reset password if user not logged in"""
@@ -118,7 +136,7 @@ class TestUserEndpoints(unittest.TestCase):
         self.tester.post('/api/v2/auth/logout', headers={'x-access-token':self.token})
         response = self.tester.post('/api/v2/auth/reset-password',
                                headers={'x-access-token':self.token},
-                               data=dict(new_password = "somethingnew"))
+                               data=dict(new_password="somethingnew", confirm_password="somethingnew"))
         self.assertEqual(response.status_code, 401)
         self.assertIn("Please log in", str(response.data))
 

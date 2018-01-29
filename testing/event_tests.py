@@ -24,7 +24,7 @@ class TestEventEndpoints(unittest.TestCase):
     def create_new_event(self):
         return self.tester.post('/api/v2/events',
                                    data=dict(eventname="newevent", location="newlocation", 
-                                             date="2018/05/21", category="newcategory"),
+                                             date="2018/05/21", category="Social"),
                                    headers={'x-access-token':self.token})
 
     def test_new_event(self):
@@ -33,16 +33,37 @@ class TestEventEndpoints(unittest.TestCase):
             response = self.create_new_event()
             self.assertEqual(response.status_code, 201)
             self.assertIn("New event", str(response.data))
+            
+    def test_create_new_event_bad_category(self):
+            """Test the create new event endpoint"""
+            self.register_and_login()
+            response = self.tester.post('/api/v2/events',
+                                   data=dict(eventname="newevent", location="newlocation", 
+                                             date="2018/06/21", category="mycategory"),
+                                   headers={'x-access-token':self.token})
+            self.assertEqual(response.status_code, 406)
+            self.assertIn("select a viable category", str(response.data))
+
+    def test_same_event_different_date(self):
+            """Test the creating the same event with a different date endpoint"""
+            self.register_and_login()
+            self.create_new_event()
+            response = self.tester.post('/api/v2/events',
+                                   data=dict(eventname="newevent", location="newlocation", 
+                                             date="2018/06/21", category="Social"),
+                                   headers={'x-access-token':self.token})
+            self.assertEqual(response.status_code, 201)
+            self.assertIn("Event has been created", str(response.data))
 
     def test_new_event_with_bad_format_input(self):
         """Test date or other input formatted wrong"""
         self.register_and_login()
         response = self.tester.post('/api/v2/events',
                                data=dict(eventname = "newevent", location = "newlocation", 
-                                         date = "21052018", category = "newcategory"),
+                                         date = "21052018", category = "Social"),
                                          headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Something went wrong", str(response.data))
+        self.assertIn("Wrong date", str(response.data))
 
     def test_new_event_already_exists(self):
         """Test creating an event that already exists"""
@@ -68,7 +89,7 @@ class TestEventEndpoints(unittest.TestCase):
                               data=dict(event_name = "myevent", 
                                         location = "mylocation", 
                                         date = "2018/03/19", 
-                                        category = "mycategory"),
+                                        category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 202)
         self.assertIn("updated to", str(response.data))
@@ -81,10 +102,10 @@ class TestEventEndpoints(unittest.TestCase):
                               data=dict(event_name = "myevent", 
                                         location = "mylocation", 
                                         date = "19032018", 
-                                        category = "mycategory"),
+                                        category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Something went wrong", str(response.data))
+        self.assertIn("Wrong date", str(response.data))
 
     def test_update_event_does_not_exist(self):
         """Test update existing event if event does not exist"""
@@ -93,7 +114,7 @@ class TestEventEndpoints(unittest.TestCase):
                               data=dict(event_name = "myevent", 
                                         location = "mylocation", 
                                         date = "2018/03/19", 
-                                        category = "mycategory"),
+                                        category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
