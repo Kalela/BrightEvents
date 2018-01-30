@@ -18,7 +18,6 @@ install:
 notifications:
     email: false
 # command to run tests
-script: nosetests tests.py --with-coverage && coverage report
+script: nosetests tests --with-coverage && coverage report
 
 after_success: coveralls
-

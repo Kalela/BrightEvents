@@ -153,7 +153,8 @@ class TestEventEndpoints(unittest.TestCase):
         """Test the send rsvp endpoint"""
         self.register_and_login()
         self.create_new_event()
-        response = self.tester.post('/api/v2/events/newevent/rsvp', headers={'x-access-token':self.token})
+        response = self.tester.post('/api/v2/events/newevent/rsvp', headers={'x-access-token':self.token},
+                                    queries={'owner':'admin'})
         self.assertEqual(response.status_code, 201)
         self.assertIn("RSVP sent", str(response.data))
 

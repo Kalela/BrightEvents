@@ -14,6 +14,7 @@ from functools import wraps
 
 from api_documentation import Documentation
 from instance.config import app_config
+from exceptions import ServerError
 
 db = SQLAlchemy()
 
@@ -286,21 +287,28 @@ def create_app(config_name):
     @swag_from(docs.event_rsvp_dict, methods=['POST'])
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
-        user = current_user
-        if user.logged_in == True:
-            event = Event.get_one(eventname, user.username)
-            if event:
-                rsvp = Rsvp.query.filter_by(owner_id=user.id).all()
-                if rsvp:
-                    return jsonify({"message":"RSVP already sent"}), 409   
+        try:
+            owner = request.args.get('owner').strip()
+            user = current_user
+            if not owner:
+                return jsonify({"message":"Please insert the owner of the event you want to rsvp"}), 428
+            if user.logged_in == True:
+                event = Event.get_one(eventname, owner)
+                if event:
+                    rsvp = Rsvp.query.filter_by(owner_id=user.id).all()
+                    if rsvp:
+                        return jsonify({"message":"RSVP already sent"}), 409   
+                    else:
+                        rsvp = Rsvp(rsvp_event=event, event_owner=current_user)
+                        rsvp.save()
+                        return jsonify({"message":"RSVP sent"}), 201
                 else:
-                    rsvp = Rsvp(rsvp_event=event, event_owner=current_user)
-                    rsvp.save()
-                    return jsonify({"message":"RSVP sent"}), 201
+                    return jsonify({"message":"Event does not exist"}), 404
             else:
-                return jsonify({"message":"Event does not exist"}), 404
-        else:
-            return jsonify({"message":"Please log in Before sending RSVP"}), 401
+                return jsonify({"message":"Please log in Before sending RSVP"}), 401
+            
+        except Exception as e:
+            return jsonify(str(e))
 
     app.register_blueprint(api, url_prefix='/api/v2')
     return app

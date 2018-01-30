@@ -6,16 +6,19 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "username",
+        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "password",
+        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "email",
+        "required": "true",
         "type": "string",
     }
     ],
@@ -62,11 +65,13 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "username",
+        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "password",
+        "required": "true",
         "type": "string",
     }
     ],
@@ -135,6 +140,7 @@ class Documentation(object):
     {
         "in": "formData",
         "name": "confirm_password",
+        "required": "true",
         "type": "string",
     },
     {
@@ -476,7 +482,13 @@ class Documentation(object):
     "parameters":[
     {
         "in": "path",
-        "name": "eventid",
+        "name": "eventname",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "query",
+        "name": "owner",
         "required": "true",
         "type": "string",
     },
@@ -511,6 +523,10 @@ class Documentation(object):
     "409":
       {
       "description": "RSVP has already been sent"
+      },
+    "428":
+      {
+      "description": "owner of event required"
       },
       "definitions" : {
         "Events": {

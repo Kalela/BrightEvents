@@ -55,7 +55,7 @@ class Event(db.Model):
         #only logged in user can see or edit specific events
         search_names = Event.query.filter(Event.eventname.ilike('%{}%'.format(eventname))).all()
         for eventname in search_names:
-            if eventname.owner == owner:
+            if eventname.owner.lower() == owner.lower():
                 return eventname
 
     @staticmethod
