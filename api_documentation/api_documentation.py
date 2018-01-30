@@ -348,7 +348,7 @@ class Documentation(object):
     },
     {
         "in": "formData",
-        "name": "event_name",
+        "name": "updated_event_name",
         "type": "string"
     },
     {
