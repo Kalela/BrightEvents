@@ -156,7 +156,7 @@ class TestEventEndpoints(unittest.TestCase):
         self.register_and_login()
         self.create_new_event()
         response = self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token},
-                                    queries={'owner':'admin'})
+                                    data=(dict(owner="admin")))
         self.assertEqual(response.status_code, 201)
         self.assertIn("RSVP sent", str(response.data))
 
@@ -164,15 +164,21 @@ class TestEventEndpoints(unittest.TestCase):
         """Test rsvp sent twice"""
         self.register_and_login()
         self.create_new_event()
-        self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
-        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.tester.post('%s/events/newevent/rsvp' % self.prefix,
+                         data=(dict(owner="admin")),
+                         headers={'x-access-token':self.token})
+        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix,
+                                    data=(dict(owner="admin")),
+                                    headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 409)
         self.assertIn("already sent", str(response.data))
 
     def test_rsvp_event_does_not_exist(self):
         """Test rsvp to a non-existent event"""
         self.register_and_login()
-        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix,
+                                    data=(dict(owner="admin")),
+                                    headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
 
@@ -180,7 +186,9 @@ class TestEventEndpoints(unittest.TestCase):
         """Test rsvp if a user is not logged in"""
         self.register_and_login()
         self.create_new_event()
-        self.tester.post('%s/auth/logout' % self.prefix, headers={'x-access-token':self.token})
+        self.tester.post('%s/auth/logout' % self.prefix,
+                         data=(dict(owner="admin")),
+                         headers={'x-access-token':self.token})
         response = self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 401)
         self.assertIn("log in", str(response.data))

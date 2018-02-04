@@ -6,7 +6,7 @@ def print_events(events):
         event_data['location'] = event.location
         event_data['date'] = event.date
         event_data['category'] = event.category
-        event_data['owner'] = event.owner
+        event_data['owner'] = event.event_owner.username
         result.append(event_data)
     return result
 

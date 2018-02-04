@@ -34,13 +34,12 @@ class Event(db.Model):
     location = db.Column(db.String(120), nullable=False)
     date = db.Column(db.DateTime(80), nullable=False)
     category = db.Column(db.String(80))
-    owner = db.Column(db.String(80))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
-    event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner_id])
+    owner = db.Column(db.String, db.ForeignKey('user.username'))
+    event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner])
     
     def save(self):
         db.session.add(self)
@@ -76,11 +75,10 @@ class Event(db.Model):
 class Rsvp(db.Model):
     """Represent all rsvps data in a table"""
     id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     date_sent = db.Column(db.DateTime, default=db.func.current_timestamp())
-    rsvp_event = db.relationship('Event', backref='all_rsvp', foreign_keys=[event_id])
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    event_owner = db.relationship('User', backref='all_rsvp', foreign_keys=[owner_id])
+    rsvp_sender = db.Column(db.String(80))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    event = db.relationship('Event', backref='all_rsvp', foreign_keys=[event_id])
     
     def save(self):
         db.session.add(self)
