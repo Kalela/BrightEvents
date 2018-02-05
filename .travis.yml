@@ -5,8 +5,9 @@ services:
   -postgresql
 # command to set up database
 before_script:
-  - echo 'Africa/Asmara' | sudo tee /etc/timezone
+  - echo 'Africa/Nairobi' | sudo tee /etc/timezone
   - sudo dpkg-reconfigure --frontend noninteractive tzdata
+  - sudo ntpdate ntp.ubuntu.com
   - psql -c "CREATE DATABASE test_db;" -U postgres
   
 env:
