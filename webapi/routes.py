@@ -313,13 +313,13 @@ def create_app(config_name):
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
         try:
-            owner = request.form['owner']
-            if owner:
-                owner = owner.strip()
+            owner = request.form['owner'].strip() 
             user = current_user
             if not owner:
                 return jsonify({"message":"Please insert the owner of the event you want to rsvp"}), 428
-            if user.logged_in == True:
+            if not user or user.logged_in == False:
+                return jsonify({"message":"Please log in Before sending RSVP"}), 401      
+            else:
                 event = Event.get_one(eventname, owner)
                 if event:
                     rsvp = Rsvp.query.filter_by(rsvp_sender=user.username).all()
@@ -331,10 +331,9 @@ def create_app(config_name):
                         return jsonify({"message":"RSVP sent"}), 201
                 else:
                     return jsonify({"message":"Event does not exist"}), 404
-            else:
-                return jsonify({"message":"Please log in Before sending RSVP"}), 401
-            
+                
         except Exception as e:
+            print(str(e))
             return jsonify({"Error":str(e)}), 500
 
     app.register_blueprint(api, url_prefix='/api/v2')

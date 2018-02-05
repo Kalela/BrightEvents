@@ -186,10 +186,10 @@ class TestEventEndpoints(unittest.TestCase):
         """Test rsvp if a user is not logged in"""
         self.register_and_login()
         self.create_new_event()
-        self.tester.post('%s/auth/logout' % self.prefix,
-                         data=(dict(owner="admin")),
-                         headers={'x-access-token':self.token})
-        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.tester.post('%s/auth/logout' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.post('%s/events/newevent/rsvp' % self.prefix,
+                                    data=dict(owner="admin"),
+                                    headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 401)
         self.assertIn("log in", str(response.data))
 
