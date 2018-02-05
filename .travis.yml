@@ -5,11 +5,9 @@ services:
   -postgresql
 # command to set up database
 before_script:
-  - echo 'Africa/Nairobi' | sudo tee /etc/timezone
-  - sudo dpkg-reconfigure --frontend noninteractive tzdata
-  - sudo ntpdate ntp.ubuntu.com
+  - export TZ='Africa/Nairobi'
   - psql -c "CREATE DATABASE test_db;" -U postgres
-  
+  - date
 env:
   global:
     - DATABASE_URL=postgresql://postgres:challenge123@localhost/test_db
