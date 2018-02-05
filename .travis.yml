@@ -6,7 +6,7 @@ services:
 # command to set up database
 before_script:
   - psql -c "CREATE DATABASE test_db;" -U postgres
-  - export TZ=UTC +3
+  - export TZ=Africa/Nairobi
 env:
   global:
     - DATABASE_URL=postgresql://postgres:challenge123@localhost/test_db
