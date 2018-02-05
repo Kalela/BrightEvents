@@ -5,7 +5,8 @@ services:
   -postgresql
 # command to set up database
 before_script:
-  - export TZ=Africa/Nairobi
+  - echo 'Africa/Nairobi' | sudo tee /etc/timezone
+  - sudo dpkg-reconfigure --frontend noninteractive tzdata
   - psql -c "CREATE DATABASE test_db;" -U postgres
   
 env:
