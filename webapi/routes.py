@@ -170,81 +170,81 @@ def create_app(config_name):
     @swag_from(docs.event_get_dict, methods=['GET'])
     def events(current_user):
         """Add or view events"""
-#        try:
-        user = current_user
-        if user.logged_in == True:
-            if request.method == 'POST':
-                eventname = request.form['eventname'].strip()
-                location = request.form['location'].strip()
-                date = request.form['date'].strip()
-                owner = user.username
-                try:
-                    date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
-                except ValueError:
-                    return jsonify({"message":"Wrong date format input(Correct:yy/mm/dd)"}), 400
-                category = request.form['category'].strip()
-                if catgory.category_check(category) == "OK":
-                    pass
-                else:
-                    return jsonify({"message":"Please select a viable category"},
-                                  {"options": catgory.category_list}), 406
-                if eventname and location and date and category:
-                    event = Event.get_one(eventname, owner)
-                    if event and event.location == location:
-                        event_date = datetime.datetime.strptime(str(event.date), '%Y-%m-%d %H:%M:%S+03:00')
-                        if event_date == date_object:
-                            return jsonify({"message":"Event already exists"}), 409
+        try:
+            user = current_user
+            if user.logged_in == True:
+                if request.method == 'POST':
+                    eventname = request.form['eventname'].strip()
+                    location = request.form['location'].strip()
+                    date = request.form['date'].strip()
+                    owner = user.username
+                    try:
+                        date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+                    except ValueError:
+                        return jsonify({"message":"Wrong date format input(Correct:yy/mm/dd)"}), 400
+                    category = request.form['category'].strip()
+                    if catgory.category_check(category) == "OK":
+                        pass
+                    else:
+                        return jsonify({"message":"Please select a viable category"},
+                                      {"options": catgory.category_list}), 406
+                    if eventname and location and date and category:
+                        event = Event.get_one(eventname, owner)
+                        if event and event.location == location:
+                            event_date = datetime.datetime.strptime(str(event.date), '%Y-%m-%d %H:%M:%S+03:00')
+                            if event_date == date_object:
+                                return jsonify({"message":"Event already exists"}), 409
+                            else:
+                                event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category)
+                                event.save()
+                                return jsonify({"message":"Event has been created"},
+                                               {"caution!":"Event with same name and location exists"}), 201
+
                         else:
                             event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category)
                             event.save()
-                            return jsonify({"message":"Event has been created"},
-                                           {"caution!":"Event with same name and location exists"}), 201
-
+                            return jsonify({"New event":
+                                           {"id":event.id,
+                                            "eventname":event.eventname,
+                                            "location":event.location,
+                                            "date":event.date,
+                                            "category":event.category,
+                                            "owner":event.owner,
+                                            "'date_created": event.date_created,
+                                            "date_modified": event.date_modified
+                                            }}), 201
                     else:
-                        event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category)
-                        event.save()
-                        return jsonify({"New event":
-                                       {"id":event.id,
-                                        "eventname":event.eventname,
-                                        "location":event.location,
-                                        "date":event.date,
-                                        "category":event.category,
-                                        "owner":event.owner,
-                                        "'date_created": event.date_created,
-                                        "date_modified": event.date_modified
-                                        }}), 201
-                else:
-                    return jsonify({"message":"Please insert valid event"}), 400
-        else:
-            return jsonify({"message":"Please Log In to add events"}), 401
+                        return jsonify({"message":"Please insert valid event"}), 400
+            else:
+                return jsonify({"message":"Please Log In to add events"}), 401
 
-        if request.method == 'GET':
-            location = request.args.get('location')
-            category = request.args.get('category')
-            q = request.args.get('q')
+            if request.method == 'GET':
+                location = request.args.get('location')
+                category = request.args.get('category')
+                q = request.args.get('q')
 
-            limit = request.args.get('limit')
-            if limit:
-                limit = int(limit)
+                limit = request.args.get('limit')
+                if limit:
+                    limit = int(limit)
 
-            _next = request.args.get('next')
-            prev = request.args.get('prev')
+                _next = request.args.get('next')
+                prev = request.args.get('prev')
 
-            if category:
-                events = Event.filter_category(category)
-            if location:
-                events = Event.filter_location(location)
-            if q:
-                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
-            if not category and not location and not q:
-                if not limit:
-                    limit = 10
-                event_pages = Event.get_all_pages(limit)
-                events = event_pages.items
-            return jsonify({"Events": print_events(events)}), 200
+                if category:
+                    events = Event.filter_category(category)
+                if location:
+                    events = Event.filter_location(location)
+                if q:
+                    events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+                if not category and not location and not q:
+                    if not limit:
+                        limit = 10
+                    event_pages = Event.get_all_pages(limit)
+                    events = event_pages.items
+                return jsonify({"Events": print_events(events)}), 200
 
-#        except Exception as e:
-#            return jsonify({"Error":str(e)}), 500
+        except Exception as e:
+            return jsonify({"Error":str(e)}), 500
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
     @token_required
