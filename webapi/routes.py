@@ -3,7 +3,6 @@ import uuid
 import jwt
 import time
 import datetime
-import re
 
 from flask_api import FlaskAPI
 from flask import jsonify, request, session, Blueprint, make_response
@@ -20,7 +19,7 @@ db = SQLAlchemy()
 def create_app(config_name):
     """Create the api flask app"""
     from models import User, Event, Rsvp
-    from helper_functions import print_events, utc_offset, Category
+    from helper_functions import print_events, utc_offset, special_characters, Category
     
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
@@ -80,6 +79,7 @@ def create_app(config_name):
                         return jsonify("Please insert username"), 400
                     if not password:
                         return jsonify("Please insert password"), 400
+                    
 
                     hashed_password = generate_password_hash(request.form['password'], method='sha256')
 

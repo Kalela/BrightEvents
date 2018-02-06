@@ -38,7 +38,7 @@ class TestUserEndpoints(unittest.TestCase):
         response = self.register_and_login("register")
         self.assertEqual(response.status_code, 201)
         self.assertIn("Registration successful", str(response.data))
-    
+
     def test_register_noinput(self):
         """Test a blank input on register endpoint"""
         response = self.tester.post('%s/auth/register' % self.prefix,

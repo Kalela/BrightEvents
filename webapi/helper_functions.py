@@ -1,3 +1,5 @@
+import re
+
 def print_events(events):
     result = []
     for event in events:
@@ -19,7 +21,10 @@ class Category(object):
             return "BAD"
         
 def utc_offset(string):
-    my_time = string[-5:]
-    return my_time
+    return string[-5:]
+
+def special_characters(string):
+    if re.findall('[^A-Za-z0-9]',string):
+        return True
     
     
