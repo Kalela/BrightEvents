@@ -37,7 +37,7 @@ class TestEventEndpoints(unittest.TestCase):
             self.assertIn("New event", str(response.data))
             
     def test_create_new_event_bad_category(self):
-            """Test the create new event endpoint"""
+            """Test the create new event endpoint with a wrong category"""
             self.register_and_login()
             response = self.tester.post('%s/events' % self.prefix,
                                    data=dict(eventname="newevent", location="newlocation", 
@@ -135,6 +135,14 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
+                                            
+    def test_view_one_event(self):
+        """Test viewing a single event"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.get('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("eventname", str(response.data))
 
     def test_view_events(self):
         """Test the view all events endpoint"""

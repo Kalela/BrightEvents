@@ -49,7 +49,7 @@ class TestUserEndpoints(unittest.TestCase):
     def test_register_bad_email_input(self):
         """Test if email input on register endpoint is not valid"""
         response = self.tester.post('%s/auth/register' % self.prefix,
-                               data=dict(username = "", password = "1234", email = "testemail.com"))
+                               data=dict(username = "admin", password = "1234", email = "testemail.com"))
         self.assertEqual(response.status_code, 400)
         self.assertIn("insert a valid email", str(response.data))
         
