@@ -17,4 +17,9 @@ class Category(object):
             return "OK"
         else:
             return "BAD"
+        
+def utc_offset(string):
+    my_time = string[-5:]
+    return my_time
+    
     
