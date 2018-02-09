@@ -5,7 +5,7 @@ import time
 import datetime
 
 from flask_api import FlaskAPI
-from flask import jsonify, request, session, Blueprint, make_response
+from flask import jsonify, request, session, Blueprint, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger, swag_from
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -61,6 +61,10 @@ def create_app(config_name):
             return f(current_user, *args, **kwargs)
 
         return decorated
+    
+    @app.route('/', methods=['GET'])
+    def index():
+        return redirect("/apidocs")
 
     @api.route('/auth/register', methods=['POST'])
     @swag_from(docs.register_dict, methods=['POST'])
