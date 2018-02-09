@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request
@@ -56,6 +57,3 @@ def check_password_reset(new_password, confirm_password, user, status_code):
         message = {"message":"Passwords don't match"}
         status_code = 409
     return message, status_code, new_password
-
-    
-    
