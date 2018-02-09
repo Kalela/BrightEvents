@@ -35,8 +35,8 @@ def create_app(config_name):
     }   
     })
     
-    app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+    app.config.from_object(app_config['development'])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
     with app.app_context():
