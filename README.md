@@ -5,7 +5,8 @@ Heroku app: https://event-hub-bright-events.herokuapp.com/
 
 Build Status
 ------------
-![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-setup-postgres-db-153738107)
+![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-searching-and-filtering-154311788)
+[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-searching-and-filtering-154311788)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-searching-and-filtering-154311788)
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
@@ -36,6 +37,8 @@ Installation
     >$ pip install autoenv
     
 ![env](https://image.ibb.co/f75eUw/Screenshot_from_2018_01_04_15_48_41.png "env")
+Every time this directory is accessed, the commands are excecuted to set up the FLASK_APP and other environment variables.
+
 5. Set up a virtualenv 
 * In this case, _virtualenv venv_
   (If you can't see the .env file make sure your file explorer has viewing hidden files enabled)
@@ -49,6 +52,10 @@ Installation
 6. Install all application requirements using pip
     >$ pip install -r requirements.txt
     _To check if installed run pip freeze to see all installed packages_
+    
+Designs
+-------
+All front end designs are located in the designs folder.
 
 Running the API Endpoints
 -------------------------
@@ -92,18 +99,11 @@ _You will need [Postman](https://www.getpostman.com/apps) to run tests on api en
   ![Tests](https://image.ibb.co/jSawsG/Screenshot_from_2018_01_04_15_27_20.png "Tests")
 
 ##### To access the api documentation:
-* Make sure the server is up
-* Visit localhost:5000/apidocs
-![Documentation](https://image.ibb.co/hKeNXG/Screenshot_from_2018_01_04_15_08_26.png "Documentation")
+Access the api documentation at https://brightevents4.docs.apiary.io/#. (For apiary)
+#### Or
+Run the server and access them with https://localhost:5000/apidocs. (For flasgger)
+
 
 Versioning
 ----------
 We use Github for versioning. Use this repository.
-
-
-
-    
-
-
-
-

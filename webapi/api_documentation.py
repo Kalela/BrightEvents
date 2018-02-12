@@ -14,6 +14,12 @@ class Documentation(object):
         "name": "password",
         "required": "true",
         "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "email",
+        "required": "true",
+        "type": "string",
     }
     ],
     "responses":
@@ -30,9 +36,13 @@ class Documentation(object):
         }
         }
         },
+    "400":
+       {
+        "descrption": "Bad input"
+       },
     "409":
       {
-      "description": "User already registered"
+      "description": "User already registered or bad input"
       }
     },
     "definitions" : {
@@ -101,6 +111,13 @@ class Documentation(object):
 }
     logout_dict = {
     "tags": ["User"],
+    "parameters":[
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+    }],
     "responses":
     {
     "200":{
@@ -110,25 +127,25 @@ class Documentation(object):
       "description": "User successfully logged out",
         }
     }  
-}
+    }
     pass_reset_dict = {
     "tags": ["User"],
     "parameters":[
     {
         "in": "formData",
-        "name": "username",
-        "required": "true",
-        "type": "string",
-    },
-    {
-        "in": "formData",
-        "name": "password",
-        "required": "true",
-        "type": "string",
-    },
-    {
-        "in": "formData",
         "name": "new_password",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "formData",
+        "name": "confirm_password",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }
@@ -147,13 +164,17 @@ class Documentation(object):
       }
       }
       },
+    "400":
+      {
+      "description": "Please insert required data"
+      },
     "401":
       {
       "description": "Can't reset password if not logged in"
       },
-    "404":
+    "409":
       {
-      "description": "No such user is registered"
+      "description": "Conflict"
       }
     }, 
     "definitions" : {
@@ -175,25 +196,27 @@ class Documentation(object):
     "parameters":[
     {
         "in": "formData",
-        "name": "eventid",
-        "required": "true",
+        "name": "eventname",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "location",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "date",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "category",
+        "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }
@@ -211,9 +234,17 @@ class Documentation(object):
         }
         }
           },
+    "400":
+      {
+      "description": "Bad input"
+      },
     "401":
       {
       "description": "Only logged in users can add events"
+      },
+    "406":
+      {
+      "description": "Unspecified event category not allowed"
       },
     "409":
       {
@@ -243,6 +274,34 @@ class Documentation(object):
 }
     event_get_dict = {
     "tags": ["Event"],
+    "parameters":[
+       {
+        "in": "query",
+        "name": "q",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "location",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "category",
+        "type": "string"
+       },
+       {
+        "in": "query",
+        "name": "limit",
+        "type": "string"
+       },
+       {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+       }
+    ], 
     "responses":
     { 
     "200":
@@ -283,31 +342,33 @@ class Documentation(object):
     "parameters":[
     {
         "in": "path",
-        "name": "eventid",
+        "name": "eventname",
         "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "formData",
-        "name": "event",
-        "required": "true",
-        "type": "string",
+        "name": "updated_event_name",
+        "type": "string"
     },
     {
         "in": "formData",
         "name": "location",
-        "required": "true",
         "type": "string",
     },
     {
         "in": "formData",
         "name": "date",
-        "required": "true",
-        "type": "string",
+        "type": "string"
     },
     {
         "in": "formData",
         "name": "category",
+        "type": "string"
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }
@@ -325,6 +386,10 @@ class Documentation(object):
         }
         }
           },
+    "400":
+      {
+      "description": "Wrong datetime format(yy/mm/dd)"    
+      },
     "401":
       {
       "description": "Only logged in users can edit events"    
@@ -333,7 +398,10 @@ class Documentation(object):
       {
       "description": "The event you are editing does not exist"
       },
-    
+    "406":
+      {
+      "description": "Unspecified event category is not allowed"
+      },
       "definitions" : {
         "Events": {
           "type": "object",
@@ -358,6 +426,14 @@ class Documentation(object):
 }
     event_delete_dict = {
     "tags": ["Event"],
+    "parameters":[
+    {
+        "in": "header",
+        "name": "x-access-token",
+        "required": "true",
+        "type": "string",
+    }  
+    ],
     "responses":
     {
     "205":{
@@ -406,7 +482,19 @@ class Documentation(object):
     "parameters":[
     {
         "in": "path",
-        "name": "eventid",
+        "name": "eventname",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "query",
+        "name": "owner",
+        "required": "true",
+        "type": "string",
+    },
+    {
+        "in": "header",
+        "name": "x-access-token",
         "required": "true",
         "type": "string",
     }
@@ -428,9 +516,17 @@ class Documentation(object):
       {
       "description": "Only logged in users can rsvp to events"
       },
+    "404":
+      {
+      "description": "Event does not exist"
+      },
     "409":
       {
       "description": "RSVP has already been sent"
+      },
+    "428":
+      {
+      "description": "owner of event required"
       },
       "definitions" : {
         "Events": {
