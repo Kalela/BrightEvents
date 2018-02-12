@@ -1,191 +1,242 @@
+import uuid
+import jwt
+import datetime
 from flask_api import FlaskAPI
-from flask import jsonify, request, session, Blueprint
+from flask import jsonify, request, session, Blueprint, make_response
+from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger, swag_from
-from api_data import Users, Events
 from api_documentation import Documentation
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 from instance.config import app_config
 
-users = Users()
-events = Events()
 docs = Documentation()
+db = SQLAlchemy()
 
 def create_app(config_name):
     """Create the api flask app"""
+    from models import User, Event
+    
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
+    swagger = Swagger(app)
+    
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    app.config['SECRET_KEY'] = 'my-secret'
-    swagger = Swagger(app)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+        
+    def token_required(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+
+            if 'x-access-token' in request.headers:
+                token = request.headers['x-access-token']    
+
+            if not token:
+                return jsonify({"message":"Token is missing!"}), 401
+
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'])
+                current_user = User.query.filter_by(public_id=data['public_id']).first()
+            except:
+                return jsonify({"message":"Token is invalid"}), 401
+            return f(current_user, *args, **kwargs)
+
+        return decorated
 
     #Works
     @api.route('/auth/register', methods=['POST'])
-    @swag_from(docs.register_dict)
+#    @swag_from(docs.register_dict)
     def register_page_json():
         """Add new users to data"""
         if request.method == 'POST':
-            user = {}
-            user[request.form['username']] = request.form['password']
-            if user in users.users:
-                return jsonify("User already registered"), 409
-            else:
-                users.users.append(user)
-                return jsonify({'users':users.users}), 201
+                username = request.form['username']
+                email = request.form['email']
+                password = request.form['password']
+                hashed_password = generate_password_hash(request.form['password'], method='sha256')
+
+                if username and email and hashed_password:
+                        user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()), logged_in = False)
+                        user.save()
+                        if not user:
+                            return jsonify({"message":"Please insert correct value(s)"}), 409
+                        else:
+                            return jsonify({'id':user.public_id,
+                                            'logged in':user.logged_in,
+                                            'username':user.username,
+                                            'password':user.password,
+                                            'email':user.email,
+                                            'date_created': user.date_created,
+                                            'date_modified': user.date_modified}), 201
+                        return jsonify("Username or email already registered"), 409
+                else:
+                    return jsonify({"message":"Please insert missing value(s)"}), 409
 
     #Works
     @api.route('/auth/login', methods=['POST'])
-    @swag_from(docs.login_dict)
+#    @swag_from(docs.login_dict)
     def login_json():
         """Login registered users"""
-        user = {}
-        user[request.form['username']] = request.form['password']
-        if user in users.users:
-            session['username'] = request.form['username']
-            return jsonify("Logged in"), 202
-        else:
-            return jsonify("Please sign up or review your login info"), 401
-
+        name = request.form['username']
+        passwd = request.form['password']
+        
+        if not name or not passwd:
+            return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+        
+        user = User.query.filter_by(username=name).first()
+        if not user:
+            return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+        
+        if check_password_hash(user.password, passwd):
+            token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            user.logged_in = True
+            db.session.commit()
+            return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
+        
+        return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+            
     #Works
     @api.route('/auth/logout', methods=['POST'])
-    @swag_from(docs.logout_dict)
-    def logout_json():
+    @token_required
+#    @swag_from(docs.logout_dict)
+    def logout_json(current_user):
         """Log out users"""
-        user = {}
-        if 'username' in session:
-            session.pop('username')
+        user = current_user
+        if user.logged_in == True:
+            user.logged_in = False
+            db.session.commit()
             return jsonify("User logged out"), 202
         else:
             return jsonify('User is not logged in'), 200
 
     #Works
     @api.route('/auth/reset-password', methods=['POST'])
-    @swag_from(docs.pass_reset_dict)
-    def reset_password_json():
+    @token_required
+#    @swag_from(docs.pass_reset_dict)
+    def reset_password_json(current_user):
         """Reset users password"""
-        if 'username' in session:
-            old_user = {}
-            old_user[request.form['username']] = request.form['password']
-            if old_user in users.users:
-                user = {}
-                user[session['username']] = request.form['new_password']
-                users.users.append(user)
-                return jsonify({"Password changed from": old_user},{"To":user}), 205
-            else:
-                return jsonify("User does not exist"), 404     
+        user = current_user
+        old_password = user.password
+        new_password = generate_password_hash(request.form['new_password'], method='sha256')
+
+        if user.logged_in == True:
+                user.password = new_password
+                db.session.commit()
+                return jsonify({"Message":"Password reset!"}), 205 
         else:
             return jsonify("Please log in"), 401
         
     #Works
     @api.route('/events', methods=['POST', 'GET'])
-    @swag_from(docs.event_get_dict, methods=['GET'])
-    @swag_from(docs.event_post_dict, methods=['POST'])
-    def events_json():
+    @token_required
+#    @swag_from(docs.event_get_dict, methods=['GET'])
+#    @swag_from(docs.event_post_dict, methods=['POST'])
+    def events_json(current_user):
         """Add or view events"""
+        user = current_user
         if request.method == 'POST':
-            if 'username' in session:
-                location = []
-                location = [request.form['eventid'], request.form['location'], request.form['date'], request.form['category']]
-                event = {}
-                event[request.form['eventid']] = str(location)
-                if event in events.events:
-                    return jsonify("Event is already added"), 409
-                else:
-                    events.events.append(event)
-                    events.user_events.append(event)
-                    return jsonify({'events':events.events}, {"user events":events.user_events}), 201
+            if user.logged_in == True:
+                eventname = request.form['eventname']
+                location = request.form['location']
+                date = request.form['date']
+                category = request.form['category']
+                if eventname and location and date and category:
+                    try:
+                        event = Event(eventname=eventname, location=location, date=date, category=category, rsvp="None")
+                        event.save()
+                        return jsonify("New event",
+                                       {"id":event.id,
+                                        "eventname":event.eventname,
+                                        "location":event.location,
+                                        "date":event.date,
+                                        "category":event.category,
+                                        'date_created': event.date_created,
+                                        'date_modified': event.date_modified
+                                        }), 201
+                    except:
+                        return jsonify("Event already exists"), 409 
             else:
                 return jsonify("Please Log In to add events"), 401
         if request.method == 'GET':
-            return jsonify({'events':events.events}, {"user events": events.user_events}), 200
+            events = Event.get_all()
+            result = []
+            for event in events:
+                event_data = {}
+                event_data['eventname'] = event.eventname
+                event_data['location'] = event.location
+                event_data['date'] = event.date
+                event_data['category'] = event.category
+                result.append(event_data)
+            return jsonify({"Events": result}), 200
 
     #Works
-    @api.route('/events/<eventid>', methods=['PUT', 'DELETE'])
-    @swag_from(docs.event_put_dict, methods=['PUT'])
-    @swag_from(docs.event_delete_dict, methods=['DELETE'])
-    def event_update_json(eventid):
+    @api.route('/events/<eventname>', methods=['PUT', 'DELETE'])
+    @token_required
+#    @swag_from(docs.event_put_dict, methods=['PUT'])
+#    @swag_from(docs.event_delete_dict, methods=['DELETE'])
+    def event_update_json(current_user, eventname):
         """Edit existing events"""
-        if 'username' in session:
+        user = current_user
+        if user.logged_in == True:
             if request.method == 'PUT':
+                event_name = request.form['eventid']
+                date = request.form['date']
+                location = request.form['location']
+                category = request.form['category']
+                try:
+                    event = Event.get_one(eventname)
+                    event.eventname = event_name
+                    event.location = location
+                    event.date = date
+                    event.category = category
+                    db.session.commit()
+                    return jsonify({"Event updated to: ":{
+                                    "eventname":event_name,
+                                    "location":location,
+                                    "date":date,
+                                    "category":category
+                                   }}), 202
+                except:
+                    return jsonify("Event you are editing does not exist"), 404
 
-                    i = 0
-                    status_code = 0
-                    while i < len(events.user_events):
-                        try:
-                            if events.user_events[i][str(eventid)]:
-                                old_event ={str(eventid):events.user_events[i][str(eventid)]}
-                                if old_event in events.user_events:
-                                    eventname = request.form['eventid']
-                                    date = request.form['date']
-                                    location = request.form['location']
-                                    category = request.form['category']
-                                    updated_event = {}
-                                    updated_event = {str(eventid):[eventname, location, date, category]}
-                                    events.user_events.append(updated_event)
-                                    events.events.append(updated_event)         
-                                    status_code = 202
-                                    events.user_events.remove(old_event)
-                                    events.events.remove(old_event)
-                                    return jsonify({"Event edited to: ": updated_event}), 202
-
-                        except (KeyError, ValueError, TypeError):
-                            if TypeError:
-                                i += 1
-                        if i >= len(events.user_events):
-                            if status_code != 202:
-                                return jsonify("The event you are editing does not exist"), 404
             if request.method == 'DELETE':
-                    i = 0
-                    status_code = 0
-                    while i < len(events.user_events):
-                        try:
-                            if events.user_events[i][str(eventid)]:
-                                target_event = {str(eventid):events.user_events[i][str(eventid)]}
-                                status_code = 205
-                                i += 1
-
-                        except (KeyError, ValueError, TypeError):
-                            if TypeError:
-                                i += 1
-                        if i >= len(events.user_events):
-                                    if status_code != 205:
-                                        return jsonify("The event you are deleting does not exist"), 404
-                                    else:
-                                        events.user_events.remove(target_event)
-                                        return jsonify({"User events":events.user_events}), 205
+                try:
+                    event = Event.get_one(eventname)
+                    event.delete()
+                    events = Event.get_all()
+                    return jsonify("Event(s)", str(Event.get_all())), 205
+                except:
+                    return jsonify("Event you are deleting does not exist"), 404
                     
         else:
             return jsonify("Please log in to edit or delete events"), 401
             
     #Works
-    @api.route('/events/<eventid>/rsvp', methods=['POST'])
-    @swag_from(docs.event_rsvp_dict)
-    def rsvp_json(eventid):
+    @api.route('/events/<eventname>/rsvp', methods=['POST'])
+    @token_required
+#    @swag_from(docs.event_rsvp_dict)
+    def rsvp_json(current_user, eventname):
         """Send RSVPs to existing events"""
-        if 'username' in session:
-            i = 0
-            while i < len(events.user_events):
-                try:
-                    if events.user_events[i][str(eventid)]: 
-                        rsvp_event = {str(eventid):events.user_events[i][str(eventid)]}
-                        if rsvp_event in events.user_events:
-                            if rsvp_event in events.rsvps :
-                                status_code = 409
-                                return jsonify("Event already RSVPd"), 409
-                            else:
-                                events.rsvps.append(rsvp_event)
-                                status_code = 201
-                                return jsonify({"RSVPs sent":events.rsvps}), 201
-                        else:
-                            i += 1
-                except (KeyError, ValueError, TypeError):
-                    if TypeError:
-                        i += 1
-                if i >= len(events.user_events):
-                    if status_code != 201 and status_code != 409:
-                        return jsonify("The event does not exist"), 404
+        user = current_user
+        if user.logged_in == True:
+            try:
+                event = Event.get_one(eventname)
+                if event.rsvp == "None":
+                    event.rsvp = "Sent"
+                    db.session.commit()
+                    return jsonify("RSVP sent"), 201
+                else:
+                    return jsonify("RSVP already sent"), 409
+            except:
+                return jsonify("Event does not exist"), 404
         else:
             return jsonify("Please log in Before sending RSVP"), 401
 
     app.register_blueprint(api, url_prefix='/api/v2')
     return app
+
