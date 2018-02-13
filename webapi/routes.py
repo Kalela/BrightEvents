@@ -7,11 +7,10 @@ import datetime
 from flask_api import FlaskAPI
 from flask import jsonify, request, session, Blueprint, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flasgger import Swagger, swag_from
+from flasgger import Swagger
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from api_documentation import Documentation
 from instance.config import app_config
 
 db = SQLAlchemy()
@@ -24,16 +23,8 @@ def create_app(config_name):
     
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
-    docs = Documentation()
     catgory = Category()
-    swagger = Swagger(app,
-    template={
-        "swagger": "2.0",
-        "info": {
-            "title": "Bright Events API Documentation",
-            "version": "2.0",
-    }   
-    })
+    Swagger(app, template_file = "docs.yml")
     
     app.config.from_pyfile('config.py')
     app.config.from_object(app_config[config_name])
@@ -67,7 +58,6 @@ def create_app(config_name):
         return redirect("/apidocs")
 
     @api.route('/auth/register', methods=['POST'])
-    @swag_from(docs.register_dict, methods=['POST'])
     def register():
         """Add new users to data"""
         status_code = 500
@@ -98,7 +88,6 @@ def create_app(config_name):
         return jsonify(statement), status_code
 
     @api.route('/auth/login', methods=['POST'])
-    @swag_from(docs.login_dict, methods=['POST'])
     def login():
         """Login registered users"""
         status_code = 500
@@ -129,7 +118,6 @@ def create_app(config_name):
 
     @api.route('/auth/logout', methods=['POST'])
     @token_required
-    @swag_from(docs.logout_dict, methods=['POST'])
     def logout(current_user):
         """Log out users"""
         status_code = 500
@@ -151,7 +139,6 @@ def create_app(config_name):
 
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
-    @swag_from(docs.pass_reset_dict, methods=['POST'])
     def reset_password(current_user):
         """Reset users password"""
         status_code = 500
@@ -177,12 +164,44 @@ def create_app(config_name):
             statement = {"Error":str(e)}
         return jsonify(statement), status_code
 
-    @api.route('/events', methods=['POST', 'GET'])
+    @api.route('/events', methods=['GET'])
+    def view_events():
+        """View a list of events"""
+        try:            
+            location = request.args.get('location')
+            category = request.args.get('category')
+            q = request.args.get('q')
+
+            limit = request.args.get('limit')
+            if limit:
+                limit = int(limit)
+
+            _next = request.args.get('next')
+            prev = request.args.get('prev')
+
+            if category:
+                events = Event.filter_category(category)
+            if location:
+                events = Event.filter_location(location)
+            if q:
+                events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+            if not category and not location and not q:
+                if not limit:
+                    limit = 10
+                event_pages = Event.get_all_pages(limit)
+                events = event_pages.items
+            status_code = 200
+            statement = {"Events": print_events(events)}
+
+        except Exception as e:
+                status_code = 500
+                statement = {"Error":str(e)}
+        return jsonify(statement), status_code
+        
+    @api.route('/events', methods=['POST'])
     @token_required
-    @swag_from(docs.event_post_dict)
-    @swag_from(docs.event_get_dict)
-    def events(current_user):
-        """Add or view events"""
+    def create_event(current_user):
+        """Add events"""
         status_code = 500
         statement = {}
         try:
@@ -232,32 +251,6 @@ def create_app(config_name):
                         status_code = 400
                         statement = {"message":"Please insert valid event"}
 
-            if request.method == 'GET':
-                location = request.args.get('location')
-                category = request.args.get('category')
-                q = request.args.get('q')
-
-                limit = request.args.get('limit')
-                if limit:
-                    limit = int(limit)
-
-                _next = request.args.get('next')
-                prev = request.args.get('prev')
-
-                if category:
-                    events = Event.filter_category(category)
-                if location:
-                    events = Event.filter_location(location)
-                if q:
-                    events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
-                if not category and not location and not q:
-                    if not limit:
-                        limit = 10
-                    event_pages = Event.get_all_pages(limit)
-                    events = event_pages.items
-                status_code = 200
-                statement = {"Events": print_events(events)}
-
         except Exception as e:
             status_code = 500
             statement = {"Error":str(e)}
@@ -265,8 +258,6 @@ def create_app(config_name):
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
     @token_required
-    @swag_from(docs.event_put_dict, methods=['PUT'])
-    @swag_from(docs.event_delete_dict, methods=['DELETE'])
     def event_update(current_user, eventname):
         """Edit existing events"""
         status_code = 500
@@ -318,7 +309,7 @@ def create_app(config_name):
                     else:
                         status_code = 404
                         statement = {"message":"Event you are deleting does not exist"}
-                    
+                #add owner can be specified    
                 if request.method == 'GET':
                     event = [Event.get_one(eventname, user.username)]
                     if event:
@@ -338,7 +329,6 @@ def create_app(config_name):
 
     @api.route('/events/<eventname>/rsvp', methods=['POST'])
     @token_required
-    @swag_from(docs.event_rsvp_dict, methods=['POST'])
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
         status_code = 500
