@@ -7,7 +7,7 @@ Build Status
 ------------
 ![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-searching-and-filtering-154311788)
 [![Maintainability](https://api.codeclimate.com/v1/badges/dfe41dde7938bc5fe3e3/maintainability)](https://codeclimate.com/github/Kalela/BrightEvents/maintainability)
-[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-heroku-deploy-154956015)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-heroku-deploy-154956015) 
+[![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-heroku-deploy-154956015)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-heroku-deploy-154956015)
 ![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
 
 Features
