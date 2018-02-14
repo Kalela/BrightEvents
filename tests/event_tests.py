@@ -167,6 +167,35 @@ class TestEventEndpoints(unittest.TestCase):
                                     data=(dict(owner="admin")))
         self.assertEqual(response.status_code, 201)
         self.assertIn("RSVP sent", str(response.data))
+        
+    def test_view_guests(self):
+        """Test if users can view guests with rsvps to their events"""
+        self.register_and_login()
+        self.create_new_event()
+        self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token},
+                                    data=(dict(owner="admin")))
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Guests", str(response.data))
+        
+    def test_view_guests_no_guests(self):
+        """Test an attempt to view guests if no one sent rsvp yet"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("guests yet", str(response.data))
+        
+    def test_view_guests_no_event(self):
+        """Test an attempt to view guests if the event does not exist"""
+        self.register_and_login()
+        self.create_new_event()
+        self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token},
+                                    data=(dict(owner="admin")))
+        self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("not found", str(response.data))
 
     def test_rsvp_already_sent(self):
         """Test rsvp sent twice"""

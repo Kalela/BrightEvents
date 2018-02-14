@@ -255,6 +255,24 @@ def create_app(config_name):
             status_code = 500
             statement = {"Error":str(e)}
         return jsonify(statement), status_code
+    
+    @api.route('/myevents', methods=['GET'])
+    @token_required
+    def online_user_events(current_user):
+        status_code = 500
+        statement = {}
+        try:
+            events = Event.query.filter_by(owner=current_user.username).all()
+            if events:
+                status_code = 200
+                statement = {"My Events":print_events(events)}
+            else:
+                status_code = 404
+                statement = {"message":"You don't have any events"}
+        except Exception as e:
+            status_code = 500
+            statement = {"Error":str(e)}
+        return jsonify(statement), status_code
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
     @token_required
@@ -309,15 +327,20 @@ def create_app(config_name):
                     else:
                         status_code = 404
                         statement = {"message":"Event you are deleting does not exist"}
-                #add owner can be specified    
+
                 if request.method == 'GET':
-                    event = [Event.get_one(eventname, user.username)]
+                    owner = request.args.get('owner')
+                    if not owner:
+                        owner = user.username
+                    event = Event.get_one(eventname, owner.strip())
                     if event:
+                        events = [event]
                         status_code = 200
-                        statement = {"Event":print_events(event)}
+                        statement = {"Event":print_events(events)}
                     else:
                         status_code = 404
-                        statement = {"message":"Event you are trying to view does not exist"}         
+                        statement = {"message":"Event you are trying to view does not exist",
+                                     "tip!":"Insert event owner as parameter"}       
             else:
                 status_code = 401
                 statement = {"message":"Please log in to edit or delete events"}
@@ -327,37 +350,56 @@ def create_app(config_name):
             statement = {"Error":str(e)}
         return jsonify(statement), status_code
 
-    @api.route('/events/<eventname>/rsvp', methods=['POST'])
+    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET'])
     @token_required
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
         status_code = 500
         statement = {}
         try:
-            owner = request.form['owner'].strip() 
             user = current_user
-            if not owner:
-                status_code = 428
-                statement = {"message":"Please insert the owner of the event you want to rsvp"}
-            if not user or user.logged_in == False:
-                status_code = 401
-                statement = {"message":"Please log in Before sending RSVP"}     
-            else:
-                event = Event.get_one(eventname, owner)
-                if event:
-                    rsvp = Rsvp.query.filter_by(rsvp_sender=user.username).all()
-                    if rsvp:
-                        status_code = 409
-                        statement = {"message":"RSVP already sent"} 
+            if request.method == 'POST':
+                owner = request.form['owner'].strip()
+                if not owner:
+                    status_code = 428
+                    statement = {"message":"Please insert the owner of the event you want to rsvp"}
+                if not user or user.logged_in == False:
+                    status_code = 401
+                    statement = {"message":"Please log in Before sending RSVP"}     
+                else:
+                    event = Event.get_one(eventname, owner)
+                    if event:
+                        rsvp = Rsvp.query.filter_by(rsvp_sender=user.username).all()
+                        rsvp_event = Rsvp.query.filter_by(event_id=event.id).all()
+                        if rsvp and rsvp_event:
+                            status_code = 409
+                            statement = {"message":"RSVP already sent"} 
+                        else:
+                            rsvp = Rsvp(event=event, rsvp_sender=user.username)
+                            rsvp.save()
+                            status_code = 201
+                            statement = {"message":"RSVP sent"}
                     else:
-                        rsvp = Rsvp(event=event, rsvp_sender=user.username)
-                        rsvp.save()
-                        status_code = 201
-                        statement = {"message":"RSVP sent"}
+                        status_code = 404
+                        statement = {"message":"Event does not exist"}
+
+            if request.method == 'GET':
+                event = Event.get_one(eventname, user.username)
+                if event:
+                    guests = Rsvp.query.filter_by(event_id=event.id).all()
+                    if guests:
+                        result = []
+                        for guest in guests:
+                            result.append(guest.rsvp_sender)
+                        status_code =  200
+                        statement = {"Guests":result}
+                    else:
+                        status_code = 200
+                        statement = {"message":"Event doesn't have guests yet"}
                 else:
                     status_code = 404
-                    statement = {"message":"Event does not exist"}
-                
+                    statement = {"message":"The event was not found"}
+
         except Exception as e:
             status_code = 500
             statement = {"Error":str(e)}

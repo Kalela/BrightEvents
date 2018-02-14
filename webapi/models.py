@@ -85,5 +85,5 @@ class Rsvp(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<Rsvp %r>' % self.rsvp_event
+        return '<Rsvp %r>' % self.rsvp_sender
         
