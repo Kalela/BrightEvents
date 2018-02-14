@@ -6,7 +6,6 @@ services:
 # command to set up database
 before_install:
   - export TZ='Africa/Nairobi'
-  - date
 before_script:
   - psql -c "CREATE DATABASE test_db;" -U postgres
 env:
@@ -17,6 +16,7 @@ env:
     - APP_SETTINGS="development"
 # command to install dependencies
 install:
+  - pip install python-coveralls
   - pip install -r requirements.txt
 notifications:
     email: false

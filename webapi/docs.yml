@@ -131,6 +131,12 @@ paths:
       - in: query
         name: limit
         type: string
+      - in: query
+        name: next
+        type: string
+      - in: query
+        name: prev
+        type: string
       responses:
       '200':
         description: Viewing events successful
@@ -289,6 +295,10 @@ paths:
           in: path
           required: true
           type: string
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
     responses:
       '200':
         description: Found
@@ -302,7 +312,7 @@ paths:
         - Event
       responses:
       '200':
-        description: A JSON array of events
+        description: successfully viewing events
       '404':
         description: No events found
 

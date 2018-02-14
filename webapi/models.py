@@ -46,8 +46,8 @@ class Event(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_pages(limit):
-        return Event.query.paginate(per_page=limit)
+    def get_all_pages(limit, page):
+        return Event.query.paginate(per_page=limit, page=page)
     
     @staticmethod
     def get_one(eventname, owner):

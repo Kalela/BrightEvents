@@ -188,8 +188,15 @@ def create_app(config_name):
             if not category and not location and not q:
                 if not limit:
                     limit = 10
-                event_pages = Event.get_all_pages(limit)
+
+                event_pages = Event.get_all_pages(limit, 1)
                 events = event_pages.items
+                if _next == "y" and event_pages.has_next:
+                    event_page = Event.get_all_pages(limit, event_pages.next_num)
+                    events = event_page.items
+                if prev == "y" and event_pages.has_prev:
+                    event_page = Event.get_all_pages(limit, event_pages.prev_num)
+                    events = event_page.items
             status_code = 200
             statement = {"Events": print_events(events)}
 
