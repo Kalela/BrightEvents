@@ -21,6 +21,6 @@ install:
 notifications:
     email: false
 # command to run tests
-script: nosetests tests --with-coverage --cover-package=tests && coverage report
+script: nosetests tests --with-coverage --cover-package=webapi && coverage report
 
 after_success: coveralls
