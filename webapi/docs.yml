@@ -62,17 +62,7 @@ paths:
           name: password
           type: string
           required: true
-          
-          schema:
-            properties:
-              user_name:
-                type: string
-                description: User name
-                example: Admin
-              password: 
-                type: string
-                description: User password
-                example: abcd
+
       responses:
         '202':
           description: Successful log in
