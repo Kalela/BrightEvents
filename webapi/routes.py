@@ -124,7 +124,7 @@ def create_app(config_name):
         statement = {}
         try:
             user = current_user
-            if user.logged_in == True:
+            if user and user.logged_in == True:
                 user.logged_in = False
                 db.session.commit()
                 status_code = 202
@@ -151,7 +151,7 @@ def create_app(config_name):
                 status_code = check_password_reset(new_password, confirm_password, user, status_code)[1]
                 statement = check_password_reset(new_password, confirm_password, user, status_code)[0]
             else:
-                if user.logged_in == True:
+                if user and user.logged_in == True:
                         user.password = check_password_reset(new_password, confirm_password, user, status_code)[2]
                         db.session.commit()
                         status_code = 205
@@ -282,7 +282,7 @@ def create_app(config_name):
         statement = {}
         try:
             user = current_user
-            if user.logged_in == True:
+            if user and user.logged_in == True:
                 if request.method == 'PUT':
                     updated_event_name = request.form['event_name'].strip()
                     date = request.form['date'].strip()
