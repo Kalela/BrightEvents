@@ -327,7 +327,7 @@ def create_app(config_name):
                     event = Event.get_one(eventname, user.username)
                     if event:
                         event.delete()
-                        event_pages = Event.get_all_pages(limit=10)
+                        event_pages = Event.get_all_pages(limit=10, page=1)
                         events = event_pages.items
                         status_code = 205
                         statement = {"Event(s)": print_events(events)}
