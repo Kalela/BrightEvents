@@ -53,6 +53,7 @@ def create_app(config_name):
 
         return decorated
     
+#    @app.errorhandler() 
     @app.route('/', methods=['GET'])
     def index():
         return redirect("/apidocs")
@@ -81,7 +82,7 @@ def create_app(config_name):
                 else:
                     status_code = 409
                     statement = {"message":"Username or email already registered"}
-           
+
         except Exception as e:
             status_code = 500
             statement = {"Error":str(e)}

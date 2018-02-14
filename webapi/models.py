@@ -1,4 +1,7 @@
 from routes import db
+date_modified = db.Column(db.DateTime,
+                              default=db.func.current_timestamp(),
+                              onupdate=db.func.current_timestamp())
 
 class User(db.Model):
     """Represent users data as a table"""  
@@ -9,9 +12,7 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     logged_in = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,
-                              default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+    date_modified
     
     def __init__(self, username, email, password, public_id, logged_in):
         self.username = username
@@ -35,9 +36,7 @@ class Event(db.Model):
     date = db.Column(db.DateTime(80), nullable=False)
     category = db.Column(db.String(80))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,
-                              default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+    date_modified
     owner = db.Column(db.String, db.ForeignKey('user.username'))
     event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner])
     
