@@ -1,45 +1,46 @@
 #Import dependencies
 import uuid
-import jwt
-import time
 import datetime
+import jwt
 
 from flask_api import FlaskAPI
-from flask import jsonify, request, session, Blueprint, make_response, redirect
+from flask import jsonify, request, Blueprint, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
 from instance.config import app_config
+from webapi.helper_functions import print_events, utc_offset, special_characters
+from webapi.helper_functions import check_registration_input, check_password_reset, Category
 
 db = SQLAlchemy()
+catgory = Category()
 
 def create_app(config_name):
     """Create the api flask app"""
-    from models import User, Event, Rsvp
-    from helper_functions import print_events, utc_offset, special_characters
-    from helper_functions import check_registration_input, check_password_reset, Category
-    
+    from webapi.models import User, Event, Rsvp
+
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
-    catgory = Category()
-    Swagger(app, template_file = "docs.yml")
-    
+    Swagger(app, template_file="docs.yml")
+
     app.config.from_pyfile('config.py')
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        
+
     def token_required(f):
+        """Accept function with token"""
         @wraps(f)
         def decorated(*args, **kwargs):
+            """Check if token is genuine"""
             token = None
 
             if 'x-access-token' in request.headers:
-                token = request.headers['x-access-token']    
+                token = request.headers['x-access-token']
 
             if not token:
                 return jsonify({"message":"Token is missing!"}), 401
@@ -52,10 +53,11 @@ def create_app(config_name):
             return f(current_user, *args, **kwargs)
 
         return decorated
-    
-#    @app.errorhandler() 
+
+#    @app.errorhandler()
     @app.route('/', methods=['GET'])
     def index():
+        """Render docs"""
         return redirect("/apidocs")
 
     @api.route('/auth/register', methods=['POST'])
@@ -70,12 +72,14 @@ def create_app(config_name):
             if check_registration_input(username, email, password):
                 status_code = 400
                 statement = (check_registration_input(username, email, password))
-            else: 
+            else:
                 hashed_password = generate_password_hash(request.form['password'], method='sha256')
 
                 user = User.query.filter_by(username=username).first()
                 if not user:
-                    user = User(username=username, email=email, password=hashed_password, public_id=str(uuid.uuid4()), logged_in = False)
+                    user = User(username=username, email=email,
+                                password=hashed_password, public_id=str(uuid.uuid4()),
+                                logged_in=False)
                     user.save()
                     status_code = 201
                     statement = {"message":"Registration successful, log in to access your account"}
@@ -98,19 +102,24 @@ def create_app(config_name):
             passwd = request.form['password'].strip()
 
             if not name or not passwd:
-                return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+                return make_response('Could not verify', 401,
+                                     {'WWW-Authenticate':'Basic realm="Login required!"'})
 
             user = User.query.filter_by(username=name).first()
             if not user:
-                return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+                return make_response('Could not verify', 401,
+                                     {'WWW-Authenticate':'Basic realm="Login required!"'})
 
             if check_password_hash(user.password, passwd):
-                token = jwt.encode({'public_id':user.public_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
+                token = jwt.encode({'public_id':user.public_id,
+                                    'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
                 user.logged_in = True
                 db.session.commit()
-                return jsonify({'Logged in':user.username, 'access-token':token.decode('UTF-8')}), 202
+                return jsonify({'Logged in':user.username,
+                                'access-token':token.decode('UTF-8')}), 202
 
-            return make_response('Could not verify', 401, {'WWW-Authenticate':'Basic realm="Login required!"'})
+            return make_response('Could not verify', 401,
+                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
 
         except Exception as e:
             status_code = 500
@@ -125,7 +134,7 @@ def create_app(config_name):
         statement = {}
         try:
             user = current_user
-            if user and user.logged_in == True:
+            if user and user.logged_in is True:
                 user.logged_in = False
                 db.session.commit()
                 status_code = 202
@@ -149,14 +158,20 @@ def create_app(config_name):
             new_password = request.form['new_password'].strip()
             confirm_password = request.form['confirm_password'].strip()
             if check_password_reset(new_password, confirm_password, user, status_code)[0]:
-                status_code = check_password_reset(new_password, confirm_password, user, status_code)[1]
-                statement = check_password_reset(new_password, confirm_password, user, status_code)[0]
+                status_code = check_password_reset(new_password,
+                                                   confirm_password,
+                                                   user, status_code)[1]
+                statement = check_password_reset(new_password,
+                                                 confirm_password,
+                                                 user, status_code)[0]
             else:
-                if user and user.logged_in == True:
-                        user.password = check_password_reset(new_password, confirm_password, user, status_code)[2]
-                        db.session.commit()
-                        status_code = 205
-                        statement = {"Message":"Password reset!"}
+                if user and user.logged_in is True:
+                    user.password = check_password_reset(new_password,
+                                                         confirm_password,
+                                                         user, status_code)[2]
+                    db.session.commit()
+                    status_code = 205
+                    statement = {"Message":"Password reset!"}
                 else:
                     status_code = 401
                     statement = {"message":"Please log in"}
@@ -168,7 +183,7 @@ def create_app(config_name):
     @api.route('/events', methods=['GET'])
     def view_events():
         """View a list of events"""
-        try:            
+        try:
             location = request.args.get('location')
             category = request.args.get('category')
             q = request.args.get('q')
@@ -202,10 +217,10 @@ def create_app(config_name):
             statement = {"Events": print_events(events)}
 
         except Exception as e:
-                status_code = 500
-                statement = {"Error":str(e)}
+            status_code = 500
+            statement = {"Error":str(e)}
         return jsonify(statement), status_code
-        
+
     @api.route('/events', methods=['POST'])
     @token_required
     def create_event(current_user):
@@ -231,7 +246,8 @@ def create_app(config_name):
                     if catgory.category_check(category) == "OK":
                         pass
                     else:
-                        return jsonify({"message":"Please select a viable category", "options": catgory.category_list}), 406
+                        return jsonify({"message":"Please select a viable category",
+                                        "options": catgory.category_list}), 406
 
                     if eventname and location and date and category:
                         event = Event.get_one(eventname, owner)
@@ -242,7 +258,10 @@ def create_app(config_name):
                                 status_code = 409
                                 statement = {"message":"Event already exists"}
                             else:
-                                event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category)
+                                event = Event(event_owner=current_user,
+                                              eventname=eventname,
+                                              location=location, date=date,
+                                              category=category)
                                 event.save()
                                 status_code = 201
                                 statement = {"message":"Event has been created",
@@ -250,7 +269,10 @@ def create_app(config_name):
 
 
                         else:
-                            event = Event(event_owner=current_user, eventname=eventname, location=location, date=date, category=category)
+                            event = Event(event_owner=current_user,
+                                          eventname=eventname,
+                                          location=location,
+                                          date=date, category=category)
                             events = [event]
                             event.save()
                             status_code = 201
@@ -263,7 +285,7 @@ def create_app(config_name):
             status_code = 500
             statement = {"Error":str(e)}
         return jsonify(statement), status_code
-    
+
     @api.route('/myevents', methods=['GET'])
     @token_required
     def online_user_events(current_user):
@@ -315,11 +337,11 @@ def create_app(config_name):
                         db.session.commit()
                         status_code = 202
                         statement = {"Event updated to:":{
-                                    "eventname":updated_event_name,
-                                    "location":location,
-                                    "date":date,
-                                    "category":category
-                                   }}
+                            "eventname":updated_event_name,
+                            "location":location,
+                            "date":date,
+                            "category":category
+                        }}
                     else:
                         status_code = 404
                         statement = {"message":"Event you are editing does not exist"}
@@ -348,7 +370,7 @@ def create_app(config_name):
                     else:
                         status_code = 404
                         statement = {"message":"Event you are trying to view does not exist",
-                                     "tip!":"Insert event owner as parameter"}       
+                                     "tip!":"Insert event owner as parameter"}  
             else:
                 status_code = 401
                 statement = {"message":"Please log in to edit or delete events"}
@@ -373,7 +395,7 @@ def create_app(config_name):
                     statement = {"message":"Please insert the owner of the event you want to rsvp"}
                 if not user or user.logged_in == False:
                     status_code = 401
-                    statement = {"message":"Please log in Before sending RSVP"}     
+                    statement = {"message":"Please log in Before sending RSVP"}
                 else:
                     event = Event.get_one(eventname, owner)
                     if event:
@@ -381,7 +403,7 @@ def create_app(config_name):
                         rsvp_event = Rsvp.query.filter_by(event_id=event.id).all()
                         if rsvp and rsvp_event:
                             status_code = 409
-                            statement = {"message":"RSVP already sent"} 
+                            statement = {"message":"RSVP already sent"}
                         else:
                             rsvp = Rsvp(event=event, rsvp_sender=user.username)
                             rsvp.save()
@@ -399,7 +421,7 @@ def create_app(config_name):
                         result = []
                         for guest in guests:
                             result.append(guest.rsvp_sender)
-                        status_code =  200
+                        status_code = 200
                         statement = {"Guests":result}
                     else:
                         status_code = 200
@@ -415,4 +437,3 @@ def create_app(config_name):
 
     app.register_blueprint(api, url_prefix='/api/v2')
     return app
-

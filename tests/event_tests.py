@@ -154,7 +154,6 @@ class TestEventEndpoints(unittest.TestCase):
     def test_search_events(self):
         """Test the view all events endpoint"""
         self.register_and_login()
-        q = "the"
         response = self.tester.get('%s/events' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
