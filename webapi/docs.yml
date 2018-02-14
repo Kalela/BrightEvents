@@ -304,12 +304,6 @@ paths:
         description: Found
       '404':
         description: Event not found
-
-  /auth/delete:
-    delete:
-      summary: Deletes a user
-      tags:
-      - User
   
   /myevents:
     get:
