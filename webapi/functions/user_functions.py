@@ -26,12 +26,10 @@ def register_helper(User):
                             logged_in=False)
                 user.save()
                 status_code = 201
-                statement = {"message":"Registration successful, log in to access your account"}
-                
+                statement = {"message":"Registration successful, log in to access your account"} 
             else:
                 status_code = 409
                 statement = {"message":"Username or email already registered"}
-
     except Exception as e:
         status_code = 500
         statement = {"Error":str(e)}
