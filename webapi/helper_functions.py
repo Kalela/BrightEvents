@@ -27,9 +27,12 @@ class Category(object):
 def utc_offset(string):
     return string[-5:]
 
-def special_characters(string):
-    if re.findall('[^A-Za-z0-9]',string):
-        return True
+def date_check(date):
+    try:
+        date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+        return date_object
+    except ValueError:
+        return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
     
 def check_registration_input(username, email, password):
     message = {}

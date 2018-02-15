@@ -1,6 +1,6 @@
 import datetime
 from flask import request
-from webapi.helper_functions import print_events, utc_offset, Category
+from webapi.helper_functions import print_events, utc_offset, date_check, Category
 
 catgory = Category()
 
@@ -48,11 +48,9 @@ def create_events_helper(current_user, Event):
             eventname = request.form['eventname'].strip()
             location = request.form['location'].strip()
             date = request.form['date'].strip()
+            if "message" in str(date_check(date)):
+                return date_check(date)[0], date_check(date)[1]
             owner = user.username
-            try:
-                date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
-            except ValueError:
-                return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
             category = request.form['category'].strip()
             if catgory.category_check(category) == "OK":
                 pass
@@ -65,7 +63,7 @@ def create_events_helper(current_user, Event):
                 if event and event.location == location:
                     event_date = datetime.datetime.strptime(str(event.date),
                                                             '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
-                    if event_date == date_object:
+                    if event_date == date_check(date):
                         status_code = 409
                         statement = {"message":"Event already exists"}
                     else:
@@ -115,10 +113,8 @@ def event_update_delete_helper(current_user, eventname, db, Event):
         if request.method == 'PUT':
             updated_event_name = request.form['event_name'].strip()
             date = request.form['date'].strip()
-            try:
-                date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
-            except ValueError:
-                return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
+            if "message" in str(date_check(date)):
+                return date_check(date)[0], date_check(date)[1]
             location = request.form['location'].strip()
             category = request.form['category'].strip()
             if catgory.category_check(category) == "OK":
