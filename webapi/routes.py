@@ -44,7 +44,6 @@ def create_app(config_name):
 
             if not token:
                 return jsonify({"message":"Token is missing!"}), 401
-
             try:
                 data = jwt.decode(token, app.config['SECRET_KEY'])
                 current_user = User.query.filter_by(public_id=data['public_id']).first()
@@ -54,7 +53,45 @@ def create_app(config_name):
 
         return decorated
 
-#    @app.errorhandler()
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """404 error handler."""
+        return jsonify(
+            {"error": "Page not found. Make sure you typed in the route correctly."}), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        """500 error handler."""
+        return jsonify({"error": "Internal Server Error"}), 500
+
+    @api.route('/auth/login', methods=['POST'])
+    def login():
+        """Login registered users"""
+        status_code = 500
+        statement = {}
+        name = request.form['username'].strip()
+        passwd = request.form['password'].strip()
+
+        if not name or not passwd:
+            return make_response('Could not verify', 401,
+                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
+
+        user = User.query.filter_by(username=name).first()
+        if not user:
+            return make_response('Could not verify', 401,
+                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
+
+        if check_password_hash(user.password, passwd):
+            token = jwt.encode({'public_id':user.public_id,
+                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
+            user.logged_in = True
+            db.session.commit()
+            return jsonify({'Logged in':user.username,
+                            'access-token':token.decode('UTF-8')}), 202
+
+        return make_response('Could not verify', 401,
+                             {'WWW-Authenticate':'Basic realm="Login required!"'})
+    
     @app.route('/', methods=['GET'])
     def index():
         """Render docs"""
@@ -65,55 +102,22 @@ def create_app(config_name):
         """Add new users to data"""
         return jsonify(register_helper(User)[0]), register_helper(User)[1]
 
-    @api.route('/auth/login', methods=['POST'])
-    def login():
-        """Login registered users"""
-        status_code = 500
-        statement = {}
-        try:
-            name = request.form['username'].strip()
-            passwd = request.form['password'].strip()
-
-            if not name or not passwd:
-                return make_response('Could not verify', 401,
-                                     {'WWW-Authenticate':'Basic realm="Login required!"'})
-
-            user = User.query.filter_by(username=name).first()
-            if not user:
-                return make_response('Could not verify', 401,
-                                     {'WWW-Authenticate':'Basic realm="Login required!"'})
-
-            if check_password_hash(user.password, passwd):
-                token = jwt.encode({'public_id':user.public_id,
-                                    'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
-                user.logged_in = True
-                db.session.commit()
-                return jsonify({'Logged in':user.username,
-                                'access-token':token.decode('UTF-8')}), 202
-
-            return make_response('Could not verify', 401,
-                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
-        except Exception as e:
-            status_code = 500
-            statement = {"Error":str(e)}
-        return jsonify(statement), status_code
-
     @api.route('/auth/logout', methods=['POST'])
     @token_required
     def logout(current_user):
         """Log out users"""
         return jsonify(logout_helper(current_user, db)[0]), logout_helper(current_user, db)[1]
+    
+    @api.route('/events', methods=['GET'])
+    def view_events():
+        """View a list of events"""
+        return jsonify(get_events_helper(Event)[0]), get_events_helper(Event)[1]
 
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
     def reset_password(current_user):
         """Reset users password"""
         return jsonify(reset_password_helper(current_user, db)[0]), reset_password_helper(current_user, db)[1]
-
-    @api.route('/events', methods=['GET'])
-    def view_events():
-        """View a list of events"""
-        return jsonify(get_events_helper(Event)[0]), get_events_helper(Event)[1]
 
     @api.route('/events', methods=['POST'])
     @token_required
