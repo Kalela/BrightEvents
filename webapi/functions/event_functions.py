@@ -1,6 +1,6 @@
 import datetime
 from flask import request
-from webapi.helper_functions import print_events, utc_offset, date_check, Category
+from webapi.helper_functions import print_events, utc_offset, date_check, pagination, Category
 
 catgory = Category()
 
@@ -21,16 +21,10 @@ def get_events_helper(Event):
     if q:
         events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
     if not category and not location and not q:
-        if not limit:
-            limit = 10
+        if not limit: limit = 10
         event_pages = Event.get_all_pages(limit, 1)
         events = event_pages.items
-        if _next == "y" and event_pages.has_next:
-            event_page = Event.get_all_pages(limit, event_pages.next_num)
-            events = event_page.items
-        if prev == "y" and event_pages.has_prev:
-            event_page = Event.get_all_pages(limit, event_pages.prev_num)
-            events = event_page.items
+        if pagination(_next, prev): events = pagination(_next, prev)
     status_code = 200
     statement = {"Events": print_events(events)}
     return statement, status_code

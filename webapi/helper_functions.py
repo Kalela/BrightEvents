@@ -60,3 +60,13 @@ def check_password_reset(new_password, confirm_password, user, status_code):
         message = {"message":"Passwords don't match"}
         status_code = 409
     return message, status_code, new_password
+
+def pagination(_next, prev):
+    if _next == "y" and event_pages.has_next:
+        event_page = Event.get_all_pages(limit, event_pages.next_num)
+        events = event_page.items
+        return events
+    if prev == "y" and event_pages.has_prev:
+        event_page = Event.get_all_pages(limit, event_pages.prev_num)
+        events = event_page.items
+        return events

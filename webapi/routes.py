@@ -93,7 +93,6 @@ def create_app(config_name):
 
             return make_response('Could not verify', 401,
                                  {'WWW-Authenticate':'Basic realm="Login required!"'})
-
         except Exception as e:
             status_code = 500
             statement = {"Error":str(e)}
