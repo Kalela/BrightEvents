@@ -9,11 +9,12 @@ def get_events_helper(Event):
     location = request.args.get('location')
     category = request.args.get('category')
     q = request.args.get('q')
-    limit = request.args.get('limit')
-    if limit:
-        limit = int(limit)
-    _next = request.args.get('next')
-    prev = request.args.get('prev')
+    try:
+        limit = int(request.args.get('limit'))
+        page = int(request.args.get('page'))
+    except TypeError:
+        limit = 10
+        page = 1
     if category:
         events = Event.filter_category(category)
     if location:
@@ -21,12 +22,13 @@ def get_events_helper(Event):
     if q:
         events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
     if not category and not location and not q:
-        if not limit: limit = 10
-        event_pages = Event.get_all_pages(limit, 1)
+        event_pages = Event.get_all_pages(limit, page)
         events = event_pages.items
-        if pagination(_next, prev): events = pagination(_next, prev)
+        if pagination(limit, page, Event): events = pagination(limit, page, Event)[0]
     status_code = 200
-    statement = {"Events": print_events(events)}
+    statement = {"Events": print_events(events),
+                 "Current page": pagination(limit, page, Event)[1],
+                 "All pages": pagination(limit, page, Event)[2]}
     return statement, status_code
 
 def create_events_helper(current_user, Event):

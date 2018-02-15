@@ -132,10 +132,7 @@ paths:
         name: limit
         type: string
       - in: query
-        name: next
-        type: string
-      - in: query
-        name: prev
+        name: page
         type: string
       responses:
       '200':
