@@ -15,16 +15,14 @@ def get_events_helper(Event):
     except:
         limit = 10
         page = 1
-    get_all = ""
+    user_input = "get_all"
     if category or location or q:
         user_input = category or location or q
-    else:
-        user_input = get_all
     check_input_dict = {
         category: lambda: Event.filter_category(category, limit, page),
         location: lambda: Event.filter_location(location, limit, page),
         q: lambda: Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).paginate(per_page=limit, page=page),
-        get_all: lambda: Event.get_all_pages(limit, page)
+        "get_all": lambda: Event.get_all_pages(limit, page)
         }
     events_page_object = check_input_dict.get(user_input, "Something went wrong!!")()
     status_code = 200
@@ -130,10 +128,8 @@ def event_update_delete_helper(current_user, eventname, db, Event):
                 db.session.commit()
                 status_code = 202
                 statement = {"Event updated to:":{
-                    "eventname":updated_event_name,
-                    "location":location,
-                    "date":date,
-                    "category":category
+                    "eventname":updated_event_name, "location":location,
+                    "date":date, "category":category
                 }}
             else:
                 status_code = 404
