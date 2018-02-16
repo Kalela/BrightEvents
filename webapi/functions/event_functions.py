@@ -104,8 +104,7 @@ def event_update_delete_helper(current_user, eventname, db, Event):
     """Help edit delete or view a single event"""
     status_code = 500
     statement = {}
-    user = current_user
-    if user and user.logged_in == True:
+    if current_user and current_user.logged_in == True:
         if request.method == 'PUT':
             updated_event_name = request.form['event_name'].strip()
             date = request.form['date'].strip()
@@ -114,29 +113,28 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             location = request.form['location'].strip()
             category = request.form['category'].strip()
             if catgory.category_check(category) == "OK":
-                pass
+                event = Event.get_one(eventname, current_user.username)
+                if event:
+                    event.eventname = updated_event_name
+                    event.location = location
+                    event.date = date
+                    event.category = category
+                    db.session.commit()
+                    status_code = 202
+                    statement = {"Event updated to:":{
+                        "eventname":updated_event_name, "location":location,
+                        "date":date, "category":category
+                    }}
+                else:
+                    status_code = 404
+                    statement = {"message":"Event you are editing does not exist"}
             else:
                 status_code = 406
-                statement = {{"message":"Please select a viable category"},
-                             {"options": catgory.category_list}}
-            event = Event.get_one(eventname, user.username)
-            if event is True:
-                event.eventname = updated_event_name
-                event.location = location
-                event.date = date
-                event.category = category
-                db.session.commit()
-                status_code = 202
-                statement = {"Event updated to:":{
-                    "eventname":updated_event_name, "location":location,
-                    "date":date, "category":category
-                }}
-            else:
-                status_code = 404
-                statement = {"message":"Event you are editing does not exist"}
+                statement = {"message":"Please select a viable category",
+                             "options": catgory.category_list}
 
         if request.method == 'DELETE':
-            event = Event.get_one(eventname, user.username)
+            event = Event.get_one(eventname, current_user.username)
             if event:
                 event.delete()
                 event_pages = Event.get_all_pages(limit=10, page=1)
@@ -150,7 +148,7 @@ def event_update_delete_helper(current_user, eventname, db, Event):
         if request.method == 'GET':
             owner = request.args.get('owner')
             if not owner:
-                owner = user.username
+                owner = current_user.username
             event = Event.get_one(eventname, owner.strip())
             if event:
                 events = [event]

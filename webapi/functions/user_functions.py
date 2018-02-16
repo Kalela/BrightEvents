@@ -67,4 +67,5 @@ def reset_password_helper(current_user, db):
         else:
             status_code = 401
             statement = {"message":"Please log in"}
+    print(status_code)
     return statement, status_code

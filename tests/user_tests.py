@@ -36,7 +36,7 @@ class TestUserEndpoints(unittest.TestCase):
     def test_register(self):
         """Test the register user endpoint"""
         response = self.register_and_login("register")
-#        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 201)
         self.assertIn("Registration successful", str(response.data))
 
     def test_register_noinput(self):
@@ -93,7 +93,7 @@ class TestUserEndpoints(unittest.TestCase):
         """Test the logout user endpoint"""
         self.register_and_login("both")
         response = self.tester.post('%s/auth/logout' % self.prefix, headers={'x-access-token':self.token})
-#        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 202)
         self.assertIn("logged out", str(response.data))
         
     def test_logout_twice(self):
@@ -110,7 +110,7 @@ class TestUserEndpoints(unittest.TestCase):
         response = self.tester.post('%s/auth/reset-password' % self.prefix,
                                headers={'x-access-token':self.token},
                                data=dict(new_password="somethingnew", confirm_password="somethingnew"))
-#        self.assertEqual(response.status_code, 205)
+        self.assertEqual(response.status_code, 205)
         self.assertIn("Password reset!", str(response.data))
     
     def test_reset_password_wrongconfirm(self):

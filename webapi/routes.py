@@ -100,50 +100,56 @@ def create_app(config_name):
     @api.route('/auth/register', methods=['POST'])
     def register():
         """Add new users to data"""
-        return jsonify(register_helper(User)[0]), register_helper(User)[1]
+        result = register_helper(User)
+        return jsonify(result[0]), result[1]
 
     @api.route('/auth/logout', methods=['POST'])
     @token_required
     def logout(current_user):
         """Log out users"""
-        return jsonify(logout_helper(current_user, db)[0]), logout_helper(current_user, db)[1]
+        result = logout_helper(current_user, db)
+        return jsonify(result[0]), result[1]
     
     @api.route('/events', methods=['GET'])
     def view_events():
         """View a list of events"""
-        return jsonify(get_events_helper(Event)[0]), get_events_helper(Event)[1]
+        result = get_events_helper(Event)
+        return jsonify(result[0]), result[1]
 
     @api.route('/auth/reset-password', methods=['POST'])
     @token_required
     def reset_password(current_user):
         """Reset users password"""
-        return jsonify(reset_password_helper(current_user, db)[0]), reset_password_helper(current_user, db)[1]
+        result = reset_password_helper(current_user, db)
+        return jsonify(result[0]), result[1]
 
     @api.route('/events', methods=['POST'])
     @token_required
     def create_event(current_user):
         """Add events"""
-        return jsonify(create_events_helper(current_user, Event)[0]), create_events_helper(current_user, Event)[1]
+        result = create_events_helper(current_user, Event)
+        return jsonify(result[0]), result[1]
 
     @api.route('/myevents', methods=['GET'])
     @token_required
     def online_user_events(current_user):
         """Online users can view their events"""
-        return jsonify(online_user_events_helper(current_user, Event)[0]), online_user_events_helper(current_user, Event)[1]
+        result = online_user_events_helper(current_user, Event)
+        return jsonify(result[0]), result[1]
         
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
     @token_required
     def event_update(current_user, eventname):
         """Edit existing events"""
-        code = event_update_delete_helper(current_user, eventname, db, Event)[1]
-        return jsonify(event_update_delete_helper(current_user, eventname, db, Event)[0]), code
+        result = event_update_delete_helper(current_user, eventname, db, Event)
+        return jsonify(result[0]), result[1]
 
     @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET'])
     @token_required
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
-        code = rsvps_helper(current_user, eventname, Rsvp, Event)[1]
-        return jsonify(rsvps_helper(current_user, eventname, Rsvp, Event)[0]), code
-        
+        result = rsvps_helper(current_user, eventname, Rsvp, Event)
+        return jsonify(result[0]), result[1]
+
     app.register_blueprint(api, url_prefix='/api/v2')
     return app
