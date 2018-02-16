@@ -35,9 +35,8 @@ def create_events_helper(current_user, Event):
     """Help create new events"""
     status_code = 500
     statement = {}
-    user = current_user
     if request.method == 'POST':
-        if not user or user.logged_in == False:
+        if not current_user or current_user.logged_in == False:
             status_code = 401
             statement = {"message":"Please Log In to add events"}
         else:
@@ -46,33 +45,22 @@ def create_events_helper(current_user, Event):
             date = request.form['date'].strip()
             if "message" in str(date_check(date)):
                 return date_check(date)[0], date_check(date)[1]
-            owner = user.username
             category = request.form['category'].strip()
             if catgory.category_check(category) == "OK":
                 pass
             else:
                 return {"message":"Please select a viable category",
                         "options": catgory.category_list}, 406
-
             if eventname and location and date and category:
-                event = Event.get_one(eventname, owner)
-                if event and event.location == location:
+                event = Event.get_one(eventname, current_user.username)
+                try:
                     event_date = datetime.datetime.strptime(str(event.date),
                                                             '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
-                    if event_date == date_check(date):
-                        status_code = 409
-                        statement = {"message":"Event already exists"}
-                    else:
-                        event = Event(event_owner=current_user,
-                                      eventname=eventname,
-                                      location=location, date=date,
-                                      category=category)
-                        event.save()
-                        status_code = 201
-                        statement = {"message":"Event has been created",
-                                     "caution!":"Event with same name and location exists"}
-
-
+                except:
+                    pass   
+                if event and event.location == location and event_date == date_check(date):
+                    status_code = 409
+                    statement = {"message":"Event already exists"}
                 else:
                     event = Event(event_owner=current_user,
                                   eventname=eventname,
@@ -84,7 +72,7 @@ def create_events_helper(current_user, Event):
                     statement = {"New event":print_events(events)}
             else:
                 status_code = 400
-                statement = {"message":"Please insert valid event"}
+                statement = {"message":"Please insert all required fields!"}
     return statement, status_code
 
 def online_user_events_helper(current_user, Event):
@@ -132,24 +120,24 @@ def event_update_delete_helper(current_user, eventname, db, Event):
                 status_code = 406
                 statement = {"message":"Please select a viable category",
                              "options": catgory.category_list}
-
         if request.method == 'DELETE':
             event = Event.get_one(eventname, current_user.username)
             if event:
                 event.delete()
-                event_pages = Event.get_all_pages(limit=10, page=1)
-                events = event_pages.items
+                events_page_object = Event.get_all_pages(limit=10, page=1)
                 status_code = 205
-                statement = {"Event(s)": print_events(events)}
+                statement = {"Event(s)": print_events(pagination(events_page_object)[0]),
+                            "Current page": pagination(events_page_object)[1],
+                            "All pages": pagination(events_page_object)[2]}
             else:
                 status_code = 404
                 statement = {"message":"Event you are deleting does not exist"}
-
         if request.method == 'GET':
-            owner = request.args.get('owner')
-            if not owner:
+            try:
+                owner = request.args.get('owner').strip()
+            except:
                 owner = current_user.username
-            event = Event.get_one(eventname, owner.strip())
+            event = Event.get_one(eventname, owner)
             if event:
                 events = [event]
                 status_code = 200
@@ -157,7 +145,7 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             else:
                 status_code = 404
                 statement = {"message":"Event you are trying to view does not exist",
-                             "tip!":"Insert event owner as parameter"}  
+                             "tip!":"Insert event owner as parameter"}
     else:
         status_code = 401
         statement = {"message":"Please log in to edit or delete events"}
@@ -191,7 +179,6 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
             else:
                 status_code = 404
                 statement = {"message":"Event does not exist"}
-
     if request.method == 'GET':
         event = Event.get_one(eventname, current_user.username)
         if event:

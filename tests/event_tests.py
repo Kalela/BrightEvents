@@ -55,7 +55,7 @@ class TestEventEndpoints(unittest.TestCase):
                                              date="2018/06/21", category="Social"),
                                    headers={'x-access-token':self.token})
             self.assertEqual(response.status_code, 201)
-            self.assertIn("Event has been created", str(response.data))
+            self.assertIn("New event", str(response.data))
 
     def test_new_event_with_bad_format_input(self):
         """Test date or other input formatted wrong"""
