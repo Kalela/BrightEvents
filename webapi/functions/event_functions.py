@@ -12,23 +12,25 @@ def get_events_helper(Event):
     try:
         limit = int(request.args.get('limit'))
         page = int(request.args.get('page'))
-    except TypeError:
+    except:
         limit = 10
         page = 1
-    if category:
-        events = Event.filter_category(category)
-    if location:
-        events = Event.filter_location(location)
-    if q:
-        events = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
-    if not category and not location and not q:
-        event_pages = Event.get_all_pages(limit, page)
-        events = event_pages.items
-        if pagination(limit, page, Event): events = pagination(limit, page, Event)[0]
+    get_all = ""
+    if category or location or q:
+        user_input = category or location or q
+    else:
+        user_input = get_all
+    check_input_dict = {
+        category: lambda: Event.filter_category(category, limit, page),
+        location: lambda: Event.filter_location(location, limit, page),
+        q: lambda: Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).paginate(per_page=limit, page=page),
+        get_all: lambda: Event.get_all_pages(limit, page)
+        }
+    events_page_object = check_input_dict.get(user_input, "Something went wrong!!")()
     status_code = 200
-    statement = {"Events": print_events(events),
-                 "Current page": pagination(limit, page, Event)[1],
-                 "All pages": pagination(limit, page, Event)[2]}
+    statement = {"Events": print_events(pagination(events_page_object)[0]),
+                 "Current page": pagination(events_page_object)[1],
+                 "All pages": pagination(events_page_object)[2]}
     return statement, status_code
 
 def create_events_helper(current_user, Event):

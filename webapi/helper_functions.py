@@ -61,10 +61,9 @@ def check_password_reset(new_password, confirm_password, user, status_code):
         status_code = 409
     return message, status_code, new_password
 
-def pagination(limit, page, Event):
-    event_page = Event.get_all_pages(limit, page)
-    events = event_page.items
-    current_page = event_page.page
-    all_pages = event_page.pages
+def pagination(events_page_object):
+    events = events_page_object.items
+    current_page = events_page_object.page
+    all_pages = events_page_object.pages
     return events, current_page, all_pages
     

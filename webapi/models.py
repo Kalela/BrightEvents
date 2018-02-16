@@ -57,12 +57,12 @@ class Event(db.Model):
                 return eventname
 
     @staticmethod
-    def filter_category(category):
-        return Event.query.filter_by(category=category).all()
+    def filter_category(category, limit, page):
+        return Event.query.filter_by(category=category).paginate(per_page=limit, page=page)
     
     @staticmethod
-    def filter_location(location):
-        return Event.query.filter_by(location=location).all()
+    def filter_location(location, limit, page):
+        return Event.query.filter_by(location=location).paginate(per_page=limit, page=page)
 
     def delete(self):
         db.session.delete(self)
