@@ -62,10 +62,8 @@ def create_events_helper(current_user, Event):
                     status_code = 409
                     statement = {"message":"Event already exists"}
                 else:
-                    event = Event(event_owner=current_user,
-                                  eventname=eventname,
-                                  location=location,
-                                  date=date, category=category)
+                    event = Event(event_owner=current_user, eventname=eventname,
+                                  location=location, date=date, category=category)
                     events = [event]
                     event.save()
                     status_code = 201
