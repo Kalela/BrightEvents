@@ -1,0 +1,71 @@
+html,
+body{
+    font-family: 'Lato', sans-serif;
+    background-image:url('https://image.ibb.co/cD7s9b/party_supplies_light.jpg');
+    background-position: center;
+    background-color: #43304C;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+.container{
+    padding: 0 70px;
+}
+.navbar{
+    margin-bottom: 0;
+    background-color: #6B8175;
+    border: 0;
+    border-radius: 0;
+    font-size: 18px !important;
+    letter-spacing: 1px;
+}
+.navbar li a,.navbar .navbar-brand{
+    color: #fff !important;
+    background-color: #43304C !important;
+        
+}
+.navbar-default .navbar-toggle{
+    background-color: transparent;
+    color: #fff;
+}
+form {color: white !important;
+}
+h1{
+    color: #43304C!important;
+}
+
+.login{
+    padding: 5px 120px;
+    
+}
+.btn-info{
+    background-color: #43304C;
+    margin: 20px 0;
+    border: 0;
+    transition: all 0.7s;
+    border: 1px solid #43304C;
+}
+.btn-info:hover{
+    background-color: #fff;
+    color: #43304C;
+    
+}
+.g{
+    padding: 80px 0;
+    
+}
+.h{
+    margin: 15px 0;
+}
+.col-md-6{
+  min-height: 100%;
+  min-height: 100vh; 
+
+  display: flex;
+  align-items: center;
+}
+.flashes{
+    margin-left: 600px;
+    color: red;
+    font-weight: bolder;
+}

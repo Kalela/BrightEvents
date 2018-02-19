@@ -2,13 +2,13 @@
 <html lang ="en">
    
 <head>
-<title>home</title>
+<title>Events</title>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
 
 
 </head>
@@ -26,16 +26,16 @@
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
              <li class="active">
-                 <a href="index.html">Home</a>
+                 <a href="/">Home</a>
              </li>
              <li>
-                 <a href="aboutus.html">About</a>
+                 <a href="/api/v1/about">About</a>
              </li>
              <li>
-                 <a href="login.html">Log In</a>
+                 <a href="/api/v1/auth/login">Log In</a>
              </li>
              <li>
-                 <a href="register.html">Sign Up</a>
+                 <a href="/api/v1/auth/register">Sign Up</a>
              </li>
          </ul>
          </div>
@@ -47,36 +47,62 @@
 
 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+    
+    
 <div class="container">
 <div class="jumbotron">
   <div class="container">
     <div class="row">
         <div class="col-sm-6">
-          <h1>Welcome to EventHub</h1>
-           We satisfy your event needs.
-            <a href="register.html" title="Registration">
-           <button type="button" name="button" class="btn btn-primary">Sign up</button>
-            </a>
+          <h2>Popular Events</h2>
+             <div class="panel-group">
+              <div class="panel panel-default">
+                 <div class="panel-body">
+                  Mt. Kenya Marathon(Event 1)<button class="btn btn-danger btn-xs">
+                    Send RSVP
+                    </button>
+                  </div>
+                  <div class="panel-body">
+                  Safaricom Sevens(Event 2)<button class="btn btn-danger btn-xs">
+                    Send RSVP
+                    </button>
+                  </div>
+                  <div class="panel-body">
+                  Naiconn(Event 3)<button class="btn btn-danger btn-xs">
+                    Send RSVP
+                    </button>
+                  </div>
+                  <div class="panel-body">
+                  Python Charmers(Event 4)<button class="btn btn-danger btn-xs">
+                    Send RSVP
+                    </button>
+                  </div>
+                  <div class="panel-body">
+                  Jameson Rugby League(Event 5)<button class="btn btn-danger btn-xs">
+                    Send RSVP
+                    </button>
+                  </div>
+                 </div>
+            </div>
         </div> 
     </div>
   </div>
 </div>      
+
 </div>
-    
     
 <div class="container">
 <div class="jumbotron">
   <div class="container">
     <div class="row">
         <div class="col-sm-6">
-          <h2>Events Available!</h2>
-           Sign in to Create and Manage events<br />
-           <a href="event.html">See events...</a>
-            <a href="login.html" title="Log In">
+           Sign in to Create and Manage events
+            <a href="/api/v1/auth/login" title="Log In">
            <button type="button" name="button" class="btn btn-primary">Sign in</button>
             </a>
-        </div> 
+            Or
+            <a href="/api/v1/auth/register"> Sign Up</a>
+        </div>
     </div>
   </div>
 </div>      
