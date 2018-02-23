@@ -1,6 +1,6 @@
 import datetime
 from flask import request
-from webapi.helper_functions import print_events, utc_offset, date_check, pagination, Category
+from webapi.helper_functions import print_events, utc_offset, date_check, pagination, post_event, Category
 
 catgory = Category()
 
@@ -35,43 +35,22 @@ def create_events_helper(current_user, Event):
     """Help create new events"""
     status_code = 500
     statement = {}
-    if request.method == 'POST':
-        if not current_user or current_user.logged_in == False:
-            status_code = 401
-            statement = {"message":"Please Log In to add events"}
+    if not current_user or current_user.logged_in == False:
+        result = {"message":"Please Log In to add events"}, 401
+    else:
+        eventname = request.form['eventname'].strip()
+        location = request.form['location'].strip()
+        date = request.form['date'].strip()
+        if "message" in str(date_check(date)):
+            return date_check(date)[0], date_check(date)[1]
+        category = request.form['category'].strip()
+        if catgory.category_check(category) == "OK":
+            pass
         else:
-            eventname = request.form['eventname'].strip()
-            location = request.form['location'].strip()
-            date = request.form['date'].strip()
-            if "message" in str(date_check(date)):
-                return date_check(date)[0], date_check(date)[1]
-            category = request.form['category'].strip()
-            if catgory.category_check(category) == "OK":
-                pass
-            else:
-                return {"message":"Please select a viable category",
-                        "options": catgory.category_list}, 406
-            if eventname and location and date and category:
-                event = Event.get_one(eventname, current_user.username)
-                try:
-                    event_date = datetime.datetime.strptime(str(event.date),
-                                                            '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
-                except:
-                    pass   
-                if event and event.location == location and event_date == date_check(date):
-                    status_code = 409
-                    statement = {"message":"Event already exists"}
-                else:
-                    event = Event(event_owner=current_user, eventname=eventname,
-                                  location=location, date=date, category=category)
-                    events = [event]
-                    event.save()
-                    status_code = 201
-                    statement = {"New event":print_events(events)}
-            else:
-                status_code = 400
-                statement = {"message":"Please insert all required fields!"}
-    return statement, status_code
+            return {"message":"Please select a viable category",
+                    "options": catgory.category_list}, 406
+        result = post_event(eventname, location, date, category, current_user, Event)
+    return result[0], result[1]
 
 def online_user_events_helper(current_user, Event):
     """Help view owned events"""

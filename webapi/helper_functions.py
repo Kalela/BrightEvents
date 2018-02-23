@@ -25,9 +25,11 @@ class Category(object):
             return "BAD"
         
 def utc_offset(string):
+    """Pick values of the current run environment UTC offset"""
     return string[-5:]
 
 def date_check(date):
+    """Check correct date input"""
     try:
         date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
         return date_object
@@ -35,6 +37,7 @@ def date_check(date):
         return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
     
 def check_registration_input(username, email, password):
+    """Check email input"""
     message = {}
     if not email:
         message = {"message":"Please insert a valid email"}
@@ -47,6 +50,7 @@ def check_registration_input(username, email, password):
     return message
 
 def check_password_reset(new_password, confirm_password, user, status_code):
+    """Check correct inputs for a password reset"""
     message = {}
     if not new_password or not confirm_password:
         message = {"message":"Please insert required fields"}
@@ -62,8 +66,33 @@ def check_password_reset(new_password, confirm_password, user, status_code):
     return message, status_code, new_password
 
 def pagination(events_page_object):
+    """Handle outputting pages of data"""
     events = events_page_object.items
     current_page = events_page_object.page
     all_pages = events_page_object.pages
     return events, current_page, all_pages
+
+def post_event(eventname, location, date, category, current_user, Event):
+    """Handle posting an event to the database"""
+    if eventname and location and date and category:
+        event = Event.get_one(eventname, current_user.username)
+        try:
+            event_date = datetime.datetime.strptime(str(event.date),
+                                                    '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
+        except:
+            pass   
+        if event and event.location == location and event_date == date_check(date):
+            status_code = 409
+            statement = {"message":"Event already exists"}
+        else:
+            event = Event(event_owner=current_user, eventname=eventname,
+                          location=location, date=date, category=category)
+            events = [event]
+            event.save()
+            status_code = 201
+            statement = {"New event":print_events(events)}
+    else:
+        status_code = 400
+        statement = {"message":"Please insert all required fields!"}
+    return statement, status_code
     
