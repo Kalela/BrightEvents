@@ -1,4 +1,7 @@
 from routes import db
+date_modified = db.Column(db.DateTime,
+                              default=db.func.current_timestamp(),
+                              onupdate=db.func.current_timestamp())
 
 class User(db.Model):
     """Represent users data as a table"""  
@@ -9,9 +12,7 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     logged_in = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,
-                              default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+    date_modified
     
     def __init__(self, username, email, password, public_id, logged_in):
         self.username = username
@@ -35,9 +36,7 @@ class Event(db.Model):
     date = db.Column(db.DateTime(80), nullable=False)
     category = db.Column(db.String(80))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,
-                              default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+    date_modified
     owner = db.Column(db.String, db.ForeignKey('user.username'))
     event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner])
     
@@ -46,8 +45,8 @@ class Event(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_pages(limit):
-        return Event.query.paginate(per_page=limit)
+    def get_all_pages(limit, page):
+        return Event.query.paginate(per_page=limit, page=page)
     
     @staticmethod
     def get_one(eventname, owner):
@@ -58,12 +57,12 @@ class Event(db.Model):
                 return eventname
 
     @staticmethod
-    def filter_category(category):
-        return Event.query.filter_by(category=category).all()
+    def filter_category(category, limit, page):
+        return Event.query.filter_by(category=category).paginate(per_page=limit, page=page)
     
     @staticmethod
-    def filter_location(location):
-        return Event.query.filter_by(location=location).all()
+    def filter_location(location, limit, page):
+        return Event.query.filter_by(location=location).paginate(per_page=limit, page=page)
 
     def delete(self):
         db.session.delete(self)
@@ -85,5 +84,5 @@ class Rsvp(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<Rsvp %r>' % self.rsvp_event
+        return '<Rsvp %r>' % self.rsvp_sender
         

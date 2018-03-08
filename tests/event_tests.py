@@ -37,7 +37,7 @@ class TestEventEndpoints(unittest.TestCase):
             self.assertIn("New event", str(response.data))
             
     def test_create_new_event_bad_category(self):
-            """Test the create new event endpoint"""
+            """Test the create new event endpoint with a wrong category"""
             self.register_and_login()
             response = self.tester.post('%s/events' % self.prefix,
                                    data=dict(eventname="newevent", location="newlocation", 
@@ -55,7 +55,7 @@ class TestEventEndpoints(unittest.TestCase):
                                              date="2018/06/21", category="Social"),
                                    headers={'x-access-token':self.token})
             self.assertEqual(response.status_code, 201)
-            self.assertIn("Event has been created", str(response.data))
+            self.assertIn("New event", str(response.data))
 
     def test_new_event_with_bad_format_input(self):
         """Test date or other input formatted wrong"""
@@ -95,6 +95,19 @@ class TestEventEndpoints(unittest.TestCase):
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 202)
         self.assertIn("updated to", str(response.data))
+        
+    def test_update_event_bad_category(self):
+        """Test the update existing event endpoint"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.put('%s/events/newevent' % self.prefix,
+                              data=dict(event_name = "myevent", 
+                                        location = "mylocation", 
+                                        date = "2018/03/19", 
+                                        category = "abc"),
+                              headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 406)
+        self.assertIn("a viable category", str(response.data))
 
     def test_update_event_bad_input(self):
         """Test date or other input formatted wrong"""
@@ -135,19 +148,35 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
+#                                            
+    def test_view_one_event(self):
+        """Test viewing a single event"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.get('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("eventname", str(response.data))
 
     def test_view_events(self):
         """Test the view all events endpoint"""
         self.register_and_login()
-        response = self.tester.get('%s/events' % self.prefix, headers={'x-access-token':self.token})
+        self.create_new_event()
+        response = self.tester.get('%s/events' % self.prefix)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Events", str(response.data))
+        
+    def test_view_current_user_events(self):
+        """Test the view all events endpoint"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.get('%s/myevents' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
 
     def test_search_events(self):
         """Test the view all events endpoint"""
         self.register_and_login()
-        q = "the"
-        response = self.tester.get('%s/events' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/events?q=new' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
 
@@ -159,6 +188,35 @@ class TestEventEndpoints(unittest.TestCase):
                                     data=(dict(owner="admin")))
         self.assertEqual(response.status_code, 201)
         self.assertIn("RSVP sent", str(response.data))
+        
+    def test_view_guests(self):
+        """Test if users can view guests with rsvps to their events"""
+        self.register_and_login()
+        self.create_new_event()
+        self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token},
+                                    data=(dict(owner="admin")))
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Guests", str(response.data))
+        
+    def test_view_guests_no_guests(self):
+        """Test an attempt to view guests if no one sent rsvp yet"""
+        self.register_and_login()
+        self.create_new_event()
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("guests yet", str(response.data))
+        
+    def test_view_guests_no_event(self):
+        """Test an attempt to view guests if the event does not exist"""
+        self.register_and_login()
+        self.create_new_event()
+        self.tester.post('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token},
+                                    data=(dict(owner="admin")))
+        self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/events/newevent/rsvp' % self.prefix, headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("not found", str(response.data))
 
     def test_rsvp_already_sent(self):
         """Test rsvp sent twice"""

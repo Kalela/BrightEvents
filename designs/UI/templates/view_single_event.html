@@ -1,17 +1,60 @@
-<!DOCTYPE html>
-<html lang ="en">
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
    
-<head>
+
+{% block styles %}
+{{super()}}
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
 <link type="stylesheet" href="main.css">
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<style type="text/css">
+    h1{
+        color: #fff;
+    }
+    html,
+    body{
+        font-family: 'Lato', sans-serif;
+        background-position: center;
+        background-color: #43304C;
+        background-repeat: no-repeat;
+        background-size: cover;
 
+    }
+    .container{
+        padding: 0 70px;
+    }
+    .navbar{
+        margin-bottom: 0;
+        background-color: #6B8175;
+        border: 0;
+        border-radius: 0;
+        font-size: 18px !important;
+        letter-spacing: 1px;
+    }
+    .navbar li a,.navbar .navbar-brand{
+        color: #fff !important;
+        background-color: #43304C !important;
 
-</head>
+    }
+    .navbar-default .navbar-toggle{
+        background-color: transparent;
+        color: #fff;
+    }
+    .jumbotron{
+        opacity: 0.8;
+    }
+
+</style>
+{% endblock %}
+
+{% block title %}
+{{ eventid }}
+{% endblock %}
+
+{% block content %}
 <body>
   <nav class="navbar navbar-default">
      <div class="container">
@@ -21,21 +64,21 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
            </button>
-           <a href="#" class="navbar-brand">Bright Events</a>
+           <a href="#" class="navbar-brand">{{ eventid }}</a>
         </div>
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
              <li class="active">
-                 <a href="index.html">Home</a>
+                 <a href="/">Home</a>
              </li>
              <li>
                  <a href="">About</a>
              </li>
              <li>
-                 <a href="login.html">Log In</a>
+                 <a href="/api/v1/auth/login">Log In</a>
              </li>
              <li>
-                 <a href="register.html">Sign Up</a>
+                 <a href="/api/v1/auth/register">Sign Up</a>
              </li>
          </ul>
          </div>
@@ -49,20 +92,21 @@
 <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 <div class="container">
-<div class="jumbotron">
+
   <div class="container">
     <div class="row">
         <div class="col-sm-6">
-          <h1>Welcome to EventHub</h1>
-           EventHub is a Bright Events offshoot<br /> that enables you to create,manage and attend<br /> events with ease. We provide a platform for event organisers to get creative with their<br /> marketing.
+          <h1>Your Events</h1>
+          <h1>{{ events }}</h1>
+
             <a href="login.html" title="Registration">
-           <button type="button" name="button" class="btn btn-primary">Sign up</button>
+           
             </a>
         </div> 
     </div>
   </div>
 </div>      
-</div>
+
+{% endblock %}
     
-    
-</html> 
+

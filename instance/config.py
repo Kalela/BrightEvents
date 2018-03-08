@@ -1,3 +1,4 @@
+#Import dependancies
 import os
 
 class Config(object):
@@ -14,7 +15,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configurations for testing"""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI="postgresql://postgres:challenge123@localhost/test_db"
+    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:challenge123@localhost/test_db"
     DEBUG = True
 
 class StagingConfig(Config):
