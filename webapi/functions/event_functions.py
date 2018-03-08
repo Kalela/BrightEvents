@@ -1,6 +1,7 @@
 import datetime
 from flask import request
 from webapi.helper_functions import print_events, utc_offset, date_check, pagination, post_event, Category
+from webapi.helper_functions import edit_event
 
 catgory = Category()
 
@@ -78,25 +79,14 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             location = request.form['location'].strip()
             category = request.form['category'].strip()
             if catgory.category_check(category) == "OK":
-                event = Event.get_one(eventname, current_user.username)
-                if event:
-                    event.eventname = updated_event_name
-                    event.location = location
-                    event.date = date
-                    event.category = category
-                    db.session.commit()
-                    status_code = 202
-                    statement = {"Event updated to:":{
-                        "eventname":updated_event_name, "location":location,
-                        "date":date, "category":category
-                    }}
-                else:
-                    status_code = 404
-                    statement = {"message":"Event you are editing does not exist"}
+                event_data = [updated_event_name, date, location, category, db]
+                result = edit_event(Event, current_user, eventname, event_data)
+                status_code = result[1]
+                statement = result[0]
             else:
                 status_code = 406
                 statement = {"message":"Please select a viable category",
-                             "options": catgory.category_list}
+                             "options": catgory.category_list}  
         if request.method == 'DELETE':
             event = Event.get_one(eventname, current_user.username)
             if event:

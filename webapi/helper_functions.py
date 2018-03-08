@@ -95,4 +95,21 @@ def post_event(eventname, location, date, category, current_user, Event):
         status_code = 400
         statement = {"message":"Please insert all required fields!"}
     return statement, status_code
-    
+
+def edit_event(Event, current_user, eventname, event_data):
+    event = Event.get_one(eventname, current_user.username)
+    if event:
+        event.eventname = event_data[0]
+        event.location = event_data[2]
+        event.date = event_data[1]
+        event.category = event_data[3]
+        event_data[4].session.commit()
+        status_code = 202
+        statement = {"Event updated to:":{
+            "eventname":event_data[0], "location":event_data[2],
+            "date":event_data[1], "category":event_data[3]
+        }}
+    else:
+        status_code = 404
+        statement = {"message":"Event you are editing does not exist"}
+    return statement, status_code
