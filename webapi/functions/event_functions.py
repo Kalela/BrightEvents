@@ -27,10 +27,10 @@ def get_events_helper(Event):
         }
     events_page_object = check_input_dict.get(user_input, "Something went wrong!!")()
     status_code = 200
-    statement = {"Events": print_events(pagination(events_page_object)[0]),
+    result = {"Events": print_events(pagination(events_page_object)[0]),
                  "Current page": pagination(events_page_object)[1],
                  "All pages": pagination(events_page_object)[2]}
-    return statement, status_code
+    return result, status_code
 
 def create_events_helper(current_user, Event):
     """Help create new events"""
