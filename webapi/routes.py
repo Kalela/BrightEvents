@@ -5,6 +5,7 @@ import jwt
 from flask_api import FlaskAPI
 from flask import jsonify, request, Blueprint, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from flasgger import Swagger
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -23,6 +24,7 @@ def create_app(config_name):
 
     api = Blueprint('api', __name__)
     app = FlaskAPI(__name__, instance_relative_config=True)
+    CORS(app)
     Swagger(app, template_file="docs.yml")
 
     app.config.from_pyfile('config.py')
