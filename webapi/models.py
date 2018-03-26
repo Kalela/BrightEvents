@@ -1,4 +1,4 @@
-from routes import db
+from .routes import db
 date_modified = db.Column(db.DateTime,
                               default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())

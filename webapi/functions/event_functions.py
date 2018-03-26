@@ -39,12 +39,12 @@ def create_events_helper(current_user, Event):
     if not current_user or current_user.logged_in == False:
         result = {"message":"Please Log In to add events"}, 401
     else:
-        eventname = request.form['eventname'].strip()
-        location = request.form['location'].strip()
-        date = request.form['date'].strip()
+        eventname = request.data['eventname'].strip()
+        location = request.data['location'].strip()
+        date = request.data['date'].strip()
         if "message" in str(date_check(date)):
             return date_check(date)[0], date_check(date)[1]
-        category = request.form['category'].strip()
+        category = request.data['category'].strip()
         if catgory.category_check(category) == "OK":
             pass
         else:
@@ -72,12 +72,12 @@ def event_update_delete_helper(current_user, eventname, db, Event):
     statement = {}
     if current_user and current_user.logged_in == True:
         if request.method == 'PUT':
-            updated_event_name = request.form['event_name'].strip()
-            date = request.form['date'].strip()
+            updated_event_name = request.data['event_name'].strip()
+            date = request.data['date'].strip()
             if "message" in str(date_check(date)):
                 return date_check(date)[0], date_check(date)[1]
-            location = request.form['location'].strip()
-            category = request.form['category'].strip()
+            location = request.data['location'].strip()
+            category = request.data['category'].strip()
             if catgory.category_check(category) == "OK":
                 event_data = [updated_event_name, date, location, category, db]
                 result = edit_event(Event, current_user, eventname, event_data)
@@ -86,7 +86,7 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             else:
                 status_code = 406
                 statement = {"message":"Please select a viable category",
-                             "options": catgory.category_list}  
+                             "options": catgory.category_list}
         if request.method == 'DELETE':
             event = Event.get_one(eventname, current_user.username)
             if event:
@@ -123,7 +123,7 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
     status_code = 500
     statement = {}
     if request.method == 'POST':
-        owner = request.form['owner'].strip()
+        owner = request.data['owner'].strip()
         if not owner:
             status_code = 428
             statement = {"message":"Please insert the owner of the event you want to rsvp"}

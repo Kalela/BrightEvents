@@ -9,14 +9,15 @@ from webapi.helper_functions import check_registration_input, check_password_res
 def register_helper(User):
     status_code = 500
     statement = {}
-    username = request.form['username'].strip()
-    email = request.form['email'].strip()
-    password = request.form['password'].strip()
+    username = request.data['username'].strip()
+    email = request.data['email'].strip()
+    password = request.data['password'].strip()
+    confirmpassword = request.data['confirmpassword'].strip()
     if check_registration_input(username, email, password):
         status_code = 400
         statement = (check_registration_input(username, email, password))
     else:
-        hashed_password = generate_password_hash(request.form['password'], method='sha256')
+        hashed_password = generate_password_hash(request.data['password'], method='sha256')
 
         user = User.query.filter_by(username=username).first()
         if not user:
@@ -25,7 +26,7 @@ def register_helper(User):
                         logged_in=False)
             user.save()
             status_code = 201
-            statement = {"message":"Registration successful, log in to access your account"} 
+            statement = {"message":"Registration successful, log in to access your account"}
         else:
             status_code = 409
             statement = {"message":"Username or email already registered"}
@@ -47,8 +48,8 @@ def logout_helper(current_user, db):
 def reset_password_helper(current_user, db):
     status_code = 500
     statement = {}
-    new_password = request.form['new_password'].strip()
-    confirm_password = request.form['confirm_password'].strip()
+    new_password = request.data['new_password'].strip()
+    confirm_password = request.data['confirm_password'].strip()
     if check_password_reset(new_password, confirm_password, current_user, status_code)[0]:
         status_code = check_password_reset(new_password,
                                            confirm_password,
@@ -67,5 +68,4 @@ def reset_password_helper(current_user, db):
         else:
             status_code = 401
             statement = {"message":"Please log in"}
-    print(status_code)
     return statement, status_code

@@ -12,9 +12,9 @@ from functools import wraps
 
 from instance.config import app_config
 
-from functions.user_functions import register_helper, logout_helper, reset_password_helper
-from functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
-from functions.event_functions import event_update_delete_helper, rsvps_helper
+from .functions.user_functions import register_helper, logout_helper, reset_password_helper
+from .functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
+from .functions.event_functions import event_update_delete_helper, rsvps_helper
 
 db = SQLAlchemy()
 
@@ -71,8 +71,8 @@ def create_app(config_name):
         """Login registered users"""
         status_code = 500
         statement = {}
-        name = request.form['username'].strip()
-        passwd = request.form['password'].strip()
+        name = request.data['username'].strip()
+        passwd = request.data['password'].strip()
 
         if not name or not passwd:
             return make_response('Could not verify', 401,
@@ -93,7 +93,7 @@ def create_app(config_name):
 
         return make_response('Could not verify', 401,
                              {'WWW-Authenticate':'Basic realm="Login required!"'})
-    
+
     @app.route('/', methods=['GET'])
     def index():
         """Render docs"""
@@ -111,7 +111,7 @@ def create_app(config_name):
         """Log out users"""
         result = logout_helper(current_user, db)
         return jsonify(result[0]), result[1]
-    
+
     @api.route('/events', methods=['GET'])
     def view_events():
         """View a list of events"""
@@ -138,7 +138,7 @@ def create_app(config_name):
         """Online users can view their events"""
         result = online_user_events_helper(current_user, Event)
         return jsonify(result[0]), result[1]
-        
+
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
     @token_required
     def event_update(current_user, eventname):
