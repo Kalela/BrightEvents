@@ -7,10 +7,10 @@ services:
 before_install:
   - export TZ='Africa/Nairobi'
 before_script:
-  - psql -c "CREATE DATABASE test_db;" -U postgres
+  - psql -c "CREATE DATABASE test_db;" -U kalela
 env:
   global:
-    - DATABASE_URL=postgresql://postgres:challenge123@localhost/test_db
+    - DATABASE_URL=postgresql://kalela:challenge123@localhost/test_db
     - FLASK_APP="run.py"
     - SECRET="yguhijokldisuoiycnbnnhgjhjkdshgjhhggcvjhbkkuycghjkjljkhjghvbdgyfenkdkvsfvmvjhhvfmnvjfbvvnfdhbfdnvhbvfmvbddnmfbv"
     - APP_SETTINGS="development"
