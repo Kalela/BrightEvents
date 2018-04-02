@@ -89,7 +89,7 @@ def create_app(config_name):
             user.logged_in = True
             db.session.commit()
             return jsonify({'Logged in':user.username,
-                            'access-token':token.decode('UTF-8')}), 202
+                            'access_token':token.decode('UTF-8')}), 202
 
         return make_response('Could not verify', 401,
                              {'WWW-Authenticate':'Basic realm="Login required!"'})
