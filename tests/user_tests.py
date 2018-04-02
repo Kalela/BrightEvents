@@ -22,7 +22,7 @@ class TestUserEndpoints(unittest.TestCase):
                                                  email = "test@email.com"))
             tkn = self.tester.post('%s/auth/login' % self.prefix, data=dict(username ="admin",
                                                                    password = "1234"))
-            self.token = json.loads(tkn.data.decode())['access-token']
+            self.token = json.loads(tkn.data.decode())['access_token']
 
         if choice == "login":
             return self.tester.post('%s/auth/login' % self.prefix, data=dict(username = "admin",
