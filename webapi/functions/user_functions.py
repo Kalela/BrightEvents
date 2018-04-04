@@ -12,7 +12,6 @@ def register_helper(User):
     username = request.data['username'].strip()
     email = request.data['email'].strip()
     password = request.data['password'].strip()
-    confirmpassword = request.data['confirmpassword'].strip()
     if check_registration_input(username, email, password):
         status_code = 400
         statement = (check_registration_input(username, email, password))
