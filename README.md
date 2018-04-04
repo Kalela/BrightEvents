@@ -5,7 +5,7 @@ Heroku app: https://bright-events-api-.herokuapp.com
 
 Build Status
 ------------
-![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=ft-searching-and-filtering-154311788)
+[![Build Status](https://travis-ci.org/Kalela/BrightEvents.svg?branch=development)](https://travis-ci.org/Kalela/BrightEvents)
 [![Maintainability](https://api.codeclimate.com/v1/badges/dfe41dde7938bc5fe3e3/maintainability)](https://codeclimate.com/github/Kalela/BrightEvents/maintainability)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28cc75e9c266433b8241f95d697c8db2)](https://www.codacy.com/app/Kalela/BrightEvents?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kalela/BrightEvents&amp;utm_campaign=Badge_Grade)
 [![Coverage Status](https://coveralls.io/repos/github/Kalela/BrightEvents/badge.svg?branch=ft-heroku-deploy-154956015)](https://coveralls.io/github/Kalela/BrightEvents?branch=ft-heroku-deploy-154956015)
