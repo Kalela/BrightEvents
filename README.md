@@ -40,7 +40,6 @@ Installation
     
 ![env](https://image.ibb.co/f75eUw/Screenshot_from_2018_01_04_15_48_41.png "env")
 Every time this directory is accessed, the commands are excecuted to set up the FLASK_APP and other environment variables.
-
 5. Set up a virtualenv 
 * In this case, _virtualenv venv_
   (If you can't see the .env file make sure your file explorer has viewing hidden files enabled)
