@@ -1,10 +1,13 @@
 #import dependancies
 import uuid
+import passwordmeter
 from flask import request
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from webapi.helper_functions import check_registration_input, check_password_reset
+
+meter = passwordmeter.Meter(settings=dict(factors='length'))
 
 def register_helper(User):
     status_code = 500
@@ -15,9 +18,12 @@ def register_helper(User):
     if check_registration_input(username, email, password):
         status_code = 400
         statement = (check_registration_input(username, email, password))
+    password_strength, improvements = meter.test(password)
+    if password_strength < 0.5:
+        status_code = 400
+        statement = {"message":"At least 6 characters required for password"}
     else:
         hashed_password = generate_password_hash(request.data['password'], method='sha256')
-
         user = User.query.filter_by(username=username).first()
         if not user:
             user = User(username=username, email=email,
