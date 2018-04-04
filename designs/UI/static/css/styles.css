@@ -1,6 +1,12 @@
 html,
 body{
     font-family: 'Lato', sans-serif;
+    background-image:url('https://image.ibb.co/hF9ENw/climate_kic_350836.jpg');
+    background-position: center;
+    background-color: #43304C;
+    background-repeat: no-repeat;
+    background-size: cover;
+
 }
 .container{
     padding: 0 70px;
@@ -21,4 +27,7 @@ body{
 .navbar-default .navbar-toggle{
     background-color: transparent;
     color: #fff;
+}
+.jumbotron{
+    opacity: 0.8;
 }

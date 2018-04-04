@@ -2,17 +2,26 @@
 <html lang ="en">
    
 <head>
-<title>home</title>
+<title>Home</title>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
+    
+<!--React js-->
+<script src="https://unpkg.com/react@15.3.2/dist/react.js"></script>
+<script src="https://unpkg.com/react-dom@15.3.2/dist/react-dom.js"></script>
+<script src="https://npmcdn.com/react-router@2.8.1/umd/ReactRouter.min.js"></script>
+<script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script type="text/babel" src="{{ url_for('static', filename='js/brightevents.js') }}"></script>
 
 
 </head>
 <body>
+  
   <nav class="navbar navbar-default">
      <div class="container">
         <div class="navbar-header">
@@ -21,33 +30,38 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
            </button>
-           <a href="index.html" class="navbar-brand">Bright Events</a>
+           <a href="/" class="navbar-brand">Bright Events</a>
         </div>
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
+             <li>
+                 <a href="/api/v1/auth/dashboard">Dashboard</a>
+             </li>
              <li class="active">
-                 <a href="index.html">Home</a>
+                 <a href="/">Home</a>
              </li>
              <li>
-                 <a href="aboutus.html">About</a>
+                 <a href="/api/v1/about">About</a>
              </li>
              <li>
-                 <a href="login.html">Log In</a>
+                 <a href="/api/v1/auth/login">Log In</a>
              </li>
              <li>
-                 <a href="register.html">Sign Up</a>
+                 <a href="/api/v1/auth/register">Sign Up</a>
              </li>
          </ul>
+         </div>
+         <div id="container">
          </div>
      </div>
   </nav>
 
 
-
-
 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+<div id="hero">
+    <div id="hero-overlay"></div>
+    </div>
 <div class="container">
 <div class="jumbotron">
   <div class="container">
@@ -55,7 +69,7 @@
         <div class="col-sm-6">
           <h1>Welcome to EventHub</h1>
            We satisfy your event needs.
-            <a href="register.html" title="Registration">
+            <a href="/api/v1/auth/register" title="Registration">
            <button type="button" name="button" class="btn btn-primary">Sign up</button>
             </a>
         </div> 
@@ -72,8 +86,8 @@
         <div class="col-sm-6">
           <h2>Events Available!</h2>
            Sign in to Create and Manage events<br />
-           <a href="event.html">See events...</a>
-            <a href="login.html" title="Log In">
+           <a href="/api/v1/events">See events...</a>
+            <a href="/api/v1/auth/login" title="Log In">
            <button type="button" name="button" class="btn btn-primary">Sign in</button>
             </a>
         </div> 

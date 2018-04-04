@@ -1,0 +1,316 @@
+info:
+  title: Bright Events API Documentation
+  description: This is documentation for the BrightEvents API(A platform for Event Management).
+basePath: /api/v2
+
+servers:
+  - url: https://bright-events-api-.herokuapp.com/
+
+paths:
+  /auth/register:
+    post:
+      summary: Creates a user.
+      tags:
+        - User
+      parameters:
+      - in: formData
+        name: username
+        type: string
+        required: true
+      - in: formData
+        name: email
+        type: string
+        required: true
+      - in: formData
+        name: password
+        type: string
+        required: true
+        
+        schema:
+          properties:
+            username:
+              type: string
+              description: User name
+              example: Admin
+            email:
+              type: string
+              description: User email
+              example: test@gmail.com
+            password: 
+              type: string
+              description: User password
+              example: abcd
+      responses:
+        '201':
+          description: Successfully registered
+        '400': 
+          description: Bad Input
+        '409':
+          description: User already registered
+  
+  /auth/login:
+    post:
+      summary: Logs in a registered user
+      tags:
+      - User
+      parameters:
+        - in: formData
+          name: username
+          type: string
+          required: true
+        - in: formData
+          name: password
+          type: string
+          required: true
+
+      responses:
+        '202':
+          description: Successful log in
+        '401':
+          description: Only registered users can log in
+          
+  /auth/logout:
+    post:
+      summary: Logs out a user
+      tags:
+      - User
+      parameters:
+      - in: header
+        name: x-access-token
+        required: true
+        type: string
+      responses:
+        '200':
+          description: No user in current session
+        '202':
+          description: User successfully logged out
+          
+  /auth/reset-password:
+    post:
+      summary: Reset user password
+      tags:
+      - User
+    parameters:
+      - in: formData
+        name: new_password
+        type: string
+        required: true
+      - in: formData
+        name: confirm_password
+        type: string
+        required: true
+      - in: header
+        name: x-access-token
+        type: string
+        required: true
+    responses:
+      '205':
+        description: Password Reset Successful
+      '400':
+        description: Please insert required data
+      '401': 
+        description: Log in to reset password
+      '409':
+        description: Conflict
+
+  /events:
+    get:
+      summary: Returns a list of events
+      tags:
+        - Event
+      parameters:
+      - in: query
+        name: q
+        type: string
+      - in: query
+        name: location
+        type: string
+      - in: query
+        name: category
+        type: string
+      - in: query
+        name: limit
+        type: string
+      - in: query
+        name: page
+        type: string
+      responses:
+      '200':
+        description: Viewing events successful
+    post:
+      summary: Create an event
+      tags:
+        - Event
+      parameters:
+      - in: formData
+        name: eventname
+        type: string
+        required: true 
+      - in: formData
+        name: location
+        type: string
+        required: true
+      - in: formData
+        name: date
+        type: string
+        required: true
+      - in: formData
+        name: category
+        type: string
+        required: true
+      - in: header
+        name: x-access-token
+        type: string
+        required: true
+
+      responses:
+      '201':
+        description: Event created successfully
+      '400':
+        description: Bad input
+      '401':
+        description: Only logged in users can create events
+      '406':
+        description: Insert a specified category
+      '409':
+        description: The event already exists
+
+  /events/{event_id}:
+    get:
+      summary: Returns a single event
+      tags:
+        - Event
+      parameters:
+        - name: eventname
+          in: path
+          required: true
+          type: string
+        - name: owner
+          in: path
+          type: string
+      responses:
+      '200':
+        description: Event found
+      '404':
+        description: Event not found
+    put:
+      summary: Edit an event
+      tags:
+        - Event
+      parameters:
+        - name: eventname
+          in: path
+          required: true
+          type: string
+        - name: updated_event_name
+          in: formData
+          required: true
+          type: string
+        - name: location
+          in: formData
+          required: true
+          type: string
+        - name: date
+          in: formData
+          required: true
+          type: string
+        - name: category
+          in: formData
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+      responses:
+      '202':
+        description: Event updated successfully
+      '400':
+        description: Bad input. Commonly bad date input.
+      '401':
+        description: Log in to update an event
+      '404':
+        description: Event not found
+      '406':
+        description: Please use allowed categories
+    delete:
+      summary: Deletes an event
+      tags:
+      - Event
+      parameters:
+        - name: eventname
+          in: path
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+      responses:
+      '205':
+        description: Event deleted successfully
+      '401':
+        description: Log in to remove events
+      '404':
+        description: Event not found
+
+  /events/{eventname}/rsvp:
+    post:
+      summary: RSVP an event
+      tags:
+      - Event
+    parameters:
+        - name: eventname
+          in: path
+          required: true
+          type: string
+        - name: owner
+          in: query
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+    responses:
+      '201':
+        description: RSVP Successfull
+      '401':
+        description: Log in to send an rsvp
+      '404':
+        description: Event not found
+      '409':
+        description: Rsvp already sent
+      '428':
+        description: Owner of event required
+    get:
+      summary: Returns a list of guests
+      tags:
+      - Event
+    parameters:
+        - name: eventname
+          in: path
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+    responses:
+      '200':
+        description: Found
+      '404':
+        description: Event not found
+  
+  /myevents:
+    get:
+      summary: Returns a list of events created by the user currently logged in.
+      tags:
+        - Event
+      responses:
+      '200':
+        description: successfully viewing events
+      '404':
+        description: No events found
+
+    

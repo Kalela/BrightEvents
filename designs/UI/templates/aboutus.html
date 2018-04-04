@@ -2,13 +2,13 @@
 <html lang ="en">
    
 <head>
-<title>Logout</title>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA Compatible" content="IE=edge">
 <meta name="viewport" content= "width = device-width, initial-scale=1">
 <link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
-<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+<link type="stylesheet" href="main.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
 
 
 </head>
@@ -21,21 +21,21 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
            </button>
-           <a href="index.html" class="navbar-brand">Bright Events</a>
+           <a href="#" class="navbar-brand">Bright Events</a>
         </div>
          <div class="collapse navbar-collapse" id="mynav">
          <ul class="nav navbar-nav navbar-right">
              <li class="active">
-                 <a href="index.html">Home</a>
+                 <a href="/">Home</a>
              </li>
              <li>
-                 <a href="aboutus.html">About</a>
+                 <a href="/api/v1/about/">About</a>
              </li>
              <li>
-                 <a href="login.html">Log In</a>
+                 <a href="/api/v1/auth/login">Log In</a>
              </li>
              <li>
-                 <a href="register.html">Sign Up</a>
+                 <a href="/api/v1/auth/register">Sign Up</a>
              </li>
          </ul>
          </div>
@@ -47,25 +47,22 @@
 
 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    
-    
+
 <div class="container">
 <div class="jumbotron">
   <div class="container">
     <div class="row">
         <div class="col-sm-6">
-          <h2>Available Events</h2>
-           Sign in to Create and Manage events<br />
-            <a href="event.html">See events...</a>
-            <a href="login.html" title="Log In">
-           <button type="button" name="button" class="btn btn-primary">Sign in</button>
+          <h1>Welcome to EventHub</h1>
+           EventHub is a Bright Events offshoot<br /> that enables you to create,manage and attend<br /> events with ease. We provide a platform for event organisers to get creative with their<br /> marketing.
+            <a href="login.html" title="Registration">
+           <button type="button" name="button" class="btn btn-primary">Sign up</button>
             </a>
         </div> 
     </div>
   </div>
 </div>      
-
 </div>
-
-
+    
+    
 </html> 

@@ -3,3 +3,5 @@ newenv/*
 venv/*
 appenv/*
 .coverage
+.env
+desktop.ini
