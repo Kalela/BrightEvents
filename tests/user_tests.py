@@ -78,27 +78,19 @@ class TestUserEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 202)
         self.assertIn("Logged in", str(response.data))
 
-    def test_login_noinput(self):
-        """Test theres no input for login endpoint"""
+    def test_login_nousername(self):
+        """Test theres no username input for login endpoint"""
         self.register_and_login("register")
-        response = tester.post('%s/auth/login' % self.prefix,
-                               data=dict(username = "", password = "1234"))
-        self.assertEqual(response.status_code, 401)
-        self.assertIn("Could not verify", str(response.data))
+        response = self.tester.post('%s/auth/login' % self.prefix,
+                               data=dict(username = "", password = "12345678"))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Name or password missing", str(response.data))
 
     def test_login_nouser(self):
         """Test the user is not registered"""
         response = self.register_and_login("login")
         self.assertEqual(response.status_code, 401)
-        self.assertIn("Could not verify", str(response.data))
-
-    def test_login_noinput(self):
-        """Test theres no input for login endpoint"""
-        self.register_and_login("register")
-        response = self.tester.post('%s/auth/login' % self.prefix,
-                               data=dict(username = "admin", password = "abcd"))
-        self.assertEqual(response.status_code, 401)
-        self.assertIn("Could not verify", str(response.data))
+        self.assertIn("Please log in", str(response.data))
 
     def test_logout(self):
         """Test the logout user endpoint"""
