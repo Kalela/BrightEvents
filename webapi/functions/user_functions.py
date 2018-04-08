@@ -18,23 +18,24 @@ def register_helper(User):
     if check_registration_input(username, email, password):
         status_code = 400
         statement = (check_registration_input(username, email, password))
-    password_strength, improvements = meter.test(password)
-    if password_strength < 0.5:
-        status_code = 400
-        statement = {"message":"At least 6 characters required for password"}
     else:
-        hashed_password = generate_password_hash(request.data['password'], method='sha256')
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            user = User(username=username, email=email,
-                        password=hashed_password, public_id=str(uuid.uuid4()),
-                        logged_in=False)
-            user.save()
-            status_code = 201
-            statement = {"message":"Registration successful, log in to access your account"}
+        password_strength, improvements = meter.test(password)
+        if password_strength < 0.5:
+            status_code = 400
+            statement = {"message":"At least 6 characters required for password"}
         else:
-            status_code = 409
-            statement = {"message":"Username or email already registered"}
+            hashed_password = generate_password_hash(request.data['password'], method='sha256')
+            user = User.query.filter_by(username=username).first()
+            if not user:
+                user = User(username=username, email=email,
+                            password=hashed_password, public_id=str(uuid.uuid4()),
+                            logged_in=False)
+                user.save()
+                status_code = 201
+                statement = {"message":"Registration successful, log in to access your account"}
+            else:
+                status_code = 409
+                statement = {"message":"Username or email already registered"}
     return statement, status_code
 
 def logout_helper(current_user, db):

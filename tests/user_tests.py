@@ -17,20 +17,20 @@ class TestUserEndpoints(unittest.TestCase):
         if choice == "both":
             self.tester.post('%s/auth/register' % self.prefix,
                                        data=dict(username = "admin",
-                                                 password = "123456",
+                                                 password = "12345678",
                                                  email = "test@email.com"))
             tkn = self.tester.post('%s/auth/login' % self.prefix, data=dict(username ="admin",
-                                                                   password = "123456"))
+                                                                   password = "12345678"))
             self.token = json.loads(tkn.data.decode())['access_token']
 
         if choice == "login":
             return self.tester.post('%s/auth/login' % self.prefix, data=dict(username = "admin",
-                                                                         password = "123456"))
+                                                                         password = "12345678"))
 
         if choice == "register":
             return self.tester.post('%s/auth/register' % self.prefix,
                                        data=dict(username = "admin",
-                                             password = "123456",
+                                             password = "12345678",
                                              email = "test@email.com"))
 
     def test_register(self):
@@ -42,7 +42,7 @@ class TestUserEndpoints(unittest.TestCase):
     def test_register_noinput(self):
         """Test a blank input on register endpoint"""
         response = self.tester.post('%s/auth/register' % self.prefix,
-                               data=dict(username = "", password = "123456",
+                               data=dict(username = "", password = "12345678",
                                          email = "test@email.com"))
         self.assertEqual(response.status_code, 400)
         self.assertIn("Please insert", str(response.data))
@@ -64,7 +64,7 @@ class TestUserEndpoints(unittest.TestCase):
 
     def test_register_with_weak_password(self):
         """Test a user with weak password can't register"""
-        reponse = self.tester.post('%s/auth/register' % self.prefix,
+        response = self.tester.post('%s/auth/register' % self.prefix,
                                    data=dict(username = "admin",
                                              password = "a",
                                              email = "test@email.com"))
@@ -138,7 +138,7 @@ class TestUserEndpoints(unittest.TestCase):
         self.register_and_login("both")
         response = self.tester.post('%s/auth/reset-password' % self.prefix,
                                headers={'x-access-token':self.token},
-                               data=dict(new_password = "123456", confirm_password = "123456"))
+                               data=dict(new_password = "12345678", confirm_password = "12345678"))
         self.assertEqual(response.status_code, 409)
         self.assertIn("Password already set", str(response.data))
 

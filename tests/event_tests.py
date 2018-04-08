@@ -17,11 +17,11 @@ class TestEventEndpoints(unittest.TestCase):
     def register_and_login(self):
         self.tester.post('%s/auth/register' % self.prefix,
                                    data=dict(username = "admin",
-                                         password = "1234",
-                                         confirmpassword = "1234",
+                                         password = "12345678",
+                                         confirmpassword = "12345678",
                                          email = "test@email.com"))
         tkn = self.tester.post('%s/auth/login' % self.prefix, data=dict(username = "admin",
-                                                               password = "1234"))
+                                                               password = "12345678"))
         self.token = json.loads(tkn.data.decode())['access_token']
 
     def create_new_event(self):
