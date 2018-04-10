@@ -13,7 +13,7 @@ from instance.config import app_config
 
 from .functions.user_functions import register_helper, login_helper, logout_helper, reset_password_helper
 from .functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
-from .functions.event_functions import event_update_delete_helper, rsvps_helper
+from .functions.event_functions import event_update_delete_helper, rsvps_helper, get_single_event_helper
 
 db = SQLAlchemy()
 
@@ -89,17 +89,22 @@ def create_app(config_name):
         result = logout_helper(current_user, db)
         return jsonify(result[0]), result[1]
 
+    @api.route('/auth/reset-password', methods=['POST'])
+    @token_required
+    def reset_password(current_user):
+        """Reset users password"""
+        result = reset_password_helper(current_user, db)
+        return jsonify(result[0]), result[1]
+
     @api.route('/events', methods=['GET'])
     def view_events():
         """View a list of events"""
         result = get_events_helper(Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/auth/reset-password', methods=['POST'])
-    @token_required
-    def reset_password(current_user):
-        """Reset users password"""
-        result = reset_password_helper(current_user, db)
+    @api.route('/events/<username>/<eventname>', methods=['GET'])
+    def get_single_event(username, eventname):
+        result = get_single_event_helper(username, eventname, Event)
         return jsonify(result[0]), result[1]
 
     @api.route('/events', methods=['POST'])
@@ -109,11 +114,11 @@ def create_app(config_name):
         result = create_events_helper(current_user, Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/myevents', methods=['GET'])
+    @api.route('/events/<user_public_id>', methods=['GET'])
     @token_required
-    def online_user_events(current_user):
+    def online_user_events(current_user, user_public_id):
         """Online users can view their events"""
-        result = online_user_events_helper(current_user, Event)
+        result = online_user_events_helper(current_user, user_public_id, Event)
         return jsonify(result[0]), result[1]
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])

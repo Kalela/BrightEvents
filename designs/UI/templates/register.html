@@ -1,54 +1,37 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf%}
-
-{% block styles %}
-{{super()}}
-<meta charset="UTF-8">
-<meta http-equiv="X-UA Compatible" content="IE=edge">
-<meta name="viewport" content= "width = device-width, initial-scale=1">
-<link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
-<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/registerstyles.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/styles.css') }}">
-{% endblock %}
-
-{% block title %}
-Registration
-{% endblock %}
-
-
-{% block content %}
-<script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    
-    
- <nav class="navbar navbar-default">
-    <div class="navbar-header">
-     <a href="/" class="navbar-brand">EventHub</a>
-     </div>
-    </nav>   
-    
-    
-    
-
-<div class="container">
-    <div class="col-md-6 text-center">
-        <div class="g">
-        <h1 class="head">Sign Up</h1>
-        <p></p>
-            <form action="#" class="login" method="POST">
-                {{ form.hidden_tag() }}
-                {{ wtf.form_field(form.username)}}
-                {{ wtf.form_field(form.email)}}
-                {{ wtf.form_field(form.password)}}
-
-                
-                <button class="btn btn-info">Sign Up</button>
-                
-                <p>Already have an Account? <a href="/api/v1/auth/login">Log In</a></p>
-            </form>
-        </div>
-    </div> 
-    </div>
-{% endblock %}
-
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	{% extends "bootstrap/base.html" %} {% import "bootstrap/wtf.html" as wtf%} {% block styles %} {{super()}}
+	<meta charset="UTF-8">
+	<meta content="IE=edge" http-equiv="X-UA Compatible">
+	<meta content="width = device-width, initial-scale=1" name="viewport">
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+	<link href="{{ url_for('.static', filename='css/registerstyles.css') }}" rel="stylesheet" type="text/css">
+	<link href="{{ url_for('.static', filename='css/styles.css') }}" rel="stylesheet" type="text/css">{% endblock %} {% block title %} Registration {% endblock %} {% block content %}
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+	</script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+	</script>
+	<nav class="navbar navbar-default">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/">EventHub</a>
+		</div>
+	</nav>
+	<div class="container">
+		<div class="col-md-6 text-center">
+			<div class="g">
+				<h1 class="head">Sign Up</h1>
+				<p></p>
+				<form action="#" class="login" method="post">
+					{{ form.hidden_tag() }} {{ wtf.form_field(form.username)}} {{ wtf.form_field(form.email)}} {{ wtf.form_field(form.password)}} <button class="btn btn-info">Sign Up</button>
+					<p>Already have an Account? <a href="/api/v1/auth/login">Log In</a></p>
+				</form>
+			</div>
+		</div>
+	</div>{% endblock %}
+</body>
+</html>
