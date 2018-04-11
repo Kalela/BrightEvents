@@ -53,17 +53,21 @@ def create_events_helper(current_user, Event):
         result = post_event(eventname, location, date, category, current_user, Event)
     return result[0], result[1]
 
-def online_user_events_helper(current_user, Event):
+def online_user_events_helper(current_user, user_public_id, Event):
     """Help view owned events"""
     status_code = 500
     statement = {}
-    events = Event.query.filter_by(owner=current_user.username).all()
-    if events:
-        status_code = 200
-        statement = {"My Events":print_events(events)}
+    if user_public_id == current_user.public_id:
+        events = Event.query.filter_by(owner=current_user.username).all()
+        if events:
+            status_code = 200
+            statement = {"My Events":print_events(events)}
+        else:
+            status_code = 404
+            statement = {"message":"You don't have any events"}
     else:
-        status_code = 404
-        statement = {"message":"You don't have any events"}
+        status_code = 401
+        statement = {"message":"You do not have access to this user's events"}
     return statement, status_code
 
 def event_update_delete_helper(current_user, eventname, db, Event):
@@ -99,23 +103,21 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             else:
                 status_code = 404
                 statement = {"message":"Event you are deleting does not exist"}
-        if request.method == 'GET':
-            try:
-                owner = request.args.get('owner').strip()
-            except:
-                owner = current_user.username
-            event = Event.get_one(eventname, owner)
-            if event:
-                events = [event]
-                status_code = 200
-                statement = {"Event":print_events(events)}
-            else:
-                status_code = 404
-                statement = {"message":"Event you are trying to view does not exist",
-                             "tip!":"Insert event owner as parameter"}
     else:
         status_code = 401
         statement = {"message":"Please log in to edit or delete events"}
+    return statement, status_code
+
+def get_single_event_helper(username, eventname, Event):
+    event = Event.get_one(eventname, username)
+    if event:
+        events = [event]
+        status_code = 200
+        statement = {"Event":print_events(events)}
+    else:
+        status_code = 404
+        statement = {"message":"Event you are trying to view does not exist",
+                     "tip!":"api/v2/events/<username>/<eventname>"}
     return statement, status_code
 
 def rsvps_helper(current_user, eventname, Rsvp, Event):

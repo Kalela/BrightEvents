@@ -3,6 +3,7 @@ import unittest
 import json
 
 from webapi.routes import create_app, db
+from webapi.models import User
 
 class TestEventEndpoints(unittest.TestCase):
     """Contains all user tests"""
@@ -17,11 +18,11 @@ class TestEventEndpoints(unittest.TestCase):
     def register_and_login(self):
         self.tester.post('%s/auth/register' % self.prefix,
                                    data=dict(username = "admin",
-                                         password = "1234",
-                                         confirmpassword = "1234",
+                                         password = "12345678",
+                                         confirmpassword = "12345678",
                                          email = "test@email.com"))
         tkn = self.tester.post('%s/auth/login' % self.prefix, data=dict(username = "admin",
-                                                               password = "1234"))
+                                                               password = "12345678"))
         self.token = json.loads(tkn.data.decode())['access_token']
 
     def create_new_event(self):
@@ -149,12 +150,12 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
-#
+
     def test_view_one_event(self):
         """Test viewing a single event"""
         self.register_and_login()
         self.create_new_event()
-        response = self.tester.get('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/events/admin/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("eventname", str(response.data))
 
@@ -167,10 +168,12 @@ class TestEventEndpoints(unittest.TestCase):
         self.assertIn("Events", str(response.data))
 
     def test_view_current_user_events(self):
-        """Test the view all events endpoint"""
+        """Test the view all currently logged in user's events"""
         self.register_and_login()
         self.create_new_event()
-        response = self.tester.get('%s/myevents' % self.prefix, headers={'x-access-token':self.token})
+        with self.app.app_context():
+            user = User.query.filter_by(username="admin").first()
+        response = self.tester.get('{}/events/{}'.format(self.prefix, user.public_id), headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
 

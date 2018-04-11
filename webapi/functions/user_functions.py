@@ -1,10 +1,15 @@
 #import dependancies
 import uuid
+import passwordmeter
+import datetime
+import jwt
 from flask import request
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from webapi.helper_functions import check_registration_input, check_password_reset
+
+meter = passwordmeter.Meter(settings=dict(factors='length'))
 
 def register_helper(User):
     status_code = 500
@@ -16,19 +21,47 @@ def register_helper(User):
         status_code = 400
         statement = (check_registration_input(username, email, password))
     else:
-        hashed_password = generate_password_hash(request.data['password'], method='sha256')
-
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            user = User(username=username, email=email,
-                        password=hashed_password, public_id=str(uuid.uuid4()),
-                        logged_in=False)
-            user.save()
-            status_code = 201
-            statement = {"message":"Registration successful, log in to access your account"}
+        password_strength, improvements = meter.test(password)
+        if password_strength < 0.5:
+            status_code = 400
+            statement = {"message":"At least 6 characters required for password"}
         else:
-            status_code = 409
-            statement = {"message":"Username or email already registered"}
+            hashed_password = generate_password_hash(request.data['password'], method='sha256')
+            user = User.query.filter_by(username=username).first()
+            if not user:
+                user = User(username=username, email=email,
+                            password=hashed_password, public_id=str(uuid.uuid4()),
+                            logged_in=False)
+                user.save()
+                status_code = 201
+                statement = {"message":"Registration successful, log in to access your account"}
+            else:
+                status_code = 409
+                statement = {"message":"Username or email already registered"}
+    return statement, status_code
+
+def login_helper(User, app, db):
+    status_code = 500
+    statement = {}
+    name = request.data['username'].strip()
+    passwd = request.data['password'].strip()
+
+    if not name or not passwd:
+        statement = {"message":"Name or password missing!"}
+        status_code = 400
+    else:
+        user = User.query.filter_by(username=name).first()
+        if not user:
+            statement = {"message":"Please log in to a registered account"}
+            status_code = 401
+        elif check_password_hash(user.password, passwd):
+            token = jwt.encode({'public_id':user.public_id,
+                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            user.logged_in = True
+            db.session.commit()
+            statement = {'Logged in':user.username,
+                            'access_token':token.decode('UTF-8')}
+            status_code = 202
     return statement, status_code
 
 def logout_helper(current_user, db):
