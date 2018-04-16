@@ -62,6 +62,9 @@ def login_helper(User, app, db):
             statement = {'Logged in':user.username,
                             'access_token':token.decode('UTF-8')}
             status_code = 202
+        elif not check_password_hash(user.password, passwd):
+            statement = {"message":"Wrong password! Please check your input."}
+            status_code = 401
     return statement, status_code
 
 def logout_helper(current_user, db):

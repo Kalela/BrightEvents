@@ -92,6 +92,14 @@ class TestUserEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn("Please log in", str(response.data))
 
+    def test_login_with_wrong_password(self):
+        """Test an attempt to log in with a wrong input"""
+        self.register_and_login("register")
+        response = self.tester.post('%s/auth/login' % self.prefix,
+                               data=dict(username = "admin", password = "1234"))
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("Wrong password",str(response.data))
+
     def test_logout(self):
         """Test the logout user endpoint"""
         self.register_and_login("both")
