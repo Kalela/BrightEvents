@@ -17,13 +17,13 @@ def print_events(events):
     return result
 
 class Category(object):
-    category_list = ["Bridal", "Educational", "Commemorative", "Product Launch", "Social", "VIP"]
+    category_list = ["Bridal", "Educational", "Commemorative", "Product Launch", "Social", "VIP", "Other"]
     def category_check(self, category):
         if category in self.category_list:
             return "OK"
         else:
             return "BAD"
-        
+
 def utc_offset(string):
     """Pick values of the current run environment UTC offset"""
     return string[-5:]
@@ -35,7 +35,7 @@ def date_check(date):
         return date_object
     except ValueError:
         return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
-    
+
 def check_registration_input(username, email, password):
     """Check email input"""
     message = {}
@@ -80,7 +80,7 @@ def post_event(eventname, location, date, category, current_user, Event):
             event_date = datetime.datetime.strptime(str(event.date),
                                                     '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
         except:
-            pass   
+            pass
         if event and event.location == location and event_date == date_check(date):
             status_code = 409
             statement = {"message":"Event already exists"}
