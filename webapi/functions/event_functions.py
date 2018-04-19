@@ -61,7 +61,7 @@ def online_user_events_helper(current_user, user_public_id, Event):
         events = Event.query.filter_by(owner=current_user.username).all()
         if events:
             status_code = 200
-            statement = {"My Events":print_events(events)}
+            statement = {"MyEvents":print_events(events)}
         else:
             status_code = 404
             statement = {"message":"You don't have any events"}
