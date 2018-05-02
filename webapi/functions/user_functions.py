@@ -56,10 +56,10 @@ def login_helper(User, app, db):
             status_code = 401
         elif check_password_hash(user.password, passwd):
             token = jwt.encode({'public_id':user.public_id,
-                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=4320)}, app.config['SECRET_KEY'])
             user.logged_in = True
             db.session.commit()
-            statement = {'Logged in':user.username,
+            statement = {'Logged_in':user.username,
                             'access_token':token.decode('UTF-8')}
             status_code = 202
         elif not check_password_hash(user.password, passwd):
