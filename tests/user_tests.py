@@ -76,7 +76,7 @@ class TestUserEndpoints(unittest.TestCase):
         self.register_and_login("register")
         response = self.register_and_login("login")
         self.assertEqual(response.status_code, 202)
-        self.assertIn("Logged in", str(response.data))
+        self.assertIn("Logged_in", str(response.data))
 
     def test_login_nousername(self):
         """Test theres no username input for login endpoint"""
