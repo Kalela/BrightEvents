@@ -1,6 +1,7 @@
 import datetime
 from flask import request
-from webapi.helper_functions import print_events, utc_offset, date_check, pagination, post_event, Category
+from webapi.helper_functions import pagination, post_event, Category
+from webapi.helper_functions import print_events, utc_offset, date_check
 from webapi.helper_functions import edit_event
 
 catgory = Category()

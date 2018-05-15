@@ -32,10 +32,10 @@ def utc_offset(string):
 def date_check(date):
     """Check correct date input"""
     try:
-        date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+        date_object = datetime.datetime.strptime(str(date), '%Y-%m-%d')
         return date_object
     except ValueError:
-        return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
+        return {"message":"Wrong date format input(Correct:yy-mm-dd)"}, 400
 
 def check_registration_input(username, email, password):
     """Check email input"""
