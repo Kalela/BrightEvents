@@ -43,7 +43,7 @@ def create_events_helper(current_user, Event):
         eventname = request.data['eventname'].strip()
         location = request.data['location'].strip()
         date = request.data['date'].strip()
-        if "message" in str(date_check(date)):
+        if "message" or "error" in str(date_check(date)):
             return date_check(date)[0], date_check(date)[1]
         category = request.data['category'].strip()
         if catgory.category_check(category) == "OK":
@@ -79,7 +79,7 @@ def event_update_delete_helper(current_user, eventname, db, Event):
         if request.method == 'PUT':
             updated_event_name = request.data['event_name'].strip()
             date = request.data['date'].strip()
-            if "message" in str(date_check(date)):
+            if "message" or "error" in str(date_check(date)):
                 return date_check(date)[0], date_check(date)[1]
             location = request.data['location'].strip()
             category = request.data['category'].strip()

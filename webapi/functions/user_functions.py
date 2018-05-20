@@ -4,6 +4,7 @@ import passwordmeter
 import datetime
 import jwt
 from flask import request
+from itsdangerous import SignatureExpired
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -80,27 +81,13 @@ def logout_helper(current_user, db):
         statement = {"message":"User is already logged out"}
     return statement, status_code
 
-def reset_password_helper(current_user, db):
+def reset_password_helper(current_user, db, token, s):
     status_code = 500
     statement = {}
-    new_password = request.data['new_password'].strip()
-    confirm_password = request.data['confirm_password'].strip()
-    if check_password_reset(new_password, confirm_password, current_user, status_code)[0]:
-        status_code = check_password_reset(new_password,
-                                           confirm_password,
-                                           current_user, status_code)[1]
-        statement = check_password_reset(new_password,
-                                         confirm_password,
-                                         current_user, status_code)[0]
-    else:
-        if current_user and current_user.logged_in is True:
-            current_user.password = check_password_reset(new_password,
-                                                 confirm_password,
-                                                 current_user, status_code)[2]
-            db.session.commit()
-            status_code = 205
-            statement = {"Message":"Password reset!"}
-        else:
-            status_code = 401
-            statement = {"message":"Please log in"}
-    return statement, status_code
+    try:
+        email = s.loads(token, salt='email-confirm', max_age=20)
+        print(token)
+        print(email)
+        return {'message':'The token works'}, 200
+    except SignatureExpired:
+        return {'message': 'The token is expired'}, 201

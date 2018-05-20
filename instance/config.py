@@ -7,6 +7,11 @@ class Config(object):
     CSRF_ENABLED = False
     SECRET_KEY = os.getenv('SECRET')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    MAIL_SERVER=''
+    MAIL_PASSWORD=''
+    MAIL_PORT=''
+    MAIL_USE_SSL=True
+    MAIL_USE_TLS=False
 
 class DevelopmentConfig(Config):
     """Configurations for Development mode."""

@@ -8,6 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
 from functools import wraps
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
 
 from instance.config import app_config
 
@@ -29,7 +31,10 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    mail = Mail(app)
     db.init_app(app)
+
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     with app.app_context():
         db.create_all()
 
@@ -93,7 +98,9 @@ def create_app(config_name):
     @token_required
     def reset_password(current_user):
         """Reset users password"""
-        result = reset_password_helper(current_user, db)
+        email = request.data['email'].strip()
+        token = s.dumps(email, salt='email-confirm')
+        result = reset_password_helper(current_user, db, token, s)
         return jsonify(result[0]), result[1]
 
     @api.route('/events', methods=['GET'])
