@@ -7,11 +7,13 @@ class Config(object):
     CSRF_ENABLED = False
     SECRET_KEY = os.getenv('SECRET')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    MAIL_SERVER=''
-    MAIL_PASSWORD=''
-    MAIL_PORT=''
+    MAIL_SERVER=os.getenv('MAIL_SERVER')
+    MAIL_USERNAME=os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD') + "$$"
+    MAIL_PORT=os.getenv('MAIL_PORT')
     MAIL_USE_SSL=True
     MAIL_USE_TLS=False
+    ADMINS = ['brightevents123@gmail.com']
 
 class DevelopmentConfig(Config):
     """Configurations for Development mode."""

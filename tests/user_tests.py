@@ -115,42 +115,42 @@ class TestUserEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("already logged out", str(response.data))
 
-    def test_reset_password(self):
-        """Test the reset password endpoint"""
-        self.register_and_login("both")
-        response = self.tester.post('%s/auth/reset-password' % self.prefix,
-                               headers={'x-access-token':self.token},
-                               data=dict(new_password = "somethingnew", confirm_password = "somethingnew"))
-        self.assertEqual(response.status_code, 205)
-        self.assertIn("Password reset!", str(response.data))
-
-    def test_reset_password_wrongconfirm(self):
-        """Test the reset password endpoint if confirm and new don't match"""
-        self.register_and_login("both")
-        response = self.tester.post('%s/auth/reset-password' % self.prefix,
-                               headers={'x-access-token':self.token},
-                               data=dict(new_password = "somethingnew", confirm_password = "omethingnew"))
-        self.assertEqual(response.status_code, 409)
-        self.assertIn("Passwords don", str(response.data))
-
-    def test_reset_password_old(self):
-        """Test the reset password endpoint if user input is same as old password"""
-        self.register_and_login("both")
-        response = self.tester.post('%s/auth/reset-password' % self.prefix,
-                               headers={'x-access-token':self.token},
-                               data=dict(new_password = "12345678", confirm_password = "12345678"))
-        self.assertEqual(response.status_code, 409)
-        self.assertIn("Password already set", str(response.data))
-
-    def test_reset_password_nologin(self):
-        """Test the reset password if user not logged in"""
-        response = self.register_and_login("both")
-        self.tester.post('/api/v2/auth/logout', headers={'x-access-token':self.token})
-        response = self.tester.post('%s/auth/reset-password' % self.prefix,
-                               headers={'x-access-token':self.token},
-                               data=dict(new_password = "somethingnew", confirm_password = "somethingnew"))
-        self.assertEqual(response.status_code, 401)
-        self.assertIn("Please log in", str(response.data))
+    # def test_reset_password(self):
+    #     """Test the reset password endpoint"""
+    #     self.register_and_login("both")
+    #     response = self.tester.post('%s/auth/reset-password' % self.prefix,
+    #                            headers={'x-access-token':self.token},
+    #                            data=dict(new_password = "somethingnew", confirm_password = "somethingnew"))
+    #     self.assertEqual(response.status_code, 205)
+    #     self.assertIn("Password reset!", str(response.data))
+    #
+    # def test_reset_password_wrongconfirm(self):
+    #     """Test the reset password endpoint if confirm and new don't match"""
+    #     self.register_and_login("both")
+    #     response = self.tester.post('%s/auth/reset-password' % self.prefix,
+    #                            headers={'x-access-token':self.token},
+    #                            data=dict(new_password = "somethingnew", confirm_password = "omethingnew"))
+    #     self.assertEqual(response.status_code, 409)
+    #     self.assertIn("Passwords don", str(response.data))
+    #
+    # def test_reset_password_old(self):
+    #     """Test the reset password endpoint if user input is same as old password"""
+    #     self.register_and_login("both")
+    #     response = self.tester.post('%s/auth/reset-password' % self.prefix,
+    #                            headers={'x-access-token':self.token},
+    #                            data=dict(new_password = "12345678", confirm_password = "12345678"))
+    #     self.assertEqual(response.status_code, 409)
+    #     self.assertIn("Password already set", str(response.data))
+    #
+    # def test_reset_password_nologin(self):
+    #     """Test the reset password if user not logged in"""
+    #     response = self.register_and_login("both")
+    #     self.tester.post('/api/v2/auth/logout', headers={'x-access-token':self.token})
+    #     response = self.tester.post('%s/auth/reset-password' % self.prefix,
+    #                            headers={'x-access-token':self.token},
+    #                            data=dict(new_password = "somethingnew", confirm_password = "somethingnew"))
+    #     self.assertEqual(response.status_code, 401)
+    #     self.assertIn("Please log in", str(response.data))
 
     def tearDown(self):
         """teardown all initialized variables."""

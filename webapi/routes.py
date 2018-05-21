@@ -1,21 +1,25 @@
 #Import dependencies
 import datetime
 import jwt
+import os
 
 from flask_api import FlaskAPI
-from flask import jsonify, request, Blueprint, redirect
+from flask import jsonify, request, Blueprint, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
 from functools import wraps
 from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from instance.config import app_config
 
-from .functions.user_functions import register_helper, login_helper, logout_helper, reset_password_helper
-from .functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
-from .functions.event_functions import event_update_delete_helper, rsvps_helper, get_single_event_helper
+from .functions.user_functions import register_helper, login_helper
+from .functions.user_functions import logout_helper, confirm_account_helper
+from .functions.event_functions import get_events_helper, create_events_helper
+from .functions.event_functions import online_user_events_helper
+from .functions.event_functions import  get_single_event_helper
+from .functions.event_functions import event_update_delete_helper, rsvps_helper
 
 db = SQLAlchemy()
 
@@ -98,10 +102,39 @@ def create_app(config_name):
     @token_required
     def reset_password(current_user):
         """Reset users password"""
+        pass
+
+
+    @api.route('/emails', methods=['GET','POST'])
+    def handle_emails():
+        """Handle functionality around email sending"""
         email = request.data['email'].strip()
+        option = \
+            request.data['option'].strip() # have a <select> in the frontend
         token = s.dumps(email, salt='email-confirm')
-        result = reset_password_helper(current_user, db, token, s)
-        return jsonify(result[0]), result[1]
+
+        msg = Message('Confirm Email', sender=app.config['ADMINS'][0],
+                      recipients=[email])
+        link = 'http://localhost:5000/api/v2/confirm_email/{}/{}'\
+               .format(option, token)
+        print(link)
+
+        msg.body = 'Your link is {}'.format(link)
+
+        mail.send(msg)
+        return jsonify({"message":"Please confirm your email."}), 201
+
+    @api.route('/confirm_email/<option>/<token>', methods=['GET'])
+    @token_required
+    def confirm_email(current_user, option, token):
+        try:
+            email = s.loads(token, salt='email-confirm', max_age=3600)
+            if option == "reset-password":
+                pass
+            elif option == "confirm-account":
+                return jsonify (confirm_account_helper(current_user, db)[0]), confirm_account_helper(current_user, db)[1]
+        except SignatureExpired:
+            return jsonify({"message":"The token is expired!"})
 
     @api.route('/events', methods=['GET'])
     def view_events():
