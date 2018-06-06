@@ -16,6 +16,7 @@ from instance.config import app_config
 
 from .functions.user_functions import register_helper, login_helper
 from .functions.user_functions import logout_helper, confirm_account_helper
+from .functions.user_functions import reset_password_helper
 from .functions.event_functions import get_events_helper, create_events_helper
 from .functions.event_functions import online_user_events_helper
 from .functions.event_functions import  get_single_event_helper
@@ -98,11 +99,11 @@ def create_app(config_name):
         result = logout_helper(current_user, db)
         return jsonify(result[0]), result[1]
 
-    @api.route('/auth/reset-password', methods=['POST'])
-    @token_required
-    def reset_password(current_user):
-        """Reset users password"""
-        pass
+    # @api.route('/auth/reset-password', methods=['POST'])
+    # def reset_password():
+    #     """Reset users password"""
+    #     result = reset_password_helper(current_user, db)
+    #     return result[0], result[1]
 
 
     @api.route('/emails', methods=['GET','POST'])
@@ -125,14 +126,16 @@ def create_app(config_name):
         return jsonify({"message":"Please confirm your email."}), 201
 
     @api.route('/confirm_email/<option>/<token>', methods=['GET'])
-    @token_required
-    def confirm_email(current_user, option, token):
+    def confirm_email(option, token):
         try:
             email = s.loads(token, salt='email-confirm', max_age=3600)
+            print(email)
             if option == "reset-password":
-                pass
+                result = reset_password_helper(email, User, db)
+                return jsonify(result[0]), result[1]
+                # return redirect("/auth/reset-password")
             elif option == "confirm-account":
-                return jsonify (confirm_account_helper(current_user, db)[0]), confirm_account_helper(current_user, db)[1]
+                return jsonify (confirm_account_helper(email, db)[0]), confirm_account_helper(email, db)[1]
         except SignatureExpired:
             return jsonify({"message":"The token is expired!"})
 
@@ -168,7 +171,7 @@ def create_app(config_name):
         result = event_update_delete_helper(current_user, eventname, db, Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET'])
+    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET', 'DELETE'])
     @token_required
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""

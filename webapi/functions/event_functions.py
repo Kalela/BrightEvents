@@ -150,7 +150,11 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
                 status_code = 404
                 statement = {"message":"Event does not exist"}
     if request.method == 'GET':
-        event = Event.get_one(eventname, current_user.username)
+        if request.args.get('owner'):
+            owner = request.args.get('owner')
+        else:
+            owner = current_user.username
+        event = Event.get_one(eventname, owner)
         if event:
             guests = Rsvp.query.filter_by(event_id=event.id).all()
             if guests:
@@ -158,7 +162,31 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
                 for guest in guests:
                     result.append(guest.rsvp_sender)
                 status_code = 200
-                statement = {"Guests":result}
+                statement = {"Guests": result}
+            else:
+                status_code = 200
+                statement = {"message":"Event doesn't have guests yet"}
+        else:
+            status_code = 404
+            statement = {"message":"The event was not found"}
+
+    if request.method == 'DELETE':
+        owner = request.data['owner'].strip()
+        event = Event.get_one(eventname, owner)
+        if event:
+            guests = Rsvp.query.filter_by(event_id=event.id).all()
+            if guests:
+                result = []
+                for guest in guests:
+                    print("single guest", guest.rsvp_sender)
+                    if guest.rsvp_sender == current_user.username:
+                        guest.delete()
+                        status_code = 200
+                        statement = {"message":"RSVP deleted"}
+                        break
+                    else:
+                        status_code = 404
+                        statement = {"message":"RSVP not sent to this event"}
             else:
                 status_code = 200
                 statement = {"message":"Event doesn't have guests yet"}

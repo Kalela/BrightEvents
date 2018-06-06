@@ -80,17 +80,19 @@ def logout_helper(current_user, db):
         statement = {"message":"User is already logged out"}
     return statement, status_code
 
-def confirm_account_helper(current_user, db):
+def confirm_account_helper(email, db):
     """Helper function for confirming a user's email is real"""
-    current_user.email_confirmed = True
+    user = User.query.filter_by(email=email).first()
+    user.email_confirmed = True
     db.session.commit()
     return {"message":"Email confirmed"}, 200
 
-# def reset_password_helper(current_user, db, token, s, mail):
-#     status_code = 500
-#     statement = {}
-#     try:
-#         email = s.loads(token, salt='email-confirm', max_age=20)
-#         return {'message':'The token works'}, 200
-#     except SignatureExpired:
-#         return {'message': 'The token is expired'}, 201
+def reset_password_helper(email, User, db):
+    new_password = request.data["new_password"]
+    try:
+        user = User.query.filter_by(email=email).first()
+        user.password = new_password
+        db.session.commit()
+    except:
+        return "we caugth this"
+    return {"message":"Password reset! Please use your new password to log in"}, 201
