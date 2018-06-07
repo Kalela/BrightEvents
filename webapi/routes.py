@@ -115,33 +115,36 @@ def create_app(config_name):
     def handle_emails():
         """Handle functionality around email sending"""
         email = request.data['email'].strip()
+        user = User.query.filter_by(email=email).first()
         option = \
             request.data['option'].strip() # have a <select> in the frontend
         token = s.dumps(email, salt='email-confirm')
 
-        msg = Message('Confirm Email', sender=app.config['ADMINS'][0],
+        msg = Message('Reset password', sender=app.config['ADMINS'][0],
                       recipients=[email])
         link = 'http://localhost:3000/confirm_email/{}/{}'\
                .format(option, token)
-        print(link)
-
-        msg.body = 'Your link is {}'.format(link)
+        if user:
+            msg.body = 'Your link is {}'.format(link)
+        else:
+            msg.body = 'You attempted to reset your password but you do not \
+                have an account with us. Please Sign Up and Log in. {}'\
+                .format('http://localhost:3000/register')
 
         mail.send(msg)
         return jsonify({"message":"Please confirm your email."}), 201
 
-    @api.route('/confirm_email/<option>/<token>', methods=['GET'])
+    @api.route('/confirm_email/<option>/<token>', methods=['POST'])
     def confirm_email(option, token):
         try:
             email = s.loads(token, salt='email-confirm', max_age=3600)
-            print(email)
             if option == "reset-password":
                 result = reset_password_helper(email, User, db)
                 return jsonify(result[0]), result[1]
             elif option == "confirm-account":
                 return jsonify (confirm_account_helper(email, db)[0]), confirm_account_helper(email, db)[1]
         except SignatureExpired:
-            return jsonify({"message":"The token is expired!"})
+            return jsonify({"message":"The token is expired!"}), 409
 
     @api.route('/events', methods=['GET'])
     def view_events():

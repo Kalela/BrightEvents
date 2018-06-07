@@ -89,10 +89,10 @@ def confirm_account_helper(email, db):
 
 def reset_password_helper(email, User, db):
     new_password = request.data["password"]
-    try:
-        user = User.query.filter_by(email=email).first()
-        user.password = new_password
+    hashed_password = generate_password_hash(new_password, method='sha256')
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.password = hashed_password
         db.session.commit()
-    except:
-        return "we caugth this"
-    return {"message":"Password reset! Please use your new password to log in"}, 201
+        statement = {"message":"Password reset! Please use your new password to log in"}
+    return statement, 201
