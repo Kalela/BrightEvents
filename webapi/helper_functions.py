@@ -34,7 +34,7 @@ def date_check(date):
     try:
         date_object = datetime.datetime.strptime(str(date), '%Y-%m-%d')
         if date_object < datetime.datetime.utcnow():
-            return {"message": "Can't use a past date."}, 400
+            return {"message": "Can't use a past date when creating/editing an event."}, 400
         return date_object
     except ValueError:
         return {"message":"Wrong date format input(Correct:yy-mm-dd)"}, 400
