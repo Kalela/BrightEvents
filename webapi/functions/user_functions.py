@@ -88,7 +88,7 @@ def confirm_account_helper(email, db):
     return {"message":"Email confirmed"}, 200
 
 def reset_password_helper(email, User, db):
-    new_password = request.data["new_password"]
+    new_password = request.data["password"]
     try:
         user = User.query.filter_by(email=email).first()
         user.password = new_password

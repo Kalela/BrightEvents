@@ -121,7 +121,7 @@ def create_app(config_name):
 
         msg = Message('Confirm Email', sender=app.config['ADMINS'][0],
                       recipients=[email])
-        link = 'http://localhost:5000/api/v2/confirm_email/{}/{}'\
+        link = 'http://localhost:3000/confirm_email/{}/{}'\
                .format(option, token)
         print(link)
 
@@ -138,7 +138,6 @@ def create_app(config_name):
             if option == "reset-password":
                 result = reset_password_helper(email, User, db)
                 return jsonify(result[0]), result[1]
-                # return redirect("/auth/reset-password")
             elif option == "confirm-account":
                 return jsonify (confirm_account_helper(email, db)[0]), confirm_account_helper(email, db)[1]
         except SignatureExpired:

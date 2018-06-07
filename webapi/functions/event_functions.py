@@ -33,7 +33,10 @@ def search_helper(Event):
     location_search = Event.query.filter(Event.location.ilike('%{}%'.format(q))).all()
     category_search = Event.query.filter(Event.category.ilike('%{}%'.format(q))).all()
 
-    search_results = eventname_search + location_search + category_search
+    if eventname_search == location_search or eventname_search == category_search:
+        search_results = eventname_search
+    else:
+        search_results = eventname_search + location_search + category_search
 
     return {"Events": print_events(search_results)}, 200
 
