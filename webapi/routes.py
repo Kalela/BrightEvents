@@ -18,7 +18,7 @@ from .functions.user_functions import register_helper, login_helper
 from .functions.user_functions import logout_helper, confirm_account_helper
 from .functions.user_functions import reset_password_helper
 from .functions.event_functions import get_events_helper, create_events_helper
-from .functions.event_functions import online_user_events_helper
+from .functions.event_functions import online_user_events_helper, search_helper
 from .functions.event_functions import  get_single_event_helper
 from .functions.event_functions import event_update_delete_helper, rsvps_helper
 
@@ -105,6 +105,11 @@ def create_app(config_name):
     #     result = reset_password_helper(current_user, db)
     #     return result[0], result[1]
 
+    @api.route('/search', methods=['GET'])
+    def search():
+        """Implement search"""
+        result = search_helper(Event)
+        return jsonify(result[0]), result[1]
 
     @api.route('/emails', methods=['GET','POST'])
     def handle_emails():

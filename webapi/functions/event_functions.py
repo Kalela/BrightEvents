@@ -8,9 +8,6 @@ catgory = Category()
 
 def get_events_helper(Event):
     """Help view all events"""
-    location = request.args.get('location')
-    category = request.args.get('category')
-    q = request.args.get('q')
     try:
         limit = int(request.args.get('limit'))
         page = int(request.args.get('page'))
@@ -18,12 +15,7 @@ def get_events_helper(Event):
         limit = 10
         page = 1
     user_input = "get_all"
-    if category or location or q:
-        user_input = category or location or q
     check_input_dict = {
-        category: lambda: Event.filter_category(category, limit, page),
-        location: lambda: Event.filter_location(location, limit, page),
-        q: lambda: Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).paginate(per_page=limit, page=page),
         "get_all": lambda: Event.get_all_pages(limit, page)
         }
     events_page_object = check_input_dict.get(user_input, "Something went wrong!!")()
@@ -32,6 +24,18 @@ def get_events_helper(Event):
                  "Current page": pagination(events_page_object)[1],
                  "All pages": pagination(events_page_object)[2]}
     return result, status_code
+
+def search_helper(Event):
+    """Set up search for events"""
+    q = request.args.get('q')
+    search_results = []
+    eventname_search = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+    location_search = Event.query.filter(Event.location.ilike('%{}%'.format(q))).all()
+    category_search = Event.query.filter(Event.category.ilike('%{}%'.format(q))).all()
+
+    search_results = eventname_search + location_search + category_search
+
+    return {"Events": print_events(search_results)}, 200
 
 def create_events_helper(current_user, Event):
     """Help create new events"""
@@ -178,7 +182,6 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
             if guests:
                 result = []
                 for guest in guests:
-                    print("single guest", guest.rsvp_sender)
                     if guest.rsvp_sender == current_user.username:
                         guest.delete()
                         status_code = 200
