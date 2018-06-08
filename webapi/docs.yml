@@ -25,7 +25,7 @@ paths:
         name: password
         type: string
         required: true
-        
+
         schema:
           properties:
             username:
@@ -36,18 +36,18 @@ paths:
               type: string
               description: User email
               example: test@gmail.com
-            password: 
+            password:
               type: string
               description: User password
               example: abcd
       responses:
         '201':
           description: Successfully registered
-        '400': 
+        '400':
           description: Bad Input
         '409':
           description: User already registered
-  
+
   /auth/login:
     post:
       summary: Logs in a registered user
@@ -68,7 +68,7 @@ paths:
           description: Successful log in
         '401':
           description: Only registered users can log in
-          
+
   /auth/logout:
     post:
       summary: Logs out a user
@@ -84,7 +84,7 @@ paths:
           description: No user in current session
         '202':
           description: User successfully logged out
-          
+
   /auth/reset-password:
     post:
       summary: Reset user password
@@ -108,7 +108,7 @@ paths:
         description: Password Reset Successful
       '400':
         description: Please insert required data
-      '401': 
+      '401':
         description: Log in to reset password
       '409':
         description: Conflict
@@ -121,12 +121,6 @@ paths:
       parameters:
       - in: query
         name: q
-        type: string
-      - in: query
-        name: location
-        type: string
-      - in: query
-        name: category
         type: string
       - in: query
         name: limit
@@ -145,7 +139,7 @@ paths:
       - in: formData
         name: eventname
         type: string
-        required: true 
+        required: true
       - in: formData
         name: location
         type: string
@@ -301,7 +295,7 @@ paths:
         description: Found
       '404':
         description: Event not found
-  
+
   /myevents:
     get:
       summary: Returns a list of events created by the user currently logged in.
@@ -312,5 +306,3 @@ paths:
         description: successfully viewing events
       '404':
         description: No events found
-
-    
