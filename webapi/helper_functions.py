@@ -13,17 +13,18 @@ def print_events(events):
         event_data['date'] = event.date
         event_data['category'] = event.category
         event_data['owner'] = event.event_owner.username
+        event_data['id'] = event.id
         result.append(event_data)
     return result
 
 class Category(object):
-    category_list = ["Bridal", "Educational", "Commemorative", "Product Launch", "Social", "VIP"]
+    category_list = ["Bridal", "Educational", "Commemorative", "Product Launch", "Social", "VIP", "Other"]
     def category_check(self, category):
         if category in self.category_list:
             return "OK"
         else:
             return "BAD"
-        
+
 def utc_offset(string):
     """Pick values of the current run environment UTC offset"""
     return string[-5:]
@@ -31,11 +32,13 @@ def utc_offset(string):
 def date_check(date):
     """Check correct date input"""
     try:
-        date_object = datetime.datetime.strptime(str(date), '%Y/%m/%d')
+        date_object = datetime.datetime.strptime(str(date), '%Y-%m-%d')
+        if date_object < datetime.datetime.utcnow():
+            return {"message": "Can't use a past date when creating/editing an event."}, 400
         return date_object
     except ValueError:
-        return {"message":"Wrong date format input(Correct:yy/mm/dd)"}, 400
-    
+        return {"message":"Wrong date format input(Correct:yy-mm-dd)"}, 400
+
 def check_registration_input(username, email, password):
     """Check email input"""
     message = {}
@@ -80,7 +83,7 @@ def post_event(eventname, location, date, category, current_user, Event):
             event_date = datetime.datetime.strptime(str(event.date),
                                                     '%Y-%m-%d %H:%M:%S+' + utc_offset(str(event.date)))
         except:
-            pass   
+            pass
         if event and event.location == location and event_date == date_check(date):
             status_code = 409
             statement = {"message":"Event already exists"}

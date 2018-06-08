@@ -3,6 +3,7 @@ import unittest
 import json
 
 from webapi.routes import create_app, db
+from webapi.models import User
 
 class TestEventEndpoints(unittest.TestCase):
     """Contains all user tests"""
@@ -17,17 +18,18 @@ class TestEventEndpoints(unittest.TestCase):
     def register_and_login(self):
         self.tester.post('%s/auth/register' % self.prefix,
                                    data=dict(username = "admin",
-                                         password = "1234",
-                                         confirmpassword = "1234",
+                                         password = "12345678",
+                                         confirmpassword = "12345678",
                                          email = "test@email.com"))
-        tkn = self.tester.post('%s/auth/login' % self.prefix, data=dict(username = "admin",
-                                                               password = "1234"))
+        tkn = self.tester.post('%s/auth/login' % self.prefix,
+                               data=dict(username = "admin",
+                                         password = "12345678"))
         self.token = json.loads(tkn.data.decode())['access_token']
 
     def create_new_event(self):
         return self.tester.post('%s/events' % self.prefix,
                                    data=dict(eventname="newevent", location="newlocation",
-                                             date="2018/05/21", category="Social"),
+                                             date="2020-05-21", category="Social"),
                                    headers={'x-access-token':self.token})
 
     def test_new_event(self):
@@ -42,7 +44,7 @@ class TestEventEndpoints(unittest.TestCase):
             self.register_and_login()
             response = self.tester.post('%s/events' % self.prefix,
                                    data=dict(eventname="newevent", location="newlocation",
-                                             date="2018/06/21", category="mycategory"),
+                                             date="2020-06-21", category="mycategory"),
                                    headers={'x-access-token':self.token})
             self.assertEqual(response.status_code, 406)
             self.assertIn("select a viable category", str(response.data))
@@ -53,7 +55,7 @@ class TestEventEndpoints(unittest.TestCase):
             self.create_new_event()
             response = self.tester.post('%s/events' % self.prefix,
                                    data=dict(eventname="newevent", location="newlocation",
-                                             date="2018/06/21", category="Social"),
+                                             date="2020-06-21", category="Social"),
                                    headers={'x-access-token':self.token})
             self.assertEqual(response.status_code, 201)
             self.assertIn("New event", str(response.data))
@@ -63,10 +65,20 @@ class TestEventEndpoints(unittest.TestCase):
         self.register_and_login()
         response = self.tester.post('%s/events' % self.prefix,
                                data=dict(eventname = "newevent", location = "newlocation",
-                                         date = "21052018", category = "Social"),
+                                         date = "21052020", category = "Social"),
                                          headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 400)
         self.assertIn("Wrong date", str(response.data))
+
+    def test_new_event_with_past_date(self):
+        """Test if a user inputs a past date"""
+        self.register_and_login()
+        response = self.tester.post('%s/events' % self.prefix,
+                               data=dict(eventname = "newevent", location = "newlocation",
+                                         date = "2017-06-21", category = "Social"),
+                                         headers={'x-access-token':self.token})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("use a past date", str(response.data))
 
     def test_new_event_already_exists(self):
         """Test creating an event that already exists"""
@@ -91,7 +103,7 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.put('%s/events/newevent' % self.prefix,
                               data=dict(event_name = "myevent",
                                         location = "mylocation",
-                                        date = "2018/03/19",
+                                        date = "2020-03-19",
                                         category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 202)
@@ -104,7 +116,7 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.put('%s/events/newevent' % self.prefix,
                               data=dict(event_name = "myevent",
                                         location = "mylocation",
-                                        date = "2018/03/19",
+                                        date = "2020-03-19",
                                         category = "abc"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 406)
@@ -117,7 +129,7 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.put('%s/events/newevent' % self.prefix,
                               data=dict(event_name = "myevent",
                                         location = "mylocation",
-                                        date = "19032018",
+                                        date = "19032020",
                                         category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 400)
@@ -129,7 +141,7 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.put('%s/events/newevent' % self.prefix,
                               data=dict(event_name = "myevent",
                                         location = "mylocation",
-                                        date = "2018/03/19",
+                                        date = "2020-03-19",
                                         category = "Social"),
                               headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
@@ -149,12 +161,12 @@ class TestEventEndpoints(unittest.TestCase):
         response = self.tester.delete('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 404)
         self.assertIn("does not exist", str(response.data))
-#
+
     def test_view_one_event(self):
         """Test viewing a single event"""
         self.register_and_login()
         self.create_new_event()
-        response = self.tester.get('%s/events/newevent' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/events/admin/newevent' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("eventname", str(response.data))
 
@@ -167,17 +179,19 @@ class TestEventEndpoints(unittest.TestCase):
         self.assertIn("Events", str(response.data))
 
     def test_view_current_user_events(self):
-        """Test the view all events endpoint"""
+        """Test the view all currently logged in user's events"""
         self.register_and_login()
         self.create_new_event()
-        response = self.tester.get('%s/myevents' % self.prefix, headers={'x-access-token':self.token})
+        with self.app.app_context():
+            user = User.query.filter_by(username="admin").first()
+        response = self.tester.get('{}/events/{}'.format(self.prefix, user.public_id), headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
 
     def test_search_events(self):
         """Test the view all events endpoint"""
         self.register_and_login()
-        response = self.tester.get('%s/events?q=new' % self.prefix, headers={'x-access-token':self.token})
+        response = self.tester.get('%s/search?q=new' % self.prefix, headers={'x-access-token':self.token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Events", str(response.data))
 

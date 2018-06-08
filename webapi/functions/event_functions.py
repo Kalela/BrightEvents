@@ -1,15 +1,13 @@
 import datetime
 from flask import request
-from webapi.helper_functions import print_events, utc_offset, date_check, pagination, post_event, Category
+from webapi.helper_functions import pagination, post_event, Category
+from webapi.helper_functions import print_events, utc_offset, date_check
 from webapi.helper_functions import edit_event
 
 catgory = Category()
 
 def get_events_helper(Event):
     """Help view all events"""
-    location = request.args.get('location')
-    category = request.args.get('category')
-    q = request.args.get('q')
     try:
         limit = int(request.args.get('limit'))
         page = int(request.args.get('page'))
@@ -17,12 +15,7 @@ def get_events_helper(Event):
         limit = 10
         page = 1
     user_input = "get_all"
-    if category or location or q:
-        user_input = category or location or q
     check_input_dict = {
-        category: lambda: Event.filter_category(category, limit, page),
-        location: lambda: Event.filter_location(location, limit, page),
-        q: lambda: Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).paginate(per_page=limit, page=page),
         "get_all": lambda: Event.get_all_pages(limit, page)
         }
     events_page_object = check_input_dict.get(user_input, "Something went wrong!!")()
@@ -31,6 +24,21 @@ def get_events_helper(Event):
                  "Current page": pagination(events_page_object)[1],
                  "All pages": pagination(events_page_object)[2]}
     return result, status_code
+
+def search_helper(Event):
+    """Set up search for events"""
+    q = request.args.get('q')
+    search_results = []
+    eventname_search = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
+    location_search = Event.query.filter(Event.location.ilike('%{}%'.format(q))).all()
+    category_search = Event.query.filter(Event.category.ilike('%{}%'.format(q))).all()
+
+    if eventname_search == location_search or eventname_search == category_search:
+        search_results = eventname_search
+    else:
+        search_results = eventname_search + location_search + category_search
+
+    return {"Events": print_events(search_results)}, 200
 
 def create_events_helper(current_user, Event):
     """Help create new events"""
@@ -53,17 +61,21 @@ def create_events_helper(current_user, Event):
         result = post_event(eventname, location, date, category, current_user, Event)
     return result[0], result[1]
 
-def online_user_events_helper(current_user, Event):
+def online_user_events_helper(current_user, user_public_id, Event):
     """Help view owned events"""
     status_code = 500
     statement = {}
-    events = Event.query.filter_by(owner=current_user.username).all()
-    if events:
-        status_code = 200
-        statement = {"My Events":print_events(events)}
+    if user_public_id == current_user.public_id:
+        events = Event.query.filter_by(owner=current_user.username).all()
+        if events:
+            status_code = 200
+            statement = {"MyEvents":print_events(events)}
+        else:
+            status_code = 404
+            statement = {"message":"You don't have any events"}
     else:
-        status_code = 404
-        statement = {"message":"You don't have any events"}
+        status_code = 401
+        statement = {"message":"You do not have access to this user's events"}
     return statement, status_code
 
 def event_update_delete_helper(current_user, eventname, db, Event):
@@ -99,23 +111,21 @@ def event_update_delete_helper(current_user, eventname, db, Event):
             else:
                 status_code = 404
                 statement = {"message":"Event you are deleting does not exist"}
-        if request.method == 'GET':
-            try:
-                owner = request.args.get('owner').strip()
-            except:
-                owner = current_user.username
-            event = Event.get_one(eventname, owner)
-            if event:
-                events = [event]
-                status_code = 200
-                statement = {"Event":print_events(events)}
-            else:
-                status_code = 404
-                statement = {"message":"Event you are trying to view does not exist",
-                             "tip!":"Insert event owner as parameter"}
     else:
         status_code = 401
         statement = {"message":"Please log in to edit or delete events"}
+    return statement, status_code
+
+def get_single_event_helper(username, eventname, Event):
+    event = Event.get_one(eventname, username)
+    if event:
+        events = [event]
+        status_code = 200
+        statement = {"Event":print_events(events)}
+    else:
+        status_code = 404
+        statement = {"message":"Event you are trying to view does not exist",
+                     "tip!":"api/v2/events/<username>/<eventname>"}
     return statement, status_code
 
 def rsvps_helper(current_user, eventname, Rsvp, Event):
@@ -147,7 +157,11 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
                 status_code = 404
                 statement = {"message":"Event does not exist"}
     if request.method == 'GET':
-        event = Event.get_one(eventname, current_user.username)
+        if request.args.get('owner'):
+            owner = request.args.get('owner')
+        else:
+            owner = current_user.username
+        event = Event.get_one(eventname, owner)
         if event:
             guests = Rsvp.query.filter_by(event_id=event.id).all()
             if guests:
@@ -155,7 +169,30 @@ def rsvps_helper(current_user, eventname, Rsvp, Event):
                 for guest in guests:
                     result.append(guest.rsvp_sender)
                 status_code = 200
-                statement = {"Guests":result}
+                statement = {"Guests": result}
+            else:
+                status_code = 200
+                statement = {"message":"Event doesn't have guests yet"}
+        else:
+            status_code = 404
+            statement = {"message":"The event was not found"}
+
+    if request.method == 'DELETE':
+        owner = request.data['owner'].strip()
+        event = Event.get_one(eventname, owner)
+        if event:
+            guests = Rsvp.query.filter_by(event_id=event.id).all()
+            if guests:
+                result = []
+                for guest in guests:
+                    if guest.rsvp_sender == current_user.username:
+                        guest.delete()
+                        status_code = 200
+                        statement = {"message":"RSVP deleted"}
+                        break
+                    else:
+                        status_code = 404
+                        statement = {"message":"RSVP not sent to this event"}
             else:
                 status_code = 200
                 statement = {"message":"Event doesn't have guests yet"}
