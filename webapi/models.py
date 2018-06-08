@@ -4,30 +4,31 @@ date_modified = db.Column(db.DateTime,
                               onupdate=db.func.current_timestamp())
 
 class User(db.Model):
-    """Represent users data as a table"""  
+    """Represent users data as a table"""
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    confirmed_email = db.Column(db.Boolean)
     password = db.Column(db.String(120), nullable=False)
     logged_in = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified
-    
+
     def __init__(self, username, email, password, public_id, logged_in):
         self.username = username
         self.email = email
         self.password = password
         self.public_id = public_id
         self.logged_in = logged_in
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()
 
     def __repr__(self):
         return '<User %r>' % self.username
-    
+
 class Event(db.Model):
     """Represent events data as a table"""
     id = db.Column(db.Integer, primary_key=True)
@@ -39,7 +40,7 @@ class Event(db.Model):
     date_modified
     owner = db.Column(db.String, db.ForeignKey('user.username'))
     event_owner = db.relationship('User', backref='owner_events', foreign_keys=[owner])
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -47,7 +48,7 @@ class Event(db.Model):
     @staticmethod
     def get_all_pages(limit, page):
         return Event.query.paginate(per_page=limit, page=page)
-    
+
     @staticmethod
     def get_one(eventname, owner):
         #only logged in user can see or edit specific events
@@ -59,7 +60,7 @@ class Event(db.Model):
     @staticmethod
     def filter_category(category, limit, page):
         return Event.query.filter_by(category=category).paginate(per_page=limit, page=page)
-    
+
     @staticmethod
     def filter_location(location, limit, page):
         return Event.query.filter_by(location=location).paginate(per_page=limit, page=page)
@@ -67,10 +68,10 @@ class Event(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-        
+
     def __repr__(self):
         return '<Event %r>' % self.eventname
-    
+
 class Rsvp(db.Model):
     """Represent all rsvps data in a table"""
     id = db.Column(db.Integer, primary_key=True)
@@ -78,11 +79,14 @@ class Rsvp(db.Model):
     rsvp_sender = db.Column(db.String(80))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     event = db.relationship('Event', backref='all_rsvp', foreign_keys=[event_id])
-    
+
     def save(self):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def __repr__(self):
         return '<Rsvp %r>' % self.rsvp_sender
-        

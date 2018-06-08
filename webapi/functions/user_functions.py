@@ -56,12 +56,15 @@ def login_helper(User, app, db):
             status_code = 401
         elif check_password_hash(user.password, passwd):
             token = jwt.encode({'public_id':user.public_id,
-                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=4320)}, app.config['SECRET_KEY'])
             user.logged_in = True
             db.session.commit()
-            statement = {'Logged in':user.username,
+            statement = {'Logged_in':user.username,
                             'access_token':token.decode('UTF-8')}
             status_code = 202
+        elif not check_password_hash(user.password, passwd):
+            statement = {"message":"Wrong password! Please check your input."}
+            status_code = 401
     return statement, status_code
 
 def logout_helper(current_user, db):
@@ -77,27 +80,19 @@ def logout_helper(current_user, db):
         statement = {"message":"User is already logged out"}
     return statement, status_code
 
-def reset_password_helper(current_user, db):
-    status_code = 500
-    statement = {}
-    new_password = request.data['new_password'].strip()
-    confirm_password = request.data['confirm_password'].strip()
-    if check_password_reset(new_password, confirm_password, current_user, status_code)[0]:
-        status_code = check_password_reset(new_password,
-                                           confirm_password,
-                                           current_user, status_code)[1]
-        statement = check_password_reset(new_password,
-                                         confirm_password,
-                                         current_user, status_code)[0]
-    else:
-        if current_user and current_user.logged_in is True:
-            current_user.password = check_password_reset(new_password,
-                                                 confirm_password,
-                                                 current_user, status_code)[2]
-            db.session.commit()
-            status_code = 205
-            statement = {"Message":"Password reset!"}
-        else:
-            status_code = 401
-            statement = {"message":"Please log in"}
-    return statement, status_code
+def confirm_account_helper(email, db):
+    """Helper function for confirming a user's email is real"""
+    user = User.query.filter_by(email=email).first()
+    user.email_confirmed = True
+    db.session.commit()
+    return {"message":"Email confirmed"}, 200
+
+def reset_password_helper(email, User, db):
+    new_password = request.data["password"]
+    hashed_password = generate_password_hash(new_password, method='sha256')
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.password = hashed_password
+        db.session.commit()
+        statement = {"message":"Password reset! Please use your new password to log in"}
+    return statement, 201

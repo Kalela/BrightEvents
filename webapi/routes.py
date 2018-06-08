@@ -1,19 +1,26 @@
 #Import dependencies
 import datetime
 import jwt
+import os
 
 from flask_api import FlaskAPI
-from flask import jsonify, request, Blueprint, redirect
+from flask import jsonify, request, Blueprint, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
 from functools import wraps
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from instance.config import app_config
 
-from .functions.user_functions import register_helper, login_helper, logout_helper, reset_password_helper
-from .functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
-from .functions.event_functions import event_update_delete_helper, rsvps_helper, get_single_event_helper
+from .functions.user_functions import register_helper, login_helper
+from .functions.user_functions import logout_helper, confirm_account_helper
+from .functions.user_functions import reset_password_helper
+from .functions.event_functions import get_events_helper, create_events_helper
+from .functions.event_functions import online_user_events_helper, search_helper
+from .functions.event_functions import  get_single_event_helper
+from .functions.event_functions import event_update_delete_helper, rsvps_helper
 
 db = SQLAlchemy()
 
@@ -29,7 +36,10 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    mail = Mail(app)
     db.init_app(app)
+
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     with app.app_context():
         db.create_all()
 
@@ -89,12 +99,52 @@ def create_app(config_name):
         result = logout_helper(current_user, db)
         return jsonify(result[0]), result[1]
 
-    @api.route('/auth/reset-password', methods=['POST'])
-    @token_required
-    def reset_password(current_user):
-        """Reset users password"""
-        result = reset_password_helper(current_user, db)
+    # @api.route('/auth/reset-password', methods=['POST'])
+    # def reset_password():
+    #     """Reset users password"""
+    #     result = reset_password_helper(current_user, db)
+    #     return result[0], result[1]
+
+    @api.route('/search', methods=['GET'])
+    def search():
+        """Implement search"""
+        result = search_helper(Event)
         return jsonify(result[0]), result[1]
+
+    @api.route('/emails', methods=['GET','POST'])
+    def handle_emails():
+        """Handle functionality around email sending"""
+        email = request.data['email'].strip()
+        user = User.query.filter_by(email=email).first()
+        option = \
+            request.data['option'].strip() # have a <select> in the frontend
+        token = s.dumps(email, salt='email-confirm')
+
+        msg = Message('Reset password', sender=app.config['ADMINS'][0],
+                      recipients=[email])
+        link = 'http://localhost:3000/confirm_email/{}/{}'\
+               .format(option, token)
+        if user:
+            msg.body = 'Your link is {}'.format(link)
+        else:
+            msg.body = 'You attempted to reset your password but you do not \
+                have an account with us. Please Sign Up and Log in. {}'\
+                .format('http://localhost:3000/register')
+
+        mail.send(msg)
+        return jsonify({"message":"Please confirm your email."}), 201
+
+    @api.route('/confirm_email/<option>/<token>', methods=['POST'])
+    def confirm_email(option, token):
+        try:
+            email = s.loads(token, salt='email-confirm', max_age=3600)
+            if option == "reset-password":
+                result = reset_password_helper(email, User, db)
+                return jsonify(result[0]), result[1]
+            elif option == "confirm-account":
+                return jsonify (confirm_account_helper(email, db)[0]), confirm_account_helper(email, db)[1]
+        except SignatureExpired:
+            return jsonify({"message":"The token is expired!"}), 409
 
     @api.route('/events', methods=['GET'])
     def view_events():
@@ -128,7 +178,7 @@ def create_app(config_name):
         result = event_update_delete_helper(current_user, eventname, db, Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET'])
+    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET', 'DELETE'])
     @token_required
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
