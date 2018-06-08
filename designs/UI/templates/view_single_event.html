@@ -1,112 +1,90 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf%}
-   
-
-{% block styles %}
-{{super()}}
-<meta charset="UTF-8">
-<meta http-equiv="X-UA Compatible" content="IE=edge">
-<meta name="viewport" content= "width = device-width, initial-scale=1">
-<link rel = "stylesheet" type="text/css" href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
-<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
-<link type="stylesheet" href="main.css">
-<style type="text/css">
-    h1{
-        color: #fff;
-    }
-    html,
-    body{
-        font-family: 'Lato', sans-serif;
-        background-position: center;
-        background-color: #43304C;
-        background-repeat: no-repeat;
-        background-size: cover;
-
-    }
-    .container{
-        padding: 0 70px;
-    }
-    .navbar{
-        margin-bottom: 0;
-        background-color: #6B8175;
-        border: 0;
-        border-radius: 0;
-        font-size: 18px !important;
-        letter-spacing: 1px;
-    }
-    .navbar li a,.navbar .navbar-brand{
-        color: #fff !important;
-        background-color: #43304C !important;
-
-    }
-    .navbar-default .navbar-toggle{
-        background-color: transparent;
-        color: #fff;
-    }
-    .jumbotron{
-        opacity: 0.8;
-    }
-
-</style>
-{% endblock %}
-
-{% block title %}
-{{ eventid }}
-{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
 <body>
-  <nav class="navbar navbar-default">
-     <div class="container">
-        <div class="navbar-header">
-           <button type="button" class="navbar-toggle" data-target="#mynav" name="button" data-toggle="collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-           </button>
-           <a href="#" class="navbar-brand">{{ eventid }}</a>
-        </div>
-         <div class="collapse navbar-collapse" id="mynav">
-         <ul class="nav navbar-nav navbar-right">
-             <li class="active">
-                 <a href="/">Home</a>
-             </li>
-             <li>
-                 <a href="">About</a>
-             </li>
-             <li>
-                 <a href="/api/v1/auth/login">Log In</a>
-             </li>
-             <li>
-                 <a href="/api/v1/auth/register">Sign Up</a>
-             </li>
-         </ul>
-         </div>
-     </div>
-  </nav>
+	{% extends "bootstrap/base.html" %} {% import "bootstrap/wtf.html" as wtf%} {% block styles %} {{super()}}
+	<meta charset="UTF-8">
+	<meta content="IE=edge" http-equiv="X-UA Compatible">
+	<meta content="width = device-width, initial-scale=1" name="viewport">
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+	<link href="main.css" type="stylesheet">
+	<style type="text/css">
+	   h1{
+	       color: #fff;
+	   }
+	   html,
+	   body{
+	       font-family: 'Lato', sans-serif;
+	       background-position: center;
+	       background-color: #43304C;
+	       background-repeat: no-repeat;
+	       background-size: cover;
 
+	   }
+	   .container{
+	       padding: 0 70px;
+	   }
+	   .navbar{
+	       margin-bottom: 0;
+	       background-color: #6B8175;
+	       border: 0;
+	       border-radius: 0;
+	       font-size: 18px !important;
+	       letter-spacing: 1px;
+	   }
+	   .navbar li a,.navbar .navbar-brand{
+	       color: #fff !important;
+	       background-color: #43304C !important;
 
+	   }
+	   .navbar-default .navbar-toggle{
+	       background-color: transparent;
+	       color: #fff;
+	   }
+	   .jumbotron{
+	       opacity: 0.8;
+	   }
 
-
-<script src = "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
-<div class="container">
-
-  <div class="container">
-    <div class="row">
-        <div class="col-sm-6">
-          <h1>Your Events</h1>
-          <h1>{{ events }}</h1>
-
-            <a href="login.html" title="Registration">
-           
-            </a>
-        </div> 
-    </div>
-  </div>
-</div>      
-
-{% endblock %}
-    
-
+	</style>{% endblock %} {% block title %} {{ eventid }} {% endblock %} {% block content %}
+	<nav class="navbar navbar-default">
+		<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" data-target="#mynav" data-toggle="collapse" name="button" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button> <a class="navbar-brand" href="#">{{ eventid }}</a>
+			</div>
+			<div class="collapse navbar-collapse" id="mynav">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="active">
+						<a href="/">Home</a>
+					</li>
+					<li>
+						<a href="">About</a>
+					</li>
+					<li>
+						<a href="/api/v1/auth/login">Log In</a>
+					</li>
+					<li>
+						<a href="/api/v1/auth/register">Sign Up</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+	</script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+	</script>
+	<div class="container">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-6">
+					<h1>Your Events</h1>
+					<h1>{{ events }}</h1><a href="login.html" title="Registration"></a>
+				</div>
+			</div>
+		</div>
+	</div>{% endblock %}
+</body>
+</html>

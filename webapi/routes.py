@@ -1,19 +1,25 @@
 #Import dependencies
 import datetime
 import jwt
+import os
 
 from flask_api import FlaskAPI
-from flask import jsonify, request, Blueprint, make_response, redirect
+from flask import jsonify, request, Blueprint, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
-from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from instance.config import app_config
 
-from .functions.user_functions import register_helper, logout_helper, reset_password_helper
-from .functions.event_functions import get_events_helper, create_events_helper, online_user_events_helper
+from .functions.user_functions import register_helper, login_helper
+from .functions.user_functions import logout_helper, confirm_account_helper
+from .functions.user_functions import reset_password_helper
+from .functions.event_functions import get_events_helper, create_events_helper
+from .functions.event_functions import online_user_events_helper, search_helper
+from .functions.event_functions import  get_single_event_helper
 from .functions.event_functions import event_update_delete_helper, rsvps_helper
 
 db = SQLAlchemy()
@@ -30,9 +36,28 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    mail = Mail(app)
     db.init_app(app)
+
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     with app.app_context():
         db.create_all()
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """404 error handler."""
+        return jsonify(
+            {"error": "Page not found. Make sure you typed in the route correctly."}), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        """500 error handler."""
+        return jsonify({"error": "Internal Server Error"}), 500
+
+    @app.route('/', methods=['GET'])
+    def index():
+        """Render docs"""
+        return redirect("/apidocs")
 
     def token_required(f):
         """Accept function with token"""
@@ -55,54 +80,16 @@ def create_app(config_name):
 
         return decorated
 
-    @app.errorhandler(404)
-    def not_found_error(error):
-        """404 error handler."""
-        return jsonify(
-            {"error": "Page not found. Make sure you typed in the route correctly."}), 404
-
-    @app.errorhandler(500)
-    def internal_server_error(error):
-        """500 error handler."""
-        return jsonify({"error": "Internal Server Error"}), 500
-
-    @api.route('/auth/login', methods=['POST'])
-    def login():
-        """Login registered users"""
-        status_code = 500
-        statement = {}
-        name = request.data['username'].strip()
-        passwd = request.data['password'].strip()
-
-        if not name or not passwd:
-            return make_response('Could not verify', 401,
-                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
-
-        user = User.query.filter_by(username=name).first()
-        if not user:
-            return make_response('Could not verify', 401,
-                                 {'WWW-Authenticate':'Basic realm="Login required!"'})
-
-        if check_password_hash(user.password, passwd):
-            token = jwt.encode({'public_id':user.public_id,
-                                'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=9999)}, app.config['SECRET_KEY'])
-            user.logged_in = True
-            db.session.commit()
-            return jsonify({'Logged in':user.username,
-                            'access_token':token.decode('UTF-8')}), 202
-
-        return make_response('Could not verify', 401,
-                             {'WWW-Authenticate':'Basic realm="Login required!"'})
-
-    @app.route('/', methods=['GET'])
-    def index():
-        """Render docs"""
-        return redirect("/apidocs")
-
     @api.route('/auth/register', methods=['POST'])
     def register():
         """Add new users to data"""
         result = register_helper(User)
+        return jsonify(result[0]), result[1]
+
+    @api.route('/auth/login', methods=['POST'])
+    def login():
+        """Login registered users"""
+        result = login_helper(User, app, db)
         return jsonify(result[0]), result[1]
 
     @api.route('/auth/logout', methods=['POST'])
@@ -112,17 +99,62 @@ def create_app(config_name):
         result = logout_helper(current_user, db)
         return jsonify(result[0]), result[1]
 
+    # @api.route('/auth/reset-password', methods=['POST'])
+    # def reset_password():
+    #     """Reset users password"""
+    #     result = reset_password_helper(current_user, db)
+    #     return result[0], result[1]
+
+    @api.route('/search', methods=['GET'])
+    def search():
+        """Implement search"""
+        result = search_helper(Event)
+        return jsonify(result[0]), result[1]
+
+    @api.route('/emails', methods=['GET','POST'])
+    def handle_emails():
+        """Handle functionality around email sending"""
+        email = request.data['email'].strip()
+        user = User.query.filter_by(email=email).first()
+        option = \
+            request.data['option'].strip() # have a <select> in the frontend
+        token = s.dumps(email, salt='email-confirm')
+
+        msg = Message('Reset password', sender=app.config['ADMINS'][0],
+                      recipients=[email])
+        link = 'http://localhost:3000/confirm_email/{}/{}'\
+               .format(option, token)
+        if user:
+            msg.body = 'Your link is {}'.format(link)
+        else:
+            msg.body = 'You attempted to reset your password but you do not \
+                have an account with us. Please Sign Up and Log in. {}'\
+                .format('http://localhost:3000/register')
+
+        mail.send(msg)
+        return jsonify({"message":"Please confirm your email."}), 201
+
+    @api.route('/confirm_email/<option>/<token>', methods=['POST'])
+    def confirm_email(option, token):
+        try:
+            email = s.loads(token, salt='email-confirm', max_age=3600)
+            if option == "reset-password":
+                result = reset_password_helper(email, User, db)
+                return jsonify(result[0]), result[1]
+            elif option == "confirm-account":
+                return jsonify (confirm_account_helper(email, db)[0]), confirm_account_helper(email, db)[1]
+        except SignatureExpired:
+            return jsonify({"message":"The token is expired!"}), 409
+
     @api.route('/events', methods=['GET'])
     def view_events():
         """View a list of events"""
         result = get_events_helper(Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/auth/reset-password', methods=['POST'])
-    @token_required
-    def reset_password(current_user):
-        """Reset users password"""
-        result = reset_password_helper(current_user, db)
+    @api.route('/events/<username>/<eventname>', methods=['GET'])
+    def get_single_event(username, eventname):
+        result = get_single_event_helper(username, eventname, Event)
         return jsonify(result[0]), result[1]
 
     @api.route('/events', methods=['POST'])
@@ -132,11 +164,11 @@ def create_app(config_name):
         result = create_events_helper(current_user, Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/myevents', methods=['GET'])
+    @api.route('/events/<user_public_id>', methods=['GET'])
     @token_required
-    def online_user_events(current_user):
+    def online_user_events(current_user, user_public_id):
         """Online users can view their events"""
-        result = online_user_events_helper(current_user, Event)
+        result = online_user_events_helper(current_user, user_public_id, Event)
         return jsonify(result[0]), result[1]
 
     @api.route('/events/<eventname>', methods=['PUT', 'DELETE', 'GET'])
@@ -146,7 +178,7 @@ def create_app(config_name):
         result = event_update_delete_helper(current_user, eventname, db, Event)
         return jsonify(result[0]), result[1]
 
-    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET'])
+    @api.route('/events/<eventname>/rsvp', methods=['POST', 'GET', 'DELETE'])
     @token_required
     def rsvps(current_user, eventname):
         """Send RSVPs to existing events"""
