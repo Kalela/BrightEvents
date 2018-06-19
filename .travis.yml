@@ -1,6 +1,6 @@
 language: python
 python:
-  - 2.7
+  - 3.6.5
 services:
   -postgresql
 # command to set up database
@@ -19,7 +19,7 @@ env:
     - MAIL_USERNAME=brightevents123
     - MAIL_PASSWORD=challenge123
     - MAIL_PORT=465
-    
+
 # command to install dependencies
 install:
   - pip install python-coveralls
