@@ -25,18 +25,31 @@ def get_events_helper(Event):
                  "All pages": pagination(events_page_object)[2]}
     return result, status_code
 
+def search_loop(test_list, eventname_search):
+    i = 0
+    while i < len(test_list):
+        if test_list[i] in eventname_search:
+            i = i + 1
+            pass
+        else:
+            eventname_search.append(test_list[i])
+            i = i + 1
+
+    return eventname_search
+
+
 def search_helper(Event):
     """Set up search for events"""
     q = request.args.get('q')
     search_results = []
+    location_results = []
     eventname_search = Event.query.filter(Event.eventname.ilike('%{}%'.format(q))).all()
     location_search = Event.query.filter(Event.location.ilike('%{}%'.format(q))).all()
     category_search = Event.query.filter(Event.category.ilike('%{}%'.format(q))).all()
 
-    if eventname_search == location_search or eventname_search == category_search:
-        search_results = eventname_search
-    else:
-        search_results = eventname_search + location_search + category_search
+    location_results = search_loop(location_search, eventname_search)
+    search_results = search_loop(category_search, location_results)
+    print(search_results)
 
     return {"Events": print_events(search_results)}, 200
 
