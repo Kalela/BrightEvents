@@ -1,7 +1,7 @@
 Event Hub
 =========
 Event Hub is an offshoot website of Bright Events collaborative development training, hosted by Andela. The Site allows users to view and manage their own events as well as inform potential attendants of the event's existence. Visit our link at https://kalela.github.io/BrightEvents/.
-Heroku app: https://bright-events-api-.herokuapp.com
+Heroku app: https://brighteventsapinowlive.herokuapp.com
 
 Build Status
 ------------
